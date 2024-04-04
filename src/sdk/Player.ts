@@ -572,23 +572,23 @@ export class Player extends Unit {
     const currentAngle = this.getPerceivedRotation(tickPercent);
     
     // 30 client ticks per tick and we want to walk 1 tile per tick so 
-    const baseMovementSpeed = 1/30;
+    const baseMovementSpeed = 1/25;
     let movementSpeed = baseMovementSpeed;
     const canRotate = true;
     if (currentAngle !== this.nextAngle && canRotate) {
-      console.log('must rotate', this.path.length, run, x, y);
+      //console.log('must rotate', this.path.length, run);
       movementSpeed = baseMovementSpeed / 2;
     }
     if (this.path.length === 3) {
-      console.log('path length medium', this.path.length, run, x, y);
+      //console.log('path length medium', this.path.length, run);
       movementSpeed = baseMovementSpeed * 1.5;
     }
     if (this.path.length > 3) {
-      console.log('path length warp', this.path.length, run, x, y);
+      //console.log('path length warp', this.path.length, run);
       movementSpeed = baseMovementSpeed * 2;
     }
     if (this.path.length < 3) {
-      console.log('normal speed', this.path.length, run, x, y);
+      //console.log('normal speed', this.path.length, run);
     }
     if (run) {
       movementSpeed *= 2;
@@ -611,8 +611,10 @@ export class Player extends Unit {
     diffX = Math.abs(x - nextX);
     diffY = Math.abs(y - nextY);
     if (diffX < EPSILON && diffY < EPSILON) {
+      this.perceivedLocation.x = nextX;
+      this.perceivedLocation.y = nextY;
       const reached = this.path.shift();
-      console.log('reached', reached);
+      //console.log('reached', reached);
       if (ENABLE_DEBUG_TILE_MARKERS) {
         const headTile = this.pathMarkers.shift();
         this.region.removeEntity(headTile);
@@ -712,7 +714,7 @@ export class Player extends Unit {
       });
     }
     this.path.push(...newTiles);
-    console.log(this.location, path, [...this.path]);
+    //console.log(this.location, path, [...this.path]);
     
     this.trueTileMarker.location = this.location;
     this.nextAngle = this.getTargetAngle();

@@ -259,7 +259,7 @@ export class Pathing {
     }
     const destination = path[0];
     path.reverse();
-    console.log('pathing from ', startPoint, ' to ', endPoint, ' result =', path);
+    //console.log('pathing from ', startPoint, ' to ', endPoint, ' result =', path);
     return {
       path: path.slice(1, speed + 1),
       destination,
