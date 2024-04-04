@@ -662,6 +662,7 @@ export class Player extends Unit {
     }
 
     const speed = this.running ? 2 : 1;
+    
     const { path, destination } = Pathing.path(
       this.region,
       this.location,
@@ -672,6 +673,7 @@ export class Player extends Unit {
     if (!path.length || !destination) {
       return;
     }
+    const originalLocation = this.location;
     if (path.length < speed) {
       // Step to the destination
       this.location = path[path.length - 1];
@@ -690,9 +692,18 @@ export class Player extends Unit {
     } else {
         this.clickMarker.location = this.aggro ? destination : this.destinationLocation;
     }
-
+    // postprocess the path to corners only
     // save the next 2 steps for interpolation purposes
-    const newTiles = path.map((pos) => ({...pos, run: path.length >= 2}));
+    let newTiles = path.map((pos, idx) => ({
+      ...pos,
+      run: path.length >= 2,
+      direction: Pathing.angle(idx === 0 ? originalLocation.x : path[idx-1].x, idx === 0 ? originalLocation.y : path[idx-1].y, pos.x, pos.y)
+    }));
+    // only add corners to the path (and the last point)
+    newTiles = newTiles.filter((v, idx) => idx === path.length - 1 || v.direction !== newTiles[idx + 1].direction);
+    if (newTiles.length > 1 && newTiles[1].direction === newTiles[0].direction) {
+      newTiles.shift();
+    }
     if (ENABLE_DEBUG_TILE_MARKERS) {
         newTiles.forEach((tile) => {
         const marker = new ClickMarker(this.region, tile, "#FF0000");
