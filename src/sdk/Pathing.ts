@@ -97,20 +97,39 @@ export class Pathing {
     return !collision
   }
 
-  static constructPath (region: Region, startPoint: Location, endPoint: Location): Location[] {
+  /**
+   * 
+   * @param region 
+   * @param startPoint 
+   * @param endPoints array of valid end points, where the first entry is the primary tile used for backup pathfinding
+   * @returns 
+   */
+  static constructPaths(region: Region, startPoint: Location, endPoints: Location[]): {
+    destination: Location
+    path: Location[]
+  }[] {
     // if (endPoint === -1) {
     //   return []
     // }
 
     const x = startPoint.x;
     const y = startPoint.y;
-    const toX = endPoint.x;
-    const toY = endPoint.y;
-    if (!Pathing.canTileBePathedTo(region, toX, toY, 1)) {
-      return []
-    }
+    const unpathableEndPoints = endPoints.filter((location) => !Pathing.canTileBePathedTo(region, location.x, location.y, 1));
 
-    const pathTiles = [];
+    const results: ReturnType<typeof this.constructPaths> = unpathableEndPoints.map((endPoint) => ({
+      destination: endPoint,
+      path: []
+    }));
+
+    if (results.length === endPoints.length) {
+      // no pathable end points
+      return results;
+    }
+    
+    const toX = endPoints[0].x;
+    const toY = endPoints[0].y;
+    let pathableEndPoints = endPoints.filter((location) => Pathing.canTileBePathedTo(region, location.x, location.y, 1));
+
 
     let pathX = x;
     let pathY = y;
@@ -138,14 +157,20 @@ export class Pathing {
     // Djikstra search for the optimal route
     const explored: any = {}
     while (nodes.length !== 0) {
-      let parentNode = nodes.shift()
-
-      if ((parentNode.x === toX) && (parentNode.y === toY)) {
-        while (parentNode) {
-          pathTiles.push({ x: parentNode.x, y: parentNode.y })
-          parentNode = parentNode.parent
+      const parentNode = nodes.shift()
+      const matchedDestinations = pathableEndPoints.filter((d) => d.x === parentNode.x && d.y === parentNode.y);
+      matchedDestinations.forEach((d) => {
+        const path = [];
+        let parent = parentNode;
+        while (parent) {
+          path.push({ x: parent.x, y: parent.y })
+          parent = parent.parent
         }
-        break
+        results.push({ destination: d, path });
+        pathableEndPoints = pathableEndPoints.filter((e) => e !== e);
+      });
+      if (pathableEndPoints.length === 0) {
+        break;
       }
       for (let i = 0; i < directions.length; i++) {
         const iDirection = directions[i]
@@ -194,17 +219,17 @@ export class Pathing {
       }
     }
 
-    if (pathTiles.length === 0) {
+    if (results.filter((p) => p.path.length > 0).length === 0) {
       // No LoS
-      return Pathing.constructPath(region, startPoint, bestBackupTile)
+      return Pathing.constructPaths(region, startPoint, [bestBackupTile]);
     }
 
-    return pathTiles
+    return results
   }
 
   static path (region: Region, startPoint: Location, endPoint: Location, speed: number, seeking: Unit) {
     let x: number, y: number;
-    const path = Pathing.constructPath(region, startPoint, endPoint)
+    const { path } = Pathing.constructPaths(region, startPoint, [endPoint])[0];
     if (path.length === 0) {
       return { x: startPoint.x, y: startPoint.y, path: [] }
     }

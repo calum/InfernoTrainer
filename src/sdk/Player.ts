@@ -2,7 +2,7 @@
 import { Pathing } from "./Pathing";
 import { Settings } from "./Settings";
 import { LineOfSight } from "./LineOfSight";
-import { minBy, range, filter, find, map, min, uniq, sumBy } from "lodash";
+import { minBy, range, filter, find, map, min, uniq, sumBy, flatMap } from "lodash";
 import { Unit, UnitTypes, UnitBonuses, UnitOptions } from "./Unit";
 import { XpDropController } from "./XpDropController";
 import { AttackBonuses, Weapon } from "./gear/Weapon";
@@ -518,13 +518,13 @@ export class Player extends Unit {
           });
         });
         // Create paths to all npc tiles
-        const potentialPaths = map(seekingTiles, (point) =>
-          Pathing.constructPath(this.region, this.location, {
+        const potentialPaths = flatMap(seekingTiles, (point) =>
+          Pathing.constructPaths(this.region, this.location, [{
             x: point.x,
             y: point.y,
-          })
+          }])
         );
-        const potentialPathLengths = map(potentialPaths, (path) => path.length);
+        const potentialPathLengths = map(potentialPaths, (path) => path.path.length);
         // Figure out what the min distance is
         const shortestPathLength = min(potentialPathLengths);
         // Get all of the paths of the same minimum distance (can be more than 1)
