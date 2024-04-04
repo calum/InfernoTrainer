@@ -518,13 +518,9 @@ export class Player extends Unit {
           });
         });
         // Create paths to all npc tiles
-        const potentialPaths = flatMap(seekingTiles, (point) =>
-          Pathing.constructPaths(this.region, this.location, [{
-            x: point.x,
-            y: point.y,
-          }])
-        );
-        const potentialPathLengths = map(potentialPaths, (path) => path.path.length);
+        const potentialPaths = Pathing.constructPaths(this.region, this.location, seekingTiles)
+        const potentialPathLengths = map(potentialPaths.filter(p => p.path.length > 0), (path) => path.path.length);
+
         // Figure out what the min distance is
         const shortestPathLength = min(potentialPathLengths);
         // Get all of the paths of the same minimum distance (can be more than 1)

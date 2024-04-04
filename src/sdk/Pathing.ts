@@ -101,7 +101,7 @@ export class Pathing {
    * 
    * @param region 
    * @param startPoint 
-   * @param endPoints array of valid end points, where the first entry is the primary tile used for backup pathfinding
+   * @param endPoints array of valid end points
    * @returns 
    */
   static constructPaths(region: Region, startPoint: Location, endPoints: Location[]): {
@@ -126,8 +126,6 @@ export class Pathing {
       return results;
     }
     
-    const toX = endPoints[0].x;
-    const toY = endPoints[0].y;
     let pathableEndPoints = endPoints.filter((location) => Pathing.canTileBePathedTo(region, location.x, location.y, 1));
 
 
@@ -200,19 +198,23 @@ export class Pathing {
             continue
           } else {
             explored[pathX][pathY] = true
-            if (Pathing.dist(toX, toY, pathX, pathY) < bestBackupTileDistance) {
-              bestBackupTileDistance = Pathing.dist(toX, toY, pathX, pathY);
-              bestBackupTile = {x: pathX, y: pathY };
-            }
+            // ... has the target tile as close as possible in Euclidean distance to the nearest requested tile
+            endPoints.forEach((to) => {
+              if (Pathing.dist(to.x, to.y, pathX, pathY) < bestBackupTileDistance) {
+                bestBackupTileDistance = Pathing.dist(to.x, to.y, pathX, pathY);
+                bestBackupTile = {x: pathX, y: pathY };
+              }
+            });
           }
         } else {
           explored[pathX] = {}
           explored[pathX][pathY] = true
-
-          if (Pathing.dist(toX, toY, pathX, pathY) < bestBackupTileDistance) {
-            bestBackupTileDistance = Pathing.dist(toX, toY, pathX, pathY);
-            bestBackupTile = {x: pathX, y: pathY };
-          }
+          endPoints.forEach((to) => {
+            if (Pathing.dist(to.x, to.y, pathX, pathY) < bestBackupTileDistance) {
+              bestBackupTileDistance = Pathing.dist(to.x, to.y, pathX, pathY);
+              bestBackupTile = {x: pathX, y: pathY };
+            }
+          });
         }
 
         nodes.push({ x: pathX, y: pathY, parent: parentNode })
