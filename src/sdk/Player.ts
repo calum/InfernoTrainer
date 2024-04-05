@@ -48,7 +48,7 @@ const JAU_PER_RADIAN = 512;
 const RADIANS_PER_TICK = ((CLIENT_TICKS_PER_SECOND * PLAYER_ROTATION_RATE_JAU) / JAU_PER_RADIAN) * 0.6; 
 const LOCAL_POINTS_PER_CELL = 128;
 
-const ENABLE_DEBUG_TILE_MARKERS = false;
+const ENABLE_POSITION_DEBUG = false;
 
 // position that is "close enough"
 const EPSILON = 0.1;
@@ -576,19 +576,19 @@ export class Player extends Unit {
     let movementSpeed = baseMovementSpeed;
     const canRotate = true;
     if (currentAngle !== this.nextAngle && canRotate) {
-      //console.log('must rotate', this.path.length, run);
+      if (ENABLE_POSITION_DEBUG) console.log('must rotate', this.path.length, run);
       movementSpeed = baseMovementSpeed / 2;
     }
     if (this.path.length === 3) {
-      //console.log('path length medium', this.path.length, run);
+      if (ENABLE_POSITION_DEBUG) console.log('path length medium', this.path.length, run);
       movementSpeed = baseMovementSpeed * 1.5;
     }
     if (this.path.length > 3) {
-      //console.log('path length warp', this.path.length, run);
+      if (ENABLE_POSITION_DEBUG) console.log('path length warp', this.path.length, run);
       movementSpeed = baseMovementSpeed * 2;
     }
     if (this.path.length < 3) {
-      //console.log('normal speed', this.path.length, run);
+      if (ENABLE_POSITION_DEBUG) console.log('normal speed', this.path.length, run);
     }
     if (run) {
       movementSpeed *= 2;
@@ -615,7 +615,7 @@ export class Player extends Unit {
       this.perceivedLocation.y = nextY;
       const reached = this.path.shift();
       //console.log('reached', reached);
-      if (ENABLE_DEBUG_TILE_MARKERS) {
+      if (ENABLE_POSITION_DEBUG) {
         const headTile = this.pathMarkers.shift();
         this.region.removeEntity(headTile);
       }
@@ -706,7 +706,7 @@ export class Player extends Unit {
     if (newTiles.length > 1 && newTiles[1].direction === newTiles[0].direction) {
       newTiles.shift();
     }
-    if (ENABLE_DEBUG_TILE_MARKERS) {
+    if (ENABLE_POSITION_DEBUG) {
         newTiles.forEach((tile) => {
         const marker = new ClickMarker(this.region, tile, "#FF0000");
         this.pathMarkers.push(marker);
