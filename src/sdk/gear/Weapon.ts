@@ -11,7 +11,7 @@ import { SetEffect, SetEffectTypes } from "../SetEffect";
 import { ItemName } from "../ItemName";
 import { AttackStylesController, AttackStyle, AttackStyleTypes } from "../AttackStylesController";
 import { Random } from "../Random";
-import { Sound } from "../utils/SoundCache";
+import { Sound, SoundCache } from "../utils/SoundCache";
 
 interface EffectivePrayers {
   magic?: BasePrayer;
@@ -84,8 +84,11 @@ export class Weapon extends Equipment{
   specialAttackDrain(): number {
     return 50;
   }
-  specialAttack(from: Unit, to: Unit, bonuses: AttackBonuses = {}) {
+  specialAttack(from: Unit, to: Unit, bonuses: AttackBonuses = {}, options: ProjectileOptions = {}) {
     // Override me
+    if (this.specialAttackSound) {
+      SoundCache.play(this.specialAttackSound);
+    }
   }
   
   override inventoryLeftClick(player: Player) {
@@ -267,6 +270,10 @@ export class Weapon extends Equipment{
 
   get attackSound(): Sound | null {
     // Override me
+    return null;
+  }
+
+  get specialAttackSound(): Sound | null {
     return null;
   }
 

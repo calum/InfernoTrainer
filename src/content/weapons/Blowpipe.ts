@@ -9,6 +9,7 @@ import { AttackStyle, AttackStyleTypes } from '../../sdk/AttackStylesController'
 import { Projectile, ProjectileOptions } from '../../sdk/weapons/Projectile';
 
 import BPAttackSound from '../../assets/sounds/dart_2696.ogg';
+import BPSpecSound from '../../assets/sounds/snake_hit_800.ogg';
 import { Sound, SoundCache } from '../../sdk/utils/SoundCache';
 
 export class Blowpipe extends RangedWeapon {
@@ -83,7 +84,7 @@ export class Blowpipe extends RangedWeapon {
   }
 
   specialAttack(from: Unit, to: Unit, bonuses: AttackBonuses = {}, options: ProjectileOptions = {}) {
-    
+    super.specialAttack(from, to, bonuses, options);    
     bonuses.isSpecialAttack = true;
     // BP special attack takes an extra tick to land
     options.reduceDelay = -1;
@@ -124,6 +125,10 @@ export class Blowpipe extends RangedWeapon {
 
   get attackSound() {
     return new Sound(BPAttackSound, 0.1);
+  }
+
+  get specialAttackSound() {
+    return new Sound(BPSpecSound, 0.5);
   }
 
   registerProjectile(from: Unit, to: Unit) {
