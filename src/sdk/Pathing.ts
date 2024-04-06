@@ -1,5 +1,5 @@
 'use strict'
-import { sortBy, minBy } from 'lodash'
+import { sortBy, minBy, max } from 'lodash'
 import { Location } from "./Location"
 import { Collision } from './Collision'
 import { Region } from './Region'
@@ -13,6 +13,7 @@ interface PathingNode {
   x: number;
   y: number;
   parent?: PathingNode;
+  pathLength?: number;
 }
 export class Pathing {
   static entitiesAtPoint(region: Region, x: number, y: number, s: number) {
@@ -123,7 +124,7 @@ export class Pathing {
    *
    * @param region
    * @param startPoint
-   * @param endPoints array of valid end points
+   * @param endPoints array of valid end points. the first should be the SW tile.
    * @returns
    */
   static constructPaths(
@@ -131,32 +132,24 @@ export class Pathing {
     startPoint: Location,
     endPoints: Location[]
   ): {
-    destination: Location;
+    destination: Location | null;
     path: Location[];
-  }[] {
-    // if (endPoint === -1) {
-    //   return []
-    // }
-
+  } {
     const x = startPoint.x;
     const y = startPoint.y;
     const unpathableEndPoints = endPoints.filter(
       (location) =>
         !Pathing.canTileBePathedTo(region, location.x, location.y, 1)
     );
-
-    const results: ReturnType<typeof this.constructPaths> =
-      unpathableEndPoints.map((endPoint) => ({
-        destination: endPoint,
-        path: [],
-      }));
-
-    if (results.length === endPoints.length) {
+    if (unpathableEndPoints.length === endPoints.length) {
       // no pathable end points
-      return results;
+      return {
+        destination: null,
+        path: [],
+      };
     }
 
-    let pathableEndPoints = endPoints.filter((location) =>
+    const pathableEndPoints = endPoints.filter((location) =>
       Pathing.canTileBePathedTo(region, location.x, location.y, 1)
     );
 
@@ -178,32 +171,30 @@ export class Pathing {
       { x: 1, y: -1 }, // ne
     ];
 
-    let bestBackupTile = { x: -1, y: -1 };
-    let bestBackupTileDistance = 99999;
-
     let currentDistance = 0;
 
     // Djikstra search for the optimal route
-    const explored: { [x: number]: { [y: number]: number } } = {};
+    const explored: { [x: number]: { [y: number]: PathingNode } } = {};
+    let minExploredX = Number.MAX_SAFE_INTEGER;
+    let minExploredY = Number.MAX_SAFE_INTEGER;
+    let maxExploredX = Number.MIN_SAFE_INTEGER;
+    let maxExploredY = Number.MIN_SAFE_INTEGER;
+
     while (nodes.length !== 0) {
       const parentNode = nodes.shift();
       const matchedDestinations = pathableEndPoints.filter(
         (d) => d.x === parentNode.x && d.y === parentNode.y
       );
-      matchedDestinations.forEach((d) => {
+      for (const matchedDestination of matchedDestinations) {
         const path = [];
         let parent = parentNode;
         while (parent) {
           path.push({ x: parent.x, y: parent.y });
           parent = parent.parent;
         }
-        results.push({ destination: d, path });
-        pathableEndPoints = pathableEndPoints.filter((e) => e !== e);
-      });
-      if (pathableEndPoints.length === 0) {
-        break;
+        return { destination: matchedDestination, path };
       }
-      currentDistance = (explored[parentNode.x] || {})[parentNode.y] || 0;
+      currentDistance = (explored[parentNode.x] || {})[parentNode.y]?.pathLength || 0;
       for (let i = 0; i < directions.length; i++) {
         const iDirection = directions[i];
         pathX = parentNode.x + iDirection.x;
@@ -231,44 +222,90 @@ export class Pathing {
           }
         }
 
-        if (pathX in explored) {
-          if (pathY in explored[pathX]) {
-            continue;
-          } else {
-            explored[pathX][pathY] = currentDistance + 1;
-            // ... has the target tile as close as possible in Euclidean distance to the nearest requested tile
-            endPoints.forEach((to) => {
-              if (
-                Pathing.dist(to.x, to.y, pathX, pathY) < bestBackupTileDistance
-              ) {
-                bestBackupTileDistance = Pathing.dist(to.x, to.y, pathX, pathY);
-                bestBackupTile = { x: pathX, y: pathY };
-              }
-            });
-          }
-        } else {
+        if (!(pathX in explored)) {
           explored[pathX] = {};
-          explored[pathX][pathY] = currentDistance + 1;
-          endPoints.forEach((to) => {
-            if (
-              Pathing.dist(to.x, to.y, pathX, pathY) < bestBackupTileDistance
-            ) {
-              bestBackupTileDistance = Pathing.dist(to.x, to.y, pathX, pathY);
-              bestBackupTile = { x: pathX, y: pathY };
-            }
-          });
+          if (pathX < minExploredX) {
+            minExploredX = pathX;
+          }
+          if (pathX > maxExploredX) {
+            maxExploredX = pathX;
+          }
         }
-
+        if (pathY in explored[pathX]) {
+          continue;
+        } else {
+          explored[pathX][pathY] = {
+            x: pathX,
+            y: pathY,
+            parent: parentNode,
+            pathLength: currentDistance + 1
+          };
+          if (pathY < minExploredY) {
+            minExploredY = pathY;
+          }
+          if (pathY > maxExploredY) {
+            maxExploredY = pathY;
+          }
+        }
         nodes.push({ x: pathX, y: pathY, parent: parentNode });
       }
     }
+    
+    // No path found yet.
+    // Find a backup tile within a 21x21 grid of the SW tile of the selection that:
+    // - has path length less than 100
+    // - has the shortest path distance
+    // - has target tile as close as possible in Euclidean distance to the nearest requested tile
+    const swTile = endPoints[0];
+    const minX = Math.max(minExploredX, swTile.x - 10);
+    const minY = Math.max(minExploredY, swTile.y - 10);
+    const maxX = Math.max(maxExploredX, swTile.x + 10);
+    const maxY = Math.max(maxExploredY, swTile.y + 10);
 
-    if (results.filter((p) => p.path.length > 0).length === 0) {
-      // No LoS
-      return Pathing.constructPaths(region, startPoint, [bestBackupTile]);
+    let bestBackupTile: Location | null = null;
+    let minEuclideanDistance = Number.MAX_VALUE;
+    let minPathLength = 100;
+
+    for (let x = minX; x <= maxX; ++x) {
+      if (!(x in explored)) {
+        continue;
+      }
+      for (let y = minY; y <= maxY; ++y) {
+        if (!(y in explored[x])) {
+          continue;
+        }
+        const pathLength = explored[x][y].pathLength;
+
+        endPoints.forEach((endPoint) => {
+          const dist = Pathing.dist(x, y, endPoint.x, endPoint.y);
+          if (dist < minEuclideanDistance || (dist === minEuclideanDistance && pathLength < minPathLength)) {
+            bestBackupTile = { x, y };
+            minPathLength = pathLength;
+            minEuclideanDistance = dist;
+          }
+        });
+      }
     }
-
-    return results;
+    // No LoS - path to best backup tile
+    if (bestBackupTile) {
+      // unwind the path
+      const path = [];
+      let node = explored[bestBackupTile.x][bestBackupTile.y];
+      while (node) {
+        path.push({ x: node.x, y: node.y });
+        node = node.parent;
+      }
+      path.reverse();
+      return {
+        destination: bestBackupTile,
+        path,
+      };
+    }
+    // no backup tile found
+    return {
+      destination: null,
+      path: [],
+    };
   }
 
   static path(
@@ -279,13 +316,11 @@ export class Pathing {
     seeking: Unit
   ) {
     let x: number, y: number;
-    const { path } = Pathing.constructPaths(region, startPoint, [endPoint])[0];
+    const { path } = Pathing.constructPaths(region, startPoint, [endPoint]);
     if (path.length === 0) {
       return { x: startPoint.x, y: startPoint.y, path: [] };
     }
-    if (
-      seeking &&
-      Collision.collidesWithMob(region, path[0].x, path[0].y, 1, seeking)
+    if (seeking && Collision.collidesWithMob(region, path[0].x, path[0].y, 1, seeking)
     ) {
       path.shift();
     }

@@ -518,21 +518,8 @@ export class Player extends Unit {
           });
         });
         // Create paths to all npc tiles
-        const potentialPaths = Pathing.constructPaths(this.region, this.location, seekingTiles)
-        const potentialPathLengths = map(potentialPaths.filter(p => p.path.length > 0), (path) => path.path.length);
-
-        // Figure out what the min distance is
-        const shortestPathLength = min(potentialPathLengths);
-        // Get all of the paths of the same minimum distance (can be more than 1)
-        const shortestPaths = filter(
-          map(potentialPathLengths, (length, index) =>
-            length === shortestPathLength ? seekingTiles[index] : null
-          )
-        );
-        // Take the path that is the shortest absolute distance from player
-        this.destinationLocation = minBy(shortestPaths, (point) =>
-          Pathing.dist(this.location.x, this.location.y, point.x, point.y)
-        );
+        const path = Pathing.constructPaths(this.region, this.location, seekingTiles)
+        this.destinationLocation = path?.destination ?? this.location;
       } else {
         // stop moving
         this.destinationLocation = this.location;
