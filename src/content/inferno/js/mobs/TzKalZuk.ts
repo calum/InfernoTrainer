@@ -208,7 +208,7 @@ export class TzKalZuk extends Mob {
     if (this.currentStats.hitpoint <= 0) {
       this.region.mobs.forEach((mob: Mob) => {
         if ((mob as any) !== this) {
-          this.region.removeMob(mob);
+          mob.dying = 0;
         }
       });
     }
