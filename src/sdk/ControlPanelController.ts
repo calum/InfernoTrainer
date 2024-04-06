@@ -124,9 +124,9 @@ export class ControlPanelController {
     const controlAreaHeight = height - MapController.controller.height;
     let scaleRatio = controlAreaHeight / 7 / 36;
 
-    let maxScaleRatio = 1.0;
+    let maxScaleRatio = Settings.maxUiScale;
     if (Settings.mobileCheck() && width > 600) {
-      maxScaleRatio = 1.1;
+      maxScaleRatio = Settings.maxUiScale * 1.1;
     }
     
     if (scaleRatio > maxScaleRatio) {
@@ -142,8 +142,6 @@ export class ControlPanelController {
     // let scale = Settings.controlPanelScale
     const { width, height } = Chrome.size();
     const scale = this.getTabScale();
-
-    console.log(width, scale);
     
     if (Settings.mobileCheck()) {
       const mapHeight = 170 * Settings.minimapScale;

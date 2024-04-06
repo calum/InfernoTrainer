@@ -82,7 +82,6 @@ export class XpDropController {
     const skillInfo = find(XpDropController.skills, {type: this.lastDropSkill});
 
     if (skillInfo && skillInfo.type){
-
       // Draw overall XP box at top
       this.ctx.lineWidth = 1
       this.ctx.strokeStyle = XpDropController.outlineColor

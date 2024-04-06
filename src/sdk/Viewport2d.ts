@@ -32,8 +32,8 @@ export class Viewport2d implements ViewportDelegate {
       r.draw(world.tickPercent, region.context, location, Settings.tileSize);
     });
 
+    
     region.entities.forEach((entity) => entity.drawUILayer(world.tickPercent));
-
     if (world.getReadyTimer === 0) {
       const getOffset = (r: Renderable) => {
         const perceivedLocation = r.getPerceivedLocation(world.tickPercent);
