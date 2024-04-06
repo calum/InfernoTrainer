@@ -122,9 +122,9 @@ export class StatsControls extends BaseControls {
     return false;
   }
   
-  draw (ctrl: ControlPanelController, x: number, y: number) {
+  draw (context, ctrl: ControlPanelController, x: number, y: number) {
     
-    super.draw(ctrl, x, y)
+    super.draw(context, ctrl, x, y)
 
 
     const scale = Settings.controlPanelScale;

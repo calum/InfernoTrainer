@@ -196,7 +196,7 @@ export class Viewport {
     }
 
     // draw control panel
-    ControlPanelController.controller.draw();
+    ControlPanelController.controller.draw(this.context);
     XpDropController.controller.draw(
       this.context,
       width -

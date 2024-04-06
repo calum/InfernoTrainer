@@ -151,8 +151,8 @@ export class SettingsControls extends BaseControls {
     Settings.persistToStorage()
   }
 
-  draw ( ctrl: ControlPanelController, x: number, y: number) {
-    super.draw(ctrl, x, y)
+  draw (context, ctrl: ControlPanelController, x: number, y: number) {
+    super.draw(context, ctrl, x, y)
     const scale = Settings.controlPanelScale;
 
     Viewport.viewport.context.drawImage(Settings.playsAudio ? this.musicOnImage : this.musicOffImage, x + 20 * scale, y + 20 * scale, this.musicOffImage.width * scale, this.musicOffImage.height * scale)

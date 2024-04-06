@@ -40,8 +40,8 @@ export class AncientsSpellbookControls extends BaseControls {
     }
   }
 
-  draw (ctrl: ControlPanelController, x: number, y: number) {
-    super.draw(ctrl, x, y);
+  draw (context, ctrl: ControlPanelController, x: number, y: number) {
+    super.draw(context, ctrl, x, y);
     Viewport.viewport.context.fillStyle = '#D1BB7773'
 
     const scale = Settings.controlPanelScale;

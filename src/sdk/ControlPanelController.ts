@@ -307,7 +307,7 @@ export class ControlPanelController {
     }
   }
 
-  draw () {
+  draw (context: CanvasRenderingContext2D) {
     Viewport.viewport.context.fillStyle = '#000'
     const scale = this.getTabScale();
 
@@ -315,7 +315,7 @@ export class ControlPanelController {
     
     if (this.selectedControl && this.selectedControl.draw) {
       const position = this.controlPosition(this.selectedControl);
-      this.selectedControl.draw(this, position.x, position.y);
+      this.selectedControl.draw(context, this, position.x, position.y);
     }
 
     let selectedPosition: TabPosition = null
@@ -324,7 +324,7 @@ export class ControlPanelController {
     this.controls.forEach((control, index) => {
       const tabPosition = this.tabPosition(index)
       if (control.tabImage){
-        Viewport.viewport.context.drawImage(
+        context.drawImage(
           control.tabImage, 
           tabPosition.x, 
           tabPosition.y, 
@@ -334,8 +334,8 @@ export class ControlPanelController {
       }
 
       if (control.isAvailable === false){
-        Viewport.viewport.context.fillStyle = '#00000099'
-        Viewport.viewport.context.fillRect(tabPosition.x, tabPosition.y, 33 * scale, 36 * scale)
+        context.fillStyle = '#00000099'
+        context.fillRect(tabPosition.x, tabPosition.y, 33 * scale, 36 * scale)
       }
 
       
@@ -345,9 +345,9 @@ export class ControlPanelController {
     })
 
     if (selectedPosition) {
-      Viewport.viewport.context.strokeStyle = '#00FF0073'
-      Viewport.viewport.context.lineWidth = 3
-      Viewport.viewport.context.strokeRect(selectedPosition.x, selectedPosition.y, 33 * scale, 36 * scale)
+      context.strokeStyle = '#00FF0073'
+      context.lineWidth = 3
+      context.strokeRect(selectedPosition.x, selectedPosition.y, 33 * scale, 36 * scale)
     }
 
 
