@@ -349,6 +349,9 @@ export class Mob extends Unit {
   }
 
   attack() {
+    if (this.aggro.dying >= 0) {
+      return;
+    }
     if (
       this.canMeleeIfClose() &&
       Weapon.isMeleeAttackStyle(this.attackStyle) === false
