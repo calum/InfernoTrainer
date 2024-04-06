@@ -648,6 +648,7 @@ export class Player extends Unit {
 
     // Path to next position if not already there.
     if (!this.destinationLocation || (this.location.x === this.destinationLocation.x && this.location.y === this.destinationLocation.y)) {
+      this.pathTargetLocation = null;
       return;
     }
 
@@ -660,10 +661,10 @@ export class Player extends Unit {
       speed,
       this.aggro
     );
+    this.pathTargetLocation = destination;
     if (!path.length || !destination) {
       return;
     }
-    this.pathTargetLocation = destination;
     const originalLocation = this.location;
     if (path.length < speed) {
       // Step to the destination
@@ -671,17 +672,6 @@ export class Player extends Unit {
     } else {
       // Move one or two steps forward
       this.location = path[speed - 1];
-    }
-
-    if (this.clickMarker && this.location.x === destination.x && this.location.y === destination.y) {
-      this.clickMarker.remove();
-      this.region.removeEntity(this.clickMarker);
-      this.clickMarker = null;
-    } else if (!this.clickMarker) {
-      this.clickMarker = new ClickMarker(this.region, destination);
-      this.region.addEntity(this.clickMarker);
-    } else {
-        this.clickMarker.location = this.aggro ? destination : this.destinationLocation;
     }
     // postprocess the path to corners only
     // save the next 2 steps for interpolation purposes
@@ -802,15 +792,23 @@ export class Player extends Unit {
     this.updatePathMarker();
     this.frozen--;
   }
+
+  removeClickMarker() {
+    if (!this.clickMarker) {
+      return;
+    }
+    this.clickMarker.remove();
+    this.region.removeEntity(this.clickMarker);
+    this.clickMarker = null;
+  }
   
   updatePathMarker() {
     if (!this.pathTargetLocation) {
+      this.removeClickMarker();
       return;
     }
     if (this.clickMarker && this.location.x === this.pathTargetLocation.x && this.location.y === this.pathTargetLocation.x) {
-      this.clickMarker.remove();
-      this.region.removeEntity(this.clickMarker);
-      this.clickMarker = null;
+      this.removeClickMarker();
     } else if (!this.clickMarker) {
       this.clickMarker = new ClickMarker(this.region, this.pathTargetLocation);
       this.region.addEntity(this.clickMarker);
