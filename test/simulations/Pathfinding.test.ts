@@ -74,7 +74,6 @@ describe("pathfinding tests", () => {
     expect(player.location).toEqual({ x: 18, y: 14 });
     world.tickWorld();
     expect(player.location).toEqual({ x: 20, y: 14 });
-    world.tickWorld();
   });
 
   test("can path in a diagonal line", () => {
@@ -91,7 +90,6 @@ describe("pathfinding tests", () => {
     expect(player.location).toEqual({ x: 18, y: 18 });
     world.tickWorld();
     expect(player.location).toEqual({ x: 20, y: 20 });
-    world.tickWorld();
   });
 
   test("can path around a pillar", () => {
@@ -112,7 +110,6 @@ describe("pathfinding tests", () => {
     expect(player.location).toEqual({ x: 18, y: 18 });
     world.tickWorld();
     expect(player.location).toEqual({ x: 20, y: 20 });
-    world.tickWorld();
   });
 
   test("can path outside the walled area", () => {
@@ -136,6 +133,5 @@ describe("pathfinding tests", () => {
     world.tickWorld();
     expect(player.location).toEqual({ x: 14, y: 14 });
     expect(player.pathTargetLocation).toEqual({ x: 14, y: 14 });
-    world.tickWorld();
   });
 });
