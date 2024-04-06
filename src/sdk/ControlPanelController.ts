@@ -142,6 +142,8 @@ export class ControlPanelController {
     // let scale = Settings.controlPanelScale
     const { width, height } = Chrome.size();
     const scale = this.getTabScale();
+
+    console.log(width, scale);
     
     if (Settings.mobileCheck()) {
       const mapHeight = 170 * Settings.minimapScale;
@@ -151,7 +153,7 @@ export class ControlPanelController {
       }else{
         return { x: width - 33 * scale - 15 - (Settings.menuVisible ? 232 : 0), y: mapHeight + spacer + (i - 7) * 36 * scale };
       }
-    }else{
+    } else {
       const x = i % 7
       const y = Math.floor(i / 7)
       return { 
@@ -311,8 +313,6 @@ export class ControlPanelController {
     Viewport.viewport.context.fillStyle = '#000'
     const scale = this.getTabScale();
 
-    
-    
     if (this.selectedControl && this.selectedControl.draw) {
       const position = this.controlPosition(this.selectedControl);
       this.selectedControl.draw(context, this, position.x, position.y);
@@ -338,7 +338,6 @@ export class ControlPanelController {
         context.fillRect(tabPosition.x, tabPosition.y, 33 * scale, 36 * scale)
       }
 
-      
       if (control === this.selectedControl) {
         selectedPosition = tabPosition
       }
@@ -349,8 +348,5 @@ export class ControlPanelController {
       context.lineWidth = 3
       context.strokeRect(selectedPosition.x, selectedPosition.y, 33 * scale, 36 * scale)
     }
-
-
-
   }
 }

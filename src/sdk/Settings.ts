@@ -111,7 +111,7 @@ export class Settings {
 
   static readFromStorage() {
     Settings.minimapScale = Settings.mobileCheck() ? 0.65 : 1;
-    Settings.controlPanelScale = Settings.mobileCheck() ? 0.9 : 1;
+    Settings.controlPanelScale = Settings.mobileCheck() ? 0.9 : 1.5;
 
     Settings.zoomScale =
       parseFloat(window.localStorage.getItem("zoomScale")) || 1;
