@@ -3,8 +3,10 @@ import { BaseControls } from './BaseControls'
 import InventoryPanel from '../../assets/images/panels/inventory.png'
 import SettingsTab from '../../assets/images/tabs/settings.png'
 
-import MusicOnIcon from '../../assets/images/interface/button_music_on.png'
-import MusicOffIcon from '../../assets/images/interface/button_music_off.png'
+import AudioButton from '../../assets/images/interface/sound_effect_volume.png'
+import AreaAudioButton from '../../assets/images/interface/area_sound_volume.png'
+
+import DisabledOverlay from '../../assets/images/interface/disabled_option_overlay.png'
 
 import ButtonRedUpIcon from '../../assets/images/interface/button_red_up.png'
 import ButtonGreenDownIcon from '../../assets/images/interface/button_green_down.png'
@@ -38,8 +40,9 @@ export class SettingsControls extends BaseControls {
     return SettingsTab
   }
 
-  musicOnImage: HTMLImageElement = ImageLoader.createImage(MusicOnIcon)
-  musicOffImage: HTMLImageElement = ImageLoader.createImage(MusicOffIcon)
+  soundImage: HTMLImageElement = ImageLoader.createImage(AudioButton)
+  areaSoundImage: HTMLImageElement = ImageLoader.createImage(AreaAudioButton)
+  disabledOverlay: HTMLImageElement = ImageLoader.createImage(DisabledOverlay)
   redUpImage: HTMLImageElement = ImageLoader.createImage(ButtonRedUpIcon)
   greenDownImage: HTMLImageElement = ImageLoader.createImage(ButtonGreenDownIcon)
   activeButtonImage: HTMLImageElement = ImageLoader.createImage(ButtonActiveIcon)
@@ -107,6 +110,8 @@ export class SettingsControls extends BaseControls {
     
     if (x > 20 && x < 56 && y > 20 && y < 56) {
       Settings.playsAudio = !Settings.playsAudio
+    } else if (x > 20 && x < 56 && y > 60 && y < 86) {
+      Settings.playsAreaAudio = !Settings.playsAreaAudio
     } else if (x > 74 && x < 89 && y > 20 && y < 36) {
       Settings.maxUiScale += 0.05
     } else if (x > 75 && x < 89 && y > 51 && y < 67) {
@@ -156,11 +161,19 @@ export class SettingsControls extends BaseControls {
     Settings.persistToStorage()
   }
 
+  drawToggle(context: CanvasRenderingContext2D, x, y, image: HTMLImageElement, value: boolean) {
+    context.drawImage(image, x, y, image.width * Settings.controlPanelScale, image.height * Settings.controlPanelScale)
+    if (!value) {
+      context.drawImage(this.disabledOverlay, x, y, image.width * Settings.controlPanelScale, image.height * Settings.controlPanelScale)
+    }
+  }
+
   draw (context, ctrl: ControlPanelController, x: number, y: number) {
     super.draw(context, ctrl, x, y)
     const scale = Settings.controlPanelScale;
 
-    context.drawImage(Settings.playsAudio ? this.musicOnImage : this.musicOffImage, x + 20 * scale, y + 20 * scale, this.musicOffImage.width * scale, this.musicOffImage.height * scale)
+    this.drawToggle(context, x + 20 * scale, y + 20 * scale, this.soundImage, Settings.playsAudio);
+    this.drawToggle(context, x + 20 * scale, y + 60 * scale, this.areaSoundImage, Settings.playsAreaAudio);
 
     context.drawImage(this.redUpImage, x + 74 * scale, y + 20 * scale, this.redUpImage.width * scale, this.redUpImage.height * scale)
     context.fillStyle = '#FFFF00'

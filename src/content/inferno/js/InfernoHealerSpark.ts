@@ -81,7 +81,7 @@ export class InfernoHealerSpark extends Entity {
         this.location.y
       );
       attemptedVolume = Math.min(1, Math.max(0, Math.sqrt(attemptedVolume)));
-      SoundCache.play(new Sound(FireWaveHit, 0.025 * attemptedVolume));
+      SoundCache.play(new Sound(FireWaveHit, 0.025 * attemptedVolume), true);
       if (Collision.collisionMath(this.location.x - 1, this.location.y + 1, 3, this.to.location.x, this.to.location.y, 1)) {
         this.weapon.attack(this.from, this.from.aggro as Unit, {});
       }

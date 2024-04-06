@@ -45,8 +45,4 @@ export class Potion extends Item {
     }
     this.updateInventorySprite();
   }
-
-  
-
-
 }

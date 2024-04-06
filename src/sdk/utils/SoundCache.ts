@@ -1,3 +1,5 @@
+import { Settings } from "../Settings";
+
 const LOADING_SOUND = null;
 
 export class Sound {
@@ -37,7 +39,7 @@ export class SoundCache {
     return audioBuffer;
   }
 
-  static play({ src, volume }: Sound) {
+  static play({ src, volume }: Sound, isAreaSound = false) {
     if (!SoundCache.context) {
       return null;
     }
@@ -52,6 +54,9 @@ export class SoundCache {
       return;
     }
     if (!this.cachedSounds[src]) {
+      return;
+    }
+    if ((!isAreaSound && !Settings.playsAudio) || (isAreaSound && !Settings.playsAreaAudio)) {
       return;
     }
     const source = SoundCache.context.createBufferSource();
