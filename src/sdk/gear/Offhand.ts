@@ -1,8 +1,12 @@
-import { Equipment } from "../Equipment";
+import { Equipment, EquipmentTypes } from "../Equipment";
 import { Player } from "../Player";
 
 export class Offhand extends Equipment {
 
+  get type(): EquipmentTypes {
+    return EquipmentTypes.OFFHAND;
+  }
+  
   inventoryLeftClick(player: Player) {
 
     const currentWeapon = player.equipment.weapon || null;

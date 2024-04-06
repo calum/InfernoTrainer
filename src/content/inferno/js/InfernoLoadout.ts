@@ -44,6 +44,7 @@ import { SuperRestore } from '../../items/SuperRestore'
 import { ZaryteVambraces } from '../../equipment/ZaryteVambraces'
 import { MasoriBodyF } from '../../equipment/MasoriBodyF'
 import { MasoriChapsF } from '../../equipment/MasoriChapsF'
+import { DizanasQuiver } from '../../equipment/DizanasQuiver'
 import { BastionPotion } from '../../items/BastionPotion'
 
 import { TwistedBow } from '../../weapons/TwistedBow'
@@ -76,7 +77,7 @@ export class InfernoLoadout {
         offhand: new CrystalShield(),
         helmet: new JusticiarFaceguard(),
         necklace: new OccultNecklace(),
-        cape: new AvasAssembler(),
+        cape: new DizanasQuiver(),
         ammo: new DragonArrows(),
         chest: new AncestralRobetop(),
         legs: new AncestralRobebottom(),

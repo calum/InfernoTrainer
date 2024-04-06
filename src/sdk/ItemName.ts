@@ -58,4 +58,5 @@ export enum ItemName {
   ZARYTE_VAMBRACES = 'Zaryte Vambraces',
   MASORI_CHAPS_F = 'Masori chaps (f)',
   MASORI_BODY_F = 'Masori body (f)',
+  DIZANAS_QUIVER = 'Dizana\'s Quiver',
 }

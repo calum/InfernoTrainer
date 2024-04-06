@@ -12,7 +12,9 @@ export enum EquipmentTypes {
   WEAPON = 'weapon',
   OFFHAND = 'offhand',
   AMMO = 'ammo',
-  BACK = 'back'
+  BACK = 'back',
+  NECK = 'neck',
+  RING = 'ring'
 }
 
 export class Equipment extends Item {
@@ -71,4 +73,7 @@ export class Equipment extends Item {
     throw new Error('equipment must have a type');
   }
 
+  updateBonuses(gear: Item[]) {
+    // update bonuses based on other items that have been equipped
+  }
 }
