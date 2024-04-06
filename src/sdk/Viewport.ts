@@ -16,6 +16,7 @@ import { Location } from "./Location";
 import { Mob } from "./Mob";
 import { Item } from "./Item";
 import { Viewport2d } from "./Viewport2d";
+import { CombatControls } from "./controlpanels/CombatControls";
 
 type ViewportEntitiesClick = {
   type: "entities";
