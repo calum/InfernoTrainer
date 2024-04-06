@@ -55,4 +55,7 @@ export enum ItemName {
   SUPER_RESTORE = 'Super Restore',
   TOXIC_BLOWPIPE = 'Toxic Blowpipe',
   TWISTED_BOW = 'Twisted Bow',
+  ZARYTE_VAMBRACES = 'Zaryte Vambraces',
+  MASORI_CHAPS_F = 'Masori chaps (f)',
+  MASORI_BODY_F = 'Masori body (f)',
 }

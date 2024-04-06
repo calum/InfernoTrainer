@@ -2,8 +2,6 @@ import { UnitOptions } from "../../../sdk/Unit";
 
 import { JusticiarFaceguard } from '../../equipment/JusticiarFaceguard';
 import { NecklaceOfAnguish } from '../../equipment/NecklaceOfAnguish';
-import { ArmadylChestplate } from '../../equipment/ArmadylChestplate';
-import { ArmadylChainskirt } from '../../equipment/ArmadylChainskirt';
 import { PegasianBoots } from '../../equipment/PegasianBoots';
 import { AvasAssembler } from '../../equipment/AvasAssembler';
 import { AvasAccumulator } from '../../equipment/AvasAccumulator';
@@ -43,6 +41,9 @@ import { AncestralRobebottom } from '../../equipment/AncestralRobebottom'
 import { StaminaPotion } from '../../items/StaminaPotion'
 import { SaradominBrew } from '../../items/SaradominBrew'
 import { SuperRestore } from '../../items/SuperRestore'
+import { ZaryteVambraces } from '../../equipment/ZaryteVambraces'
+import { MasoriBodyF } from '../../equipment/MasoriBodyF'
+import { MasoriChapsF } from '../../equipment/MasoriChapsF'
 import { BastionPotion } from '../../items/BastionPotion'
 
 import { TwistedBow } from '../../weapons/TwistedBow'
@@ -80,12 +81,12 @@ export class InfernoLoadout {
         chest: new AncestralRobetop(),
         legs: new AncestralRobebottom(),
         feet: new PegasianBoots(),
-        gloves: new BarrowsGloves(),
+        gloves: new ZaryteVambraces(),
         ring: new RingOfSufferingImbued(), 
       },
       inventory: [ 
-        new Blowpipe(), new ArmadylChestplate(), new TwistedBow(), new JusticiarChestguard(),
-        new NecklaceOfAnguish(), new ArmadylChainskirt(), null, new JusticiarLegguards(),
+        new Blowpipe(), new MasoriBodyF(), new TwistedBow(), new JusticiarChestguard(),
+        new NecklaceOfAnguish(), new MasoriChapsF(), null, new JusticiarLegguards(),
         new SaradominBrew(), new SaradominBrew(), new SuperRestore(), new SuperRestore(),
         new SaradominBrew(), new SaradominBrew(), new SuperRestore(), new SuperRestore(),
         new SaradominBrew(), new SaradominBrew(), new SuperRestore(), new SuperRestore(), 
@@ -285,7 +286,7 @@ export class InfernoLoadout {
 
       // Swap out chest
       const mageChest = loadout.equipment.chest;
-      const rangeChest = this.findAnyItemWithName(loadout.inventory, [ItemName.ARMADYL_CHESTPLATE, ItemName.SARADOMIN_D_HIDE_BODY, ItemName.CRYSTAL_BODY])
+      const rangeChest = this.findAnyItemWithName(loadout.inventory, [ItemName.MASORI_BODY_F, ItemName.ARMADYL_CHESTPLATE, ItemName.SARADOMIN_D_HIDE_BODY, ItemName.CRYSTAL_BODY])
       if (rangeChest !== -1){
         loadout.equipment.chest = loadout.inventory[rangeChest] as Chest;
         loadout.inventory[rangeChest] = mageChest;
@@ -293,7 +294,7 @@ export class InfernoLoadout {
 
       // Swap out body
       const mageLegs = loadout.equipment.legs;
-      const rangeLegs = this.findAnyItemWithName(loadout.inventory, [ItemName.ARMADYL_CHAINSKIRT, ItemName.SARADOMIN_D_HIDE_CHAPS, ItemName.CRYSTAL_LEGS])
+      const rangeLegs = this.findAnyItemWithName(loadout.inventory, [ItemName.MASORI_CHAPS_F, ItemName.ARMADYL_CHAINSKIRT, ItemName.SARADOMIN_D_HIDE_CHAPS, ItemName.CRYSTAL_LEGS])
       if (rangeLegs !== -1){
         loadout.equipment.legs = loadout.inventory[rangeLegs] as Legs;
         loadout.inventory[rangeLegs] = mageLegs;
