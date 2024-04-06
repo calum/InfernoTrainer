@@ -42,7 +42,11 @@ class PlayerEffects {
 
 export class Player extends Unit {
   manualSpellCastSelection: Weapon;
+
+  // this is the actual location that we want to move to (ignoring pathing)
   destinationLocation?: Location;
+  // this is the location we are actually pathing towards
+  pathTargetLocation?: Location;
 
   stats: PlayerStats;
   currentStats: PlayerStats;
@@ -72,6 +76,7 @@ export class Player extends Unit {
     super(region, location, options);
 
     this.destinationLocation = location;
+    this.pathTargetLocation = location;
     this.equipmentChanged();
     this.clearXpDrops();
     this.autoRetaliate = false;
@@ -519,7 +524,7 @@ export class Player extends Unit {
         });
         // Create paths to all npc tiles
         const path = Pathing.constructPaths(this.region, this.location, seekingTiles)
-        this.destinationLocation = path?.destination ?? this.location;
+        this.destinationLocation = path.destination ?? this.location;
       } else {
         // stop moving
         this.destinationLocation = this.location;
@@ -570,18 +575,7 @@ export class Player extends Unit {
       this.aggro
     );
     this.location = { x: path.x, y: path.y };
-
-    if (this.clickMarker && this.location.x === path.destination.x && this.location.y === path.destination.y) {
-      this.clickMarker.remove();
-      this.region.removeEntity(this.clickMarker);
-      this.clickMarker = null;
-    } else if (!this.clickMarker) {
-      this.clickMarker = new ClickMarker(this.region, path.destination);
-      this.region.addEntity(this.clickMarker);
-    } else {
-        this.clickMarker.location = this.aggro ? path.destination : this.destinationLocation;
-    }
-
+    this.pathTargetLocation = path.destination;
     // save the next 2 steps for interpolation purposes
     this.path = path.path;
     this.trueTileMarker.location = this.location;
@@ -684,7 +678,25 @@ export class Player extends Unit {
 
       this.moveTowardsDestination();
     }
+
+    this.updatePathMarker();
     this.frozen--;
+  }
+  
+  updatePathMarker() {
+    if (!this.pathTargetLocation) {
+      return;
+    }
+    if (this.clickMarker && this.location.x === this.pathTargetLocation.x && this.location.y === this.pathTargetLocation.x) {
+      this.clickMarker.remove();
+      this.region.removeEntity(this.clickMarker);
+      this.clickMarker = null;
+    } else if (!this.clickMarker) {
+      this.clickMarker = new ClickMarker(this.region, this.pathTargetLocation);
+      this.region.addEntity(this.clickMarker);
+    } else {
+      this.clickMarker.location = this.pathTargetLocation;
+    }
   }
 
   hitSound(damaged: boolean): Sound | null {

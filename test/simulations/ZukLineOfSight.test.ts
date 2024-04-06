@@ -150,7 +150,7 @@ describe("player LOS in zuk fight", () => {
     world.tickWorld();
     // The player should look like they are pathing towards this position. In reality
     // they gain LOS at x = 20.
-    expect(player.clickMarker.location).toEqual({ x: 22, y: 14 });
+    expect(player.pathTargetLocation).toEqual({ x: 22, y: 14 });
     expect(player.attackDelay).toBe(-1);
     expect(player.location).toEqual({ x: 18, y: 14 });    
     world.tickWorld();
@@ -171,7 +171,7 @@ describe("player LOS in zuk fight", () => {
     expect(player.location).toEqual({ x: 34, y: 14 });
     expect(player.attackDelay).toBe(0);
     world.tickWorld();
-    expect(player.clickMarker.location).toEqual({ x: 28, y: 14 });
+    expect(player.pathTargetLocation).toEqual({ x: 28, y: 14 });
     expect(player.attackDelay).toBe(-1);
     expect(player.location).toEqual({ x: 32, y: 14 });    
     world.tickWorld();

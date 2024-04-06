@@ -180,6 +180,10 @@ export class Pathing {
     let maxExploredX = Number.MIN_SAFE_INTEGER;
     let maxExploredY = Number.MIN_SAFE_INTEGER;
 
+    // initialise first node
+    explored[pathX] = {};
+    explored[pathX][pathY] = { x: pathX, y: pathY, parent: null, pathLength: 0};
+
     while (nodes.length !== 0) {
       const parentNode = nodes.shift();
       const matchedDestinations = pathableEndPoints.filter(
@@ -295,7 +299,6 @@ export class Pathing {
         path.push({ x: node.x, y: node.y });
         node = node.parent;
       }
-      path.reverse();
       return {
         destination: bestBackupTile,
         path,
@@ -316,7 +319,8 @@ export class Pathing {
     seeking: Unit
   ) {
     let x: number, y: number;
-    const { path } = Pathing.constructPaths(region, startPoint, [endPoint]);
+    const pathResult = Pathing.constructPaths(region, startPoint, [endPoint]);
+    const { path } = pathResult;
     if (path.length === 0) {
       return { x: startPoint.x, y: startPoint.y, path: [] };
     }
