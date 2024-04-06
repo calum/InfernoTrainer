@@ -616,10 +616,10 @@ export class Unit extends Renderable {
           }
         } else {
           this.currentStats.hitpoint -= projectile.damage;
-        }
-        const sound = this.hitSound(projectile.damage > 0);
-        if (sound) {
-          SoundCache.play(sound);
+          const sound = this.hitSound(projectile.damage > 0);
+          if (sound) {
+            SoundCache.play(sound);
+          }
         }
         this.damageTaken();
         if (this.shouldChangeAggro(projectile)) {

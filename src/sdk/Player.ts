@@ -839,6 +839,8 @@ export class Player extends Unit {
   attackStep() {
     this.detectDeath();
 
+    this.processIncomingAttacks();
+
     if (this.dying > -1) {
       return;
     }
@@ -846,8 +848,6 @@ export class Player extends Unit {
     this.clearXpDrops();
 
     this.attackIfPossible();
-
-    this.processIncomingAttacks();
 
     this.eats.tickFood(this);
 
