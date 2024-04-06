@@ -26,6 +26,10 @@ export interface ProjectileOptions {
   visualDelayTicks?: number;
   color?: string;
   size?: number;
+  // played when the projectile is launched
+  sound?: Sound;
+  // played when the projectile lands
+  hitSound?: Sound;
 }
 
 export class Projectile extends Renderable {
@@ -55,8 +59,10 @@ export class Projectile extends Renderable {
 
   /*
     This should take the player and mob object, and do chebyshev on the size of them
+
+    sound is played when
   */
-  constructor (weapon: Weapon, damage: number, from: Unit, to: Unit, attackStyle: string, options: ProjectileOptions = {}, sound: Sound | null = null) {
+  constructor (weapon: Weapon, damage: number, from: Unit, to: Unit, attackStyle: string, options: ProjectileOptions = {}) {
     super();
     this.attackStyle = attackStyle;
     this.damage = Math.floor(damage)
@@ -106,8 +112,8 @@ export class Projectile extends Renderable {
     }
     this.remainingDelay = options.setDelay || this.remainingDelay;
     this.totalDelay = this.remainingDelay;
-    if (sound) {
-      SoundCache.play(sound);
+    if (this.options.sound) {
+      SoundCache.play(this.options.sound);
     }
 
     this._color = this.options.color || this.getColor();
@@ -152,6 +158,10 @@ export class Projectile extends Renderable {
 
   onHit() {
     //
+    if (this.options.hitSound) {
+      console.log('play hitsound');
+      SoundCache.play(this.options.hitSound);
+    }
   }
 
   shouldDestroy() {

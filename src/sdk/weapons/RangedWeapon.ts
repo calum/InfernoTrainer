@@ -7,7 +7,7 @@ import { AttackBonuses, Weapon } from '../gear/Weapon'
 export class RangedWeapon extends Weapon {
 
   registerProjectile(from: Unit, to: Unit, bonuses: AttackBonuses, options: ProjectileOptions = {}) {
-    to.addProjectile(new Projectile(this, this.damage, from, to, 'range', options))
+    to.addProjectile(new Projectile(this, this.damage, from, to, 'range',  { sound: this.attackSound, hitSound: this.attackLandingSound, ...options}))
   }
 
   grantXp(from: Unit) {

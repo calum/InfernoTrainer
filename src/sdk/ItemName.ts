@@ -16,6 +16,7 @@ export enum ItemName {
   BLACK_D_HIDE_BODY = "Black d'hide body",
   BLACK_D_HIDE_CHAPS = "Black d'hide chaps",
   BLACK_D_HIDE_VAMBRACES = "Black d'hide vambraces",
+  BLACK_CHINCHOMPA = 'Black chinchompa',
   BOWFA = 'Bow of faerdhinen',
   CRYSTAL_BODY = 'Crystal Body',
   CRYSTAL_HELM = 'Crystal Helm',

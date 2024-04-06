@@ -60,7 +60,7 @@ class JadMagicWeapon extends MagicWeapon {
 
   registerProjectile(from: Unit, to: Unit) {
     to.addProjectile(
-      new Projectile(this, this.damage, from, to, "magic", { reduceDelay: JAD_PROJECTILE_DELAY, motionInterpolator: new ArcProjectionMotionInterpolator(1), color: "#FFAA00", size: 2 }, MageProjectileSound)
+      new Projectile(this, this.damage, from, to, "magic", { reduceDelay: JAD_PROJECTILE_DELAY, motionInterpolator: new ArcProjectionMotionInterpolator(1), color: "#FFAA00", size: 2, sound: MageProjectileSound })
     );
   }
 }
@@ -82,7 +82,7 @@ class JadRangeWeapon extends RangedWeapon {
 
   registerProjectile(from: Unit, to: Unit) {
     to.addProjectile(
-      new JadRangeProjectile(this, this.damage, from, to, "range", { reduceDelay: JAD_PROJECTILE_DELAY, motionInterpolator: new CeilingFallMotionInterpolator(8) }, RangeProjectileSound)
+      new JadRangeProjectile(this, this.damage, from, to, "range", { reduceDelay: JAD_PROJECTILE_DELAY, motionInterpolator: new CeilingFallMotionInterpolator(8), sound: RangeProjectileSound})
     );
   }
 }

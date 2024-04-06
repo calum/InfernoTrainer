@@ -225,7 +225,7 @@ export class Weapon extends Equipment{
   }
 
   registerProjectile(from: Unit, to: Unit, bonuses: AttackBonuses, options: ProjectileOptions = {}) {
-    to.addProjectile(new Projectile(this, this.damage, from, to, bonuses.attackStyle, options))
+    to.addProjectile(new Projectile(this, this.damage, from, to, bonuses.attackStyle, { sound: this.attackSound, hitSound: this.attackLandingSound, ...options}))
   }
 
   get image(): HTMLImageElement {
@@ -267,6 +267,10 @@ export class Weapon extends Equipment{
 
   get attackSound(): Sound | null {
     // Override me
+    return null;
+  }
+
+  get attackLandingSound(): Sound | null {
     return null;
   }
 }

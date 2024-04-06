@@ -130,7 +130,7 @@ export class Settings {
     Settings.inputDelay =
       parseInt(window.localStorage.getItem("inputDelay")) || 100;
     Settings.rotated = window.localStorage.getItem("rotated") || "south";
-    Settings.loadout = window.localStorage.getItem("loadout") || "max_tbow";
+    Settings.loadout = window.localStorage.getItem("loadout") || "max_tbow_speed";
     Settings.onTask = window.localStorage.getItem("onTask") === "true" || false;
     Settings.southPillar =
       window.localStorage.getItem("southPillar") !== "false" || false;

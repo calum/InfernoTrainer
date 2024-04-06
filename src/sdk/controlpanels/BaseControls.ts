@@ -37,10 +37,10 @@ export class BaseControls {
   }
 
   panelClickDown (x: number, y: number) {
-    console.log(x, y)
+    //
   }
   panelClickUp (x: number, y: number) {
-    console.log(x, y)
+    //
   }
 
   draw (context: CanvasRenderingContext2D, ctrl: ControlPanelController, x: number, y: number) {

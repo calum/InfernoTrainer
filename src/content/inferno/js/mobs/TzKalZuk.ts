@@ -43,7 +43,7 @@ class ZukWeapon extends MagicWeapon {
       sound.volume = 0.1;
     }
     to.addProjectile(
-      new ZukProjectile(this, this.damage, from, to, "range", { setDelay: 3, visualDelayTicks: 1 }, sound)
+      new ZukProjectile(this, this.damage, from, to, "range", { setDelay: 3, visualDelayTicks: 1, sound })
     );
   }
 }

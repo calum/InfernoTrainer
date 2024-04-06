@@ -56,6 +56,7 @@ import { filter, indexOf, map } from "lodash";
 import { Chest } from "../../../sdk/gear/Chest";
 import { Legs } from "../../../sdk/gear/Legs";
 import { Player } from "../../../sdk/Player";
+import { BlackChinchompa } from "../../weapons/BlackChinchompa";
 
 export class InfernoLoadout {
 
@@ -69,6 +70,20 @@ export class InfernoLoadout {
     this.onTask = onTask;
   }
 
+  loadoutMaxTbowSpeedrunner() {
+    return { 
+      ...this.loadoutMaxTbow(),
+      inventory: [ 
+        new BlackChinchompa(), new Blowpipe(), new MasoriBodyF(), new TwistedBow(), new BastionPotion(),
+        new NecklaceOfAnguish(), new MasoriChapsF(), null, new BastionPotion(),
+        new SaradominBrew(), new SaradominBrew(), new SuperRestore(), new SuperRestore(),
+        new SaradominBrew(), new SaradominBrew(), new SuperRestore(), new SuperRestore(),
+        new SaradominBrew(), new SaradominBrew(), new SuperRestore(), new SuperRestore(), 
+        new SaradominBrew(), new SaradominBrew(), new SuperRestore(), new SuperRestore(), 
+        new BastionPotion(), new StaminaPotion(), new BastionPotion(), 
+      ]
+    };
+  }
 
   loadoutMaxTbow() {
     return { 
@@ -249,6 +264,9 @@ export class InfernoLoadout {
 
     let loadout: UnitOptions;
     switch (this.loadoutType) {
+      case "max_tbow_speed":
+        loadout = this.loadoutMaxTbowSpeedrunner();
+        break;
       case "max_tbow":
         loadout = this.loadoutMaxTbow();
         break;

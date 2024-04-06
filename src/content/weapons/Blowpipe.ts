@@ -123,12 +123,12 @@ export class Blowpipe extends RangedWeapon {
   }
 
   get attackSound() {
-    return new Sound(BPAttackSound, 0.15);
+    return new Sound(BPAttackSound, 0.1);
   }
 
   registerProjectile(from: Unit, to: Unit) {
     to.addProjectile(
-      new Projectile(this, this.damage, from, to, "range", { visualDelayTicks: 1 }, this.attackSound)
+      new Projectile(this, this.damage, from, to, "range", { visualDelayTicks: 1, sound: this.attackSound })
     );
   }
 }
