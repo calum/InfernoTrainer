@@ -47,7 +47,7 @@ class JadMagicWeapon extends MagicWeapon {
   attack(from: Mob, to: Unit, bonuses: AttackBonuses = {}): boolean {
     DelayedAction.registerDelayedAction(
       new DelayedAction(() => {
-        const overhead = to.prayerController.matchFeature("magic");
+        const overhead = to.prayerController?.matchFeature("magic");
         from.attackFeedback = AttackIndicators.HIT;
         if (overhead) {
           from.attackFeedback = AttackIndicators.BLOCKED;
@@ -68,7 +68,7 @@ class JadRangeWeapon extends RangedWeapon {
   attack(from: Mob, to: Unit, bonuses: AttackBonuses = {}): boolean {
     DelayedAction.registerDelayedAction(
       new DelayedAction(() => {
-        const overhead = to.prayerController.matchFeature("range");
+        const overhead = to.prayerController?.matchFeature("range");
         from.attackFeedback = AttackIndicators.HIT;
         if (overhead) {
           from.attackFeedback = AttackIndicators.BLOCKED;
