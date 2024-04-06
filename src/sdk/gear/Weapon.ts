@@ -152,7 +152,7 @@ export class Weapon extends Equipment{
     this.rollDamage(from, to, bonuses);
 
     if (this.damage === -1) {
-      return;
+      return false;
     }
 
     if (to.setEffects) {

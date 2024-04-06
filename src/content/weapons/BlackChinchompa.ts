@@ -8,8 +8,16 @@ import { Sound } from '../../sdk/utils/SoundCache'
 
 import ChinThrowSound from '../../assets/sounds/thrown_axe_2706.ogg';
 import ChinLandSound from '../../assets/sounds/chinchompa_explode_360.ogg';
+import { ProjectileOptions } from '../../sdk/weapons/Projectile'
+import { AttackBonuses } from '../../sdk/gear/Weapon'
+import { Unit } from '../../sdk/Unit'
+import { Pathing } from '../../sdk/Pathing'
+import { Mob } from '../../sdk/Mob'
 
 export class BlackChinchompa extends RangedWeapon {
+
+  maxConcurrentHits = 9
+
   constructor() {
     super();
     this.bonuses = {
@@ -97,5 +105,47 @@ export class BlackChinchompa extends RangedWeapon {
 
   get attackLandingSound() {
     return new Sound(ChinLandSound, 0.1);
+  }
+
+  get aoe () {
+    return [
+      { x: 0, y: 0 },
+      { x: -1, y: -1 },
+      { x: -1, y: 0 },
+      { x: -1, y: 1 },
+      { x: 0, y: -1 },
+      { x: 0, y: 1 },
+      { x: 1, y: -1 },
+      { x: 1, y: 0 },
+      { x: 1, y: 1 }
+    ]
+  }
+
+  attack(from: Unit, to: Unit, bonuses: AttackBonuses = {}, options: ProjectileOptions = {}) {
+    if (this.aoe.length) {
+      const alreadyCastedOn: Unit[] = [to]
+      const initialResult = super.attack(from, to, bonuses, options);
+      if (initialResult) {
+        this.aoe.forEach((point) => {
+          Pathing.mobsAtAoeOffset(from.region, to, point)
+            .forEach((mob: Mob) => {
+              if (alreadyCastedOn.length > this.maxConcurrentHits) {
+                return
+              }
+              if (alreadyCastedOn.indexOf(mob) > -1) {
+                return
+              }
+              alreadyCastedOn.push(mob);
+              // HACK: chin gets massive accuracy bonus if main roll hits
+              from.bonuses.attack.range += 100000;
+              super.attack(from, mob, bonuses, {...options, hidden: true});
+              from.bonuses.attack.range -= 100000;
+            })
+        });
+      }
+      return initialResult;
+    } else {
+      return super.attack(from, to, bonuses, options)
+    }
   }
 }

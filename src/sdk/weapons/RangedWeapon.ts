@@ -2,9 +2,14 @@ import { Unit, UnitTypes } from '../Unit'
 import { XpDrop } from '../XpDrop'
 import { Projectile, ProjectileOptions } from './Projectile'
 import { AttackBonuses, Weapon } from '../gear/Weapon'
+import { EquipmentTypes } from '../Equipment';
 
 
 export class RangedWeapon extends Weapon {
+  get type() {
+    return EquipmentTypes.WEAPON;
+  }
+  
 
   registerProjectile(from: Unit, to: Unit, bonuses: AttackBonuses, options: ProjectileOptions = {}) {
     to.addProjectile(new Projectile(this, this.damage, from, to, 'range',  { sound: this.attackSound, hitSound: this.attackLandingSound, ...options}))

@@ -2,8 +2,13 @@ import { Unit, UnitTypes } from '../Unit'
 import { XpDrop } from '../XpDrop'
 import { ProjectileOptions } from './Projectile'
 import { AttackBonuses, Weapon } from '../gear/Weapon'
+import { EquipmentTypes } from '../Equipment';
 
 export class MagicWeapon extends Weapon {
+  get type() {
+    return EquipmentTypes.WEAPON;
+  }
+  
 
   attack (from: Unit, to: Unit, bonuses: AttackBonuses = {}, options: ProjectileOptions = {}): boolean {
     return super.attack(from,to,bonuses, options);

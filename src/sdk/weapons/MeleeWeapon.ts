@@ -1,8 +1,12 @@
+import { EquipmentTypes } from '../Equipment'
 import { Weapon, AttackBonuses } from '../gear/Weapon'
 import { Unit, UnitTypes } from '../Unit'
 import { XpDrop } from '../XpDrop'
 
 export class MeleeWeapon extends Weapon {
+  get type() {
+    return EquipmentTypes.WEAPON;
+  }
   
   attack (from: Unit, to: Unit, bonuses: AttackBonuses = {}): boolean {
     bonuses.attackStyle = bonuses.attackStyle || 'slash'

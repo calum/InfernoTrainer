@@ -208,11 +208,12 @@ export class Player extends Unit {
 
     // updated gear bonuses
     this.cachedBonuses = Unit.emptyBonuses();
-    gear.forEach((gear: Equipment) => {
-      if (gear && gear.bonuses) {
+    gear.forEach((g: Equipment) => {
+      if (g && g.bonuses) {
+        g.updateBonuses(gear);
         this.cachedBonuses = Unit.mergeEquipmentBonuses(
           this.cachedBonuses,
-          gear.bonuses
+          g.bonuses
         );
       }
     });
