@@ -2,7 +2,7 @@
 import { Pathing } from "./Pathing";
 import { Settings } from "./Settings";
 import { LineOfSight } from "./LineOfSight";
-import { minBy, range, filter, find, map, min, uniq, sumBy } from "lodash";
+import { minBy, range, filter, find, map, min, uniq, sumBy, flatMap } from "lodash";
 import { Unit, UnitTypes, UnitBonuses, UnitOptions } from "./Unit";
 import { XpDropController } from "./XpDropController";
 import { AttackBonuses, Weapon } from "./gear/Weapon";
@@ -55,7 +55,11 @@ const EPSILON = 0.1;
 
 export class Player extends Unit {
   manualSpellCastSelection: Weapon;
+
+  // this is the actual location that we want to move to (ignoring pathing)
   destinationLocation?: Location;
+  // this is the location we are actually pathing towards
+  pathTargetLocation?: Location;
 
   stats: PlayerStats;
   currentStats: PlayerStats;
@@ -87,6 +91,7 @@ export class Player extends Unit {
     super(region, location, options);
 
     this.destinationLocation = location;
+    this.pathTargetLocation = location;
     this.equipmentChanged();
     this.clearXpDrops();
     this.autoRetaliate = false;
@@ -533,25 +538,8 @@ export class Player extends Unit {
           });
         });
         // Create paths to all npc tiles
-        const potentialPaths = map(seekingTiles, (point) =>
-          Pathing.constructPath(this.region, this.location, {
-            x: point.x,
-            y: point.y,
-          })
-        );
-        const potentialPathLengths = map(potentialPaths, (path) => path.length);
-        // Figure out what the min distance is
-        const shortestPathLength = min(potentialPathLengths);
-        // Get all of the paths of the same minimum distance (can be more than 1)
-        const shortestPaths = filter(
-          map(potentialPathLengths, (length, index) =>
-            length === shortestPathLength ? seekingTiles[index] : null
-          )
-        );
-        // Take the path that is the shortest absolute distance from player
-        this.destinationLocation = minBy(shortestPaths, (point) =>
-          Pathing.dist(this.location.x, this.location.y, point.x, point.y)
-        );
+        const path = Pathing.constructPaths(this.region, this.location, seekingTiles)
+        this.destinationLocation = path.destination ?? this.location;
       } else {
         // stop moving
         this.destinationLocation = this.location;
@@ -675,6 +663,7 @@ export class Player extends Unit {
     if (!path.length || !destination) {
       return;
     }
+    this.pathTargetLocation = destination;
     const originalLocation = this.location;
     if (path.length < speed) {
       // Step to the destination
@@ -809,7 +798,25 @@ export class Player extends Unit {
       this.determineDestination();
       this.moveTowardsDestination();
     }
+
+    this.updatePathMarker();
     this.frozen--;
+  }
+  
+  updatePathMarker() {
+    if (!this.pathTargetLocation) {
+      return;
+    }
+    if (this.clickMarker && this.location.x === this.pathTargetLocation.x && this.location.y === this.pathTargetLocation.x) {
+      this.clickMarker.remove();
+      this.region.removeEntity(this.clickMarker);
+      this.clickMarker = null;
+    } else if (!this.clickMarker) {
+      this.clickMarker = new ClickMarker(this.region, this.pathTargetLocation);
+      this.region.addEntity(this.clickMarker);
+    } else {
+      this.clickMarker.location = this.pathTargetLocation;
+    }
   }
 
   hitSound(damaged: boolean): Sound | null {
