@@ -61,11 +61,13 @@ export interface ViewportDelegate {
 
 export class Viewport {
   static viewport: Viewport;
-  static setupViewport(region: Region) {
+  static setupViewport(region: Region, force2d = false) {
     const faceInitialSouth = region.initialFacing === CardinalDirection.SOUTH;
     // called after Settings have been initialized
     Viewport.viewport = new Viewport(
-      Settings.use3dView ? new Viewport3d(faceInitialSouth) : new Viewport2d()
+      Settings.use3dView && !force2d
+        ? new Viewport3d(faceInitialSouth)
+        : new Viewport2d()
     );
   }
 
@@ -110,7 +112,6 @@ export class Viewport {
     this.canvas.height = Settings._tileSize * 2 * this.height;
     this.clickController = new ClickController(this);
     this.clickController.registerClickActions();
-
   }
 
   // called after all graphics have loaded
