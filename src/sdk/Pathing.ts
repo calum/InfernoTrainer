@@ -3,13 +3,11 @@ import { sortBy, minBy } from 'lodash'
 import { Location } from "./Location"
 import { Collision } from './Collision'
 import { Region } from './Region'
-import { Unit } from './Unit'
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Unit } from "./Unit";
 
 interface PathingCache {
   [key: string]: boolean;
 }
-
 
 interface PathingNode {
   x: number;
@@ -17,96 +15,124 @@ interface PathingNode {
   parent?: PathingNode;
 }
 export class Pathing {
-
-  static entitiesAtPoint (region: Region, x: number, y: number, s: number) {
-    const entities = []
+  static entitiesAtPoint(region: Region, x: number, y: number, s: number) {
+    const entities = [];
     for (let i = 0; i < region.entities.length; i++) {
-      if (Collision.collisionMath(x, y, s, region.entities[i].location.x, region.entities[i].location.y, region.entities[i].size)) {
-        entities.push(region.entities[i])
+      if (
+        Collision.collisionMath(
+          x,
+          y,
+          s,
+          region.entities[i].location.x,
+          region.entities[i].location.y,
+          region.entities[i].size
+        )
+      ) {
+        entities.push(region.entities[i]);
       }
     }
-    return entities
+    return entities;
   }
-
 
   // TODO: Make this more like entitiesAtPoint
-  static mobsAtAoeOffset (region: Region,  mob: Unit, point: Location) {
-    const mobs = []
+  static mobsAtAoeOffset(region: Region, mob: Unit, point: Location) {
+    const mobs = [];
     for (let i = 0; i < region.mobs.length; i++) {
-      const collidedWithSpecificMob = region.mobs[i].location.x === point.x + mob.location.x && region.mobs[i].location.y === point.y + mob.location.y
+      const collidedWithSpecificMob =
+        region.mobs[i].location.x === point.x + mob.location.x &&
+        region.mobs[i].location.y === point.y + mob.location.y;
 
       if (collidedWithSpecificMob) {
-        mobs.push(region.mobs[i])
+        mobs.push(region.mobs[i]);
       }
     }
 
-    return sortBy(mobs, (m: Unit) => mob !== m)
+    return sortBy(mobs, (m: Unit) => mob !== m);
   }
-
-
 
   // Core pathing
 
-  static linearInterpolation (x: number, y: number, a: number) {
-    return ((y - x) * a) + x
+  static linearInterpolation(x: number, y: number, a: number) {
+    return (y - x) * a + x;
   }
 
-  static dist (x: number, y: number, x2: number, y2: number) {
-    return Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2))
+  static dist(x: number, y: number, x2: number, y2: number) {
+    return Math.sqrt(Math.pow(x2 - x, 2) + Math.pow(y2 - y, 2));
   }
 
   static angle(x: number, y: number, x2: number, y2: number) {
     return Math.atan2(y2 - y, x2 - x);
   }
 
-
-  static closestPointTo (x: number, y: number, mob: Unit) {
-    const corners = []
+  static closestPointTo(x: number, y: number, mob: Unit) {
+    const corners = [];
     for (let xx = 0; xx < mob.size; xx++) {
       for (let yy = 0; yy < mob.size; yy++) {
         corners.push({
           x: mob.location.x + xx,
-          y: mob.location.y - yy
-        })
+          y: mob.location.y - yy,
+        });
       }
     }
 
-    return minBy(corners, (point: Location) => Pathing.dist(x, y, point.x, point.y))
+    return minBy(corners, (point: Location) =>
+      Pathing.dist(x, y, point.x, point.y)
+    );
   }
-
 
   static tileCache: PathingCache = {};
   static purgeTileCache() {
     Pathing.tileCache = {};
   }
 
-
-  static canTileBePathedTo (region: Region, x: number, y: number, s: number, mobToAvoid: Unit = null) {
-    const cache = Pathing.tileCache[`${region.serialNumber}-${x}-${y}-${s}-${mobToAvoid ? mobToAvoid.serialNumber : 0}`];
-    if (cache !== undefined){
+  static canTileBePathedTo(
+    region: Region,
+    x: number,
+    y: number,
+    s: number,
+    mobToAvoid: Unit = null
+  ) {
+    const cache =
+      Pathing.tileCache[
+        `${region.serialNumber}-${x}-${y}-${s}-${
+          mobToAvoid ? mobToAvoid.serialNumber : 0
+        }`
+      ];
+    if (cache !== undefined) {
       return cache;
     }
-    let collision = false
-    collision = collision || Collision.collidesWithAnyEntities(region, x, y, s)
+    let collision = false;
+    collision = collision || Collision.collidesWithAnyEntities(region, x, y, s);
 
-    if (mobToAvoid) { // if no mobs to avoid, avoid them all
+    if (mobToAvoid) {
+      // if no mobs to avoid, avoid them all
       // Player can walk under mobs
-      collision = collision || Collision.collidesWithAnyMobs(region, x, y, s, mobToAvoid) !== null
+      collision =
+        collision ||
+        Collision.collidesWithAnyMobs(region, x, y, s, mobToAvoid) !== null;
     }
-    Pathing.tileCache[`${region.serialNumber}-${x}-${y}-${s}-${mobToAvoid ? mobToAvoid.serialNumber : 0}`] = !collision;
-    return !collision
+    Pathing.tileCache[
+      `${region.serialNumber}-${x}-${y}-${s}-${
+        mobToAvoid ? mobToAvoid.serialNumber : 0
+      }`
+    ] = !collision;
+    return !collision;
   }
 
   /**
-   * 
-   * @param region 
-   * @param startPoint 
+   *
+   * @param region
+   * @param startPoint
    * @param endPoints array of valid end points
-   * @returns 
+   * @returns
    */
-  static constructPaths(region: Region, startPoint: Location, endPoints: Location[]): {
-    destination: Location
-    path: Location[]
+  static constructPaths(
+    region: Region,
+    startPoint: Location,
+    endPoints: Location[]
+  ): {
+    destination: Location;
+    path: Location[];
   }[] {
     // if (endPoint === -1) {
     //   return []
@@ -114,27 +140,30 @@ export class Pathing {
 
     const x = startPoint.x;
     const y = startPoint.y;
-    const unpathableEndPoints = endPoints.filter((location) => !Pathing.canTileBePathedTo(region, location.x, location.y, 1));
+    const unpathableEndPoints = endPoints.filter(
+      (location) =>
+        !Pathing.canTileBePathedTo(region, location.x, location.y, 1)
+    );
 
-    const results: ReturnType<typeof this.constructPaths> = unpathableEndPoints.map((endPoint) => ({
-      destination: endPoint,
-      path: []
-    }));
+    const results: ReturnType<typeof this.constructPaths> =
+      unpathableEndPoints.map((endPoint) => ({
+        destination: endPoint,
+        path: [],
+      }));
 
     if (results.length === endPoints.length) {
       // no pathable end points
       return results;
     }
-    
-    let pathableEndPoints = endPoints.filter((location) => Pathing.canTileBePathedTo(region, location.x, location.y, 1));
 
+    let pathableEndPoints = endPoints.filter((location) =>
+      Pathing.canTileBePathedTo(region, location.x, location.y, 1)
+    );
 
     let pathX = x;
     let pathY = y;
 
-    const nodes: PathingNode[] = [
-      { x, y, parent: null }
-    ]
+    const nodes: PathingNode[] = [{ x, y, parent: null }];
 
     // The order of possible directions in this array determines if the player moves first straight or diagonaly
     // https://oldschool.runescape.wiki/w/Pathfinding#Determining_the_target_tile
@@ -145,24 +174,28 @@ export class Pathing {
       { x: 0, y: -1 }, // north
       { x: -1, y: 1 }, // sw
       { x: 1, y: 1 }, // se
-      { x: -1, y: -1 }, // nw 
-      { x: 1, y: -1 } // ne
-    ]
-    
-    let bestBackupTile = {x: -1, y: -1};
+      { x: -1, y: -1 }, // nw
+      { x: 1, y: -1 }, // ne
+    ];
+
+    let bestBackupTile = { x: -1, y: -1 };
     let bestBackupTileDistance = 99999;
 
+    let currentDistance = 0;
+
     // Djikstra search for the optimal route
-    const explored: any = {}
+    const explored: { [x: number]: { [y: number]: number } } = {};
     while (nodes.length !== 0) {
-      const parentNode = nodes.shift()
-      const matchedDestinations = pathableEndPoints.filter((d) => d.x === parentNode.x && d.y === parentNode.y);
+      const parentNode = nodes.shift();
+      const matchedDestinations = pathableEndPoints.filter(
+        (d) => d.x === parentNode.x && d.y === parentNode.y
+      );
       matchedDestinations.forEach((d) => {
         const path = [];
         let parent = parentNode;
         while (parent) {
-          path.push({ x: parent.x, y: parent.y })
-          parent = parent.parent
+          path.push({ x: parent.x, y: parent.y });
+          parent = parent.parent;
         }
         results.push({ destination: d, path });
         pathableEndPoints = pathableEndPoints.filter((e) => e !== e);
@@ -170,54 +203,63 @@ export class Pathing {
       if (pathableEndPoints.length === 0) {
         break;
       }
+      currentDistance = (explored[parentNode.x] || {})[parentNode.y] || 0;
       for (let i = 0; i < directions.length; i++) {
-        const iDirection = directions[i]
-        pathX = parentNode.x + iDirection.x
-        pathY = parentNode.y + iDirection.y
+        const iDirection = directions[i];
+        pathX = parentNode.x + iDirection.x;
+        pathY = parentNode.y + iDirection.y;
 
         if (!Pathing.canTileBePathedTo(region, pathX, pathY, 1, null)) {
           // Destination is not a valid square
-          continue
+          continue;
         }
         if (i >= 4) {
-          // Check neighbourin squares for diagonal moves
-          let neighbourX = parentNode.x
-          let neighbourY = parentNode.y + iDirection.y
-          if (!Pathing.canTileBePathedTo(region, neighbourX, neighbourY, 1, null)) {
-            continue
+          // Check neighbouring squares for diagonal moves
+          let neighbourX = parentNode.x;
+          let neighbourY = parentNode.y + iDirection.y;
+          if (
+            !Pathing.canTileBePathedTo(region, neighbourX, neighbourY, 1, null)
+          ) {
+            continue;
           }
-          neighbourX = parentNode.x + iDirection.x
-          neighbourY = parentNode.y
-          if (!Pathing.canTileBePathedTo(region, neighbourX, neighbourY, 1, null)) {
-            continue
+          neighbourX = parentNode.x + iDirection.x;
+          neighbourY = parentNode.y;
+          if (
+            !Pathing.canTileBePathedTo(region, neighbourX, neighbourY, 1, null)
+          ) {
+            continue;
           }
         }
 
         if (pathX in explored) {
           if (pathY in explored[pathX]) {
-            continue
+            continue;
           } else {
-            explored[pathX][pathY] = true
+            explored[pathX][pathY] = currentDistance + 1;
             // ... has the target tile as close as possible in Euclidean distance to the nearest requested tile
             endPoints.forEach((to) => {
-              if (Pathing.dist(to.x, to.y, pathX, pathY) < bestBackupTileDistance) {
+              if (
+                Pathing.dist(to.x, to.y, pathX, pathY) < bestBackupTileDistance
+              ) {
                 bestBackupTileDistance = Pathing.dist(to.x, to.y, pathX, pathY);
-                bestBackupTile = {x: pathX, y: pathY };
+                bestBackupTile = { x: pathX, y: pathY };
               }
             });
           }
         } else {
-          explored[pathX] = {}
-          explored[pathX][pathY] = true
+          explored[pathX] = {};
+          explored[pathX][pathY] = currentDistance + 1;
           endPoints.forEach((to) => {
-            if (Pathing.dist(to.x, to.y, pathX, pathY) < bestBackupTileDistance) {
+            if (
+              Pathing.dist(to.x, to.y, pathX, pathY) < bestBackupTileDistance
+            ) {
               bestBackupTileDistance = Pathing.dist(to.x, to.y, pathX, pathY);
-              bestBackupTile = {x: pathX, y: pathY };
+              bestBackupTile = { x: pathX, y: pathY };
             }
           });
         }
 
-        nodes.push({ x: pathX, y: pathY, parent: parentNode })
+        nodes.push({ x: pathX, y: pathY, parent: parentNode });
       }
     }
 
@@ -226,25 +268,34 @@ export class Pathing {
       return Pathing.constructPaths(region, startPoint, [bestBackupTile]);
     }
 
-    return results
+    return results;
   }
 
-  static path (region: Region, startPoint: Location, endPoint: Location, speed: number, seeking: Unit) {
+  static path(
+    region: Region,
+    startPoint: Location,
+    endPoint: Location,
+    speed: number,
+    seeking: Unit
+  ) {
     let x: number, y: number;
     const { path } = Pathing.constructPaths(region, startPoint, [endPoint])[0];
     if (path.length === 0) {
-      return { x: startPoint.x, y: startPoint.y, path: [] }
+      return { x: startPoint.x, y: startPoint.y, path: [] };
     }
-    if (seeking && Collision.collidesWithMob(region, path[0].x, path[0].y, 1, seeking)) {
-      path.shift()
+    if (
+      seeking &&
+      Collision.collidesWithMob(region, path[0].x, path[0].y, 1, seeking)
+    ) {
+      path.shift();
     }
 
     if (path.length === 0) {
       return {
         x: startPoint.x,
         y: startPoint.y,
-        path: []
-      }
+        path: [],
+      };
     }
 
     if (path.length <= speed) {
@@ -258,6 +309,6 @@ export class Pathing {
     }
     const destination = path[0];
     path.reverse();
-    return { x, y, path: path.slice(1, 3), destination }
+    return { x, y, path: path.slice(1, 3), destination };
   }
 }

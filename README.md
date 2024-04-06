@@ -31,3 +31,7 @@ Sure. Right now the code is undergoing rapid development and the API is not stab
 Use Node 16 for now. There's an SSL error on version >= 18.
 
     npm run start
+
+Running test
+
+    npx jest

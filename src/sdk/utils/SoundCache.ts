@@ -5,13 +5,12 @@ export class Sound {
 }
 
 export class SoundCache {
-
   static soundCache = {};
 
-  static context = new AudioContext();
-  static cachedSounds: {[src: string]: AudioBuffer} = {};
-  
-  static getCachedSound (src: string): HTMLAudioElement {
+  static context = window.AudioContext ? new AudioContext() : null;
+  static cachedSounds: { [src: string]: AudioBuffer } = {};
+
+  static getCachedSound(src: string): HTMLAudioElement {
     if (!src) {
       return null;
     }
@@ -19,11 +18,14 @@ export class SoundCache {
     if (this.soundCache[src]) {
       return this.soundCache[src];
     }
-    
-    return this.soundCache[src] = new Audio(src);
+
+    return (this.soundCache[src] = new Audio(src));
   }
 
   static async preload(src: string): Promise<AudioBuffer> {
+    if (!SoundCache.context) {
+      return null;
+    }
     if (SoundCache.cachedSounds[src] === LOADING_SOUND) {
       return null;
     }
@@ -35,13 +37,16 @@ export class SoundCache {
     return audioBuffer;
   }
 
-  static play({src, volume}: Sound) {
+  static play({ src, volume }: Sound) {
+    if (!SoundCache.context) {
+      return null;
+    }
     if (this.cachedSounds[src] === undefined) {
       (async () => {
         const sound = await this.preload(src);
         // play after loading
         if (sound) {
-          SoundCache.play({src, volume});
+          SoundCache.play({ src, volume });
         }
       })();
       return;
