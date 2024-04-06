@@ -124,9 +124,9 @@ export class ControlPanelController {
     const controlAreaHeight = height - MapController.controller.height;
     let scaleRatio = controlAreaHeight / 7 / 36;
 
-    let maxScaleRatio = 1.0;
+    let maxScaleRatio = Settings.maxUiScale;
     if (Settings.mobileCheck() && width > 600) {
-      maxScaleRatio = 1.1;
+      maxScaleRatio = Settings.maxUiScale * 1.1;
     }
     
     if (scaleRatio > maxScaleRatio) {
@@ -151,7 +151,7 @@ export class ControlPanelController {
       }else{
         return { x: width - 33 * scale - 15 - (Settings.menuVisible ? 232 : 0), y: mapHeight + spacer + (i - 7) * 36 * scale };
       }
-    }else{
+    } else {
       const x = i % 7
       const y = Math.floor(i / 7)
       return { 
@@ -307,15 +307,13 @@ export class ControlPanelController {
     }
   }
 
-  draw () {
+  draw (context: CanvasRenderingContext2D) {
     Viewport.viewport.context.fillStyle = '#000'
     const scale = this.getTabScale();
 
-    
-    
     if (this.selectedControl && this.selectedControl.draw) {
       const position = this.controlPosition(this.selectedControl);
-      this.selectedControl.draw(this, position.x, position.y);
+      this.selectedControl.draw(context, this, position.x, position.y);
     }
 
     let selectedPosition: TabPosition = null
@@ -324,7 +322,7 @@ export class ControlPanelController {
     this.controls.forEach((control, index) => {
       const tabPosition = this.tabPosition(index)
       if (control.tabImage){
-        Viewport.viewport.context.drawImage(
+        context.drawImage(
           control.tabImage, 
           tabPosition.x, 
           tabPosition.y, 
@@ -334,23 +332,19 @@ export class ControlPanelController {
       }
 
       if (control.isAvailable === false){
-        Viewport.viewport.context.fillStyle = '#00000099'
-        Viewport.viewport.context.fillRect(tabPosition.x, tabPosition.y, 33 * scale, 36 * scale)
+        context.fillStyle = '#00000099'
+        context.fillRect(tabPosition.x, tabPosition.y, 33 * scale, 36 * scale)
       }
 
-      
       if (control === this.selectedControl) {
         selectedPosition = tabPosition
       }
     })
 
     if (selectedPosition) {
-      Viewport.viewport.context.strokeStyle = '#00FF0073'
-      Viewport.viewport.context.lineWidth = 3
-      Viewport.viewport.context.strokeRect(selectedPosition.x, selectedPosition.y, 33 * scale, 36 * scale)
+      context.strokeStyle = '#00FF0073'
+      context.lineWidth = 3
+      context.strokeRect(selectedPosition.x, selectedPosition.y, 33 * scale, 36 * scale)
     }
-
-
-
   }
 }

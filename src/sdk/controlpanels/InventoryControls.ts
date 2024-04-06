@@ -147,11 +147,12 @@ export class InventoryControls extends BaseControls {
     }
   }
 
-  draw (ctrl: ControlPanelController, x: number, y: number) {
-    super.draw(ctrl, x, y)
+  draw (context, ctrl: ControlPanelController, x: number, y: number) {
+    super.draw(context, ctrl, x, y)
 
     const scale = Settings.controlPanelScale;
-    Viewport.viewport.player.inventory.forEach((inventoryItem, index) => {
+    const { player } = Viewport.viewport;
+    player.inventory.forEach((inventoryItem, index) => {
       const x2 = index % 4
       const y2 = Math.floor(index / 4)
 
@@ -160,34 +161,34 @@ export class InventoryControls extends BaseControls {
 
       if (inventoryItem !== null) {
         
-        Viewport.viewport.context.fillStyle = "#ffffff22"
+        context.fillStyle = "#ffffff22"
         // Viewport.viewport.context.fillRect(itemX, itemY, 32, 32)
         const sprite = inventoryItem.inventorySprite;
 
         const xOff = Math.floor((32 - sprite.width) / 2);
         const yOff = Math.floor((32 - sprite.height) / 2)
         if (inventoryItem === this.clickedDownItem) {
-          Viewport.viewport.context.globalAlpha = 0.4;
+          context.globalAlpha = 0.4;
           if (Pathing.dist(this.cursorLocation.x, this.cursorLocation.y, this.clickedDownLocation.x, this.clickedDownLocation.y) > 5) {
-            Viewport.viewport.context.drawImage(
+            context.drawImage(
               sprite, 
-              this.cursorLocation.x + sprite.width * scale / 2, 
-              this.cursorLocation.y - sprite.height * scale / 2, 
+              x + this.cursorLocation.x - sprite.width * scale / 2, 
+              y + this.cursorLocation.y - sprite.height * scale / 2, 
               sprite.width * scale, 
               sprite.height * scale
               );
           }else{
-            Viewport.viewport.context.drawImage(sprite, 
+            context.drawImage(sprite, 
               itemX + xOff, 
               itemY + yOff, 
               sprite.width * scale, 
               sprite.height * scale
               );
           }
-          Viewport.viewport.context.globalAlpha = 1;
+          context.globalAlpha = 1;
 
         }else{
-          Viewport.viewport.context.drawImage(
+          context.drawImage(
             sprite, 
             itemX + xOff, 
             itemY + yOff, 
@@ -196,10 +197,10 @@ export class InventoryControls extends BaseControls {
         }
 
         if (inventoryItem.selected) {
-          Viewport.viewport.context.beginPath()
-          Viewport.viewport.context.fillStyle = '#D1BB7773'
-          Viewport.viewport.context.arc(itemX + 15 * scale, itemY + 17 * scale, 16 * scale, 0, 2 * Math.PI)
-          Viewport.viewport.context.fill()
+          context.beginPath()
+          context.fillStyle = '#D1BB7773'
+          context.arc(itemX + 15 * scale, itemY + 17 * scale, 16 * scale, 0, 2 * Math.PI)
+          context.fill()
         }
       }
     })

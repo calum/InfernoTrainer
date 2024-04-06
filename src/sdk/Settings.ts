@@ -48,6 +48,8 @@ export class Settings {
   static minimapScale: number;
   static controlPanelScale: number;
 
+  static maxUiScale: number;
+
   static _isMobileResult = null;
 
   static use3dView = true;
@@ -107,11 +109,12 @@ export class Settings {
     window.localStorage.setItem("lockPOV", JSON.stringify(Settings.lockPOV));
     window.localStorage.setItem("menuVisible", String(Settings.menuVisible));
     window.localStorage.setItem("use3dView", String(Settings.use3dView));
+    window.localStorage.setItem("maxUiScale", String(Settings.maxUiScale));
   }
 
   static readFromStorage() {
     Settings.minimapScale = Settings.mobileCheck() ? 0.65 : 1;
-    Settings.controlPanelScale = Settings.mobileCheck() ? 0.9 : 1;
+    Settings.controlPanelScale = Settings.mobileCheck() ? 0.9 : 1.5;
 
     Settings.zoomScale =
       parseFloat(window.localStorage.getItem("zoomScale")) || 1;
@@ -181,5 +184,6 @@ export class Settings {
     if (Settings.use3dView) {
       Settings.rotated = "north";
     }
+    Settings.maxUiScale = parseFloat(window.localStorage.getItem("maxUiScale")) || 1.0;
   }
 }
