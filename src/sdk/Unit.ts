@@ -240,6 +240,15 @@ export class Unit extends Renderable {
   }
 
   getPerceivedRotation(tickPercent) {
+    if (this.aggro) {
+      const perceivedLocation = this.aggro.getPerceivedLocation(tickPercent);
+      return -Pathing.angle(
+        this.location.x,
+        this.location.y,
+        perceivedLocation.x,
+        perceivedLocation.y
+      );
+    }
     return 0;
   }
 

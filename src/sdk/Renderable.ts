@@ -74,4 +74,9 @@ export abstract class Renderable {
   create3dModel(): Model | null {
     return null;
   }
+
+  getNewAnimation(): { index: number, priority: number } {
+    // return the id of the animation that should start playing. If priority is higher than the current animation, will abort and start this one
+    return { index: 0, priority: 0 };
+  }
 }

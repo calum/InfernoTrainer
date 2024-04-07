@@ -35,3 +35,9 @@ Use Node 16 for now. There's an SSL error on version >= 18.
 Running test
 
     npx jest
+
+### Asset Pipeline
+
+Sounds: https://github.com/lequietriot/Old-School-RuneScape-Cache-Tools
+Models: Runemonk https://github.com/Dezinater/osrscachereader (currently using branch https://github.com/Dezinater/osrscachereader/pull/11/files)
+Run models through https://gltf.report/ with export settings: JSON (.gltf), buffers Separate, compression Meshopt.

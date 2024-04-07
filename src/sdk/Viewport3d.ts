@@ -167,10 +167,13 @@ export class Viewport3d implements ViewportDelegate {
   initialise(world: World, region: Region) {
     document.body.appendChild(this.stats.dom);
 
-    const light = new THREE.PointLight(0xffffaa, 400);
+    /*const light = new THREE.PointLight(0xffffaa, 1200);
     light.position.set(region.width / 2, 30, region.height / 2);
-    this.scene.add(light);
-    const ambientLight = new THREE.AmbientLight();
+    this.scene.add(light);*/
+    const hemiLight = new THREE.HemisphereLight(0xFFFFFF, 0xffffaa);
+    hemiLight.position.set(0, 100, 0);
+    this.scene.add(hemiLight);
+    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 2);
     this.scene.add(ambientLight);
 
     const floorCanvas = new OffscreenCanvas(
