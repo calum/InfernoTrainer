@@ -11,7 +11,7 @@ import { find } from "lodash";
 import { EntityName } from "../../../../sdk/EntityName";
 import { ImageLoader } from "../../../../sdk/utils/ImageLoader";
 import ZukAttackImage from "../../assets/images/zuk_attack.png";
-import { Projectile, ProjectileOptions } from "../../../../sdk/weapons/Projectile";
+import { Projectile } from "../../../../sdk/weapons/Projectile";
 import { JalZek } from "./JalZek";
 import { JalXil } from "./JalXil";
 import { JalMejJak } from "./JalMejJak";
@@ -19,10 +19,12 @@ import { JalTokJad } from "./JalTokJad";
 import { Viewport } from "../../../../sdk/Viewport";
 import { Region } from "../../../../sdk/Region";
 import { Sound } from "../../../../sdk/utils/SoundCache";
-
+import { Model } from "../../../../sdk/rendering/Model";
+import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
 
 import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
 import ZukAttackSound from "../../assets/sounds/fireblast_cast_and_fire_155.ogg";
+import ZukModel from "../../assets/models/7706_33011.glb";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -43,7 +45,11 @@ class ZukWeapon extends MagicWeapon {
       sound.volume = 0.1;
     }
     to.addProjectile(
-      new ZukProjectile(this, this.damage, from, to, "range", { setDelay: 3, visualDelayTicks: 1, sound })
+      new ZukProjectile(this, this.damage, from, to, "range", {
+        setDelay: 4,
+        visualDelayTicks: 2,
+        sound,
+      })
     );
   }
 }
@@ -345,5 +351,22 @@ export class TzKalZuk extends Mob {
     context.font = "16px OSRS";
 
     context.fillText(String(this.currentStats.hitpoint), 0, 0);
+  }
+
+  create3dModel(): Model {
+    return GLTFModel.forRenderable(this, ZukModel, 0.0075);
+  }
+
+  getNewAnimation() {
+    if (this.attackDelay <= 1) {
+      return { index: 1, priority: 10 }; // attack
+    } else {
+      return { index: 0, priority: 0 }; // idle
+    }
+  }
+
+  getPerceivedRotation(tickPercent: any) {
+    // zuk doesn't rotate for some reason
+    return -Math.PI / 2;
   }
 }

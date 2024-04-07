@@ -173,7 +173,7 @@ export class Viewport3d implements ViewportDelegate {
     const hemiLight = new THREE.HemisphereLight(0xFFFFFF, 0xffffaa);
     hemiLight.position.set(0, 100, 0);
     this.scene.add(hemiLight);
-    const ambientLight = new THREE.AmbientLight(0xFFFFFF, 2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1);
     this.scene.add(ambientLight);
 
     const floorCanvas = new OffscreenCanvas(

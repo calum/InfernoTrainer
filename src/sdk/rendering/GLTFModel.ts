@@ -25,6 +25,8 @@ export class GLTFModel implements Model {
   private outline: THREE.LineSegments;
   private outlineMaterial: THREE.LineBasicMaterial;
 
+  private clickHull: THREE.Mesh;
+
   private loadedModel: GLTF | null = null;
   private mixer: THREE.AnimationMixer | null = null;
 
@@ -51,6 +53,16 @@ export class GLTFModel implements Model {
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     this.outline = new THREE.LineSegments(geometry, this.outlineMaterial);
 
+    const hullMaterial = new THREE.MeshBasicMaterial({ color: 0x00000000 });
+    hullMaterial.transparent = true;
+    this.clickHull = new THREE.Mesh(
+      new THREE.CylinderGeometry(size * 0.4, size * 0.4, renderable.height, 6),
+      hullMaterial
+    );
+    this.clickHull.userData.clickable = renderable.selectable;
+    this.clickHull.userData.unit = renderable;
+    this.clickHull.visible = false;
+
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
     loader.load(model, (gltf: GLTF) => {
@@ -58,9 +70,11 @@ export class GLTFModel implements Model {
       // make adjustments
       gltf.scene.scale.set(scale, scale, scale);
       this.mixer = new THREE.AnimationMixer(gltf.scene);
-      this.animations = gltf.animations.map((animation) =>
-        this.mixer.clipAction(animation)
-      );
+      this.animations = gltf.animations.map((animation) => {
+        const anim = this.mixer.clipAction(animation);
+        anim.timeScale = 0.85;
+        return anim;
+      });
       const { index, priority } = renderable.getNewAnimation();
       this.playingAnimationId = index;
       this.playingAnimationPriority = priority;
@@ -82,7 +96,6 @@ export class GLTFModel implements Model {
     this.animations[this.playingAnimationId].stop();
     const newAnimation = this.animations[this.playingAnimationId];
     newAnimation.reset();
-    console.log("RESET");
     newAnimation.setLoop(THREE.LoopOnce, 1);
     newAnimation.play();
   }
@@ -98,6 +111,7 @@ export class GLTFModel implements Model {
     }
     if (this.outline.parent !== scene) {
       scene.add(this.outline);
+      scene.add(this.clickHull);
     }
 
     this.outlineMaterial.color.setHex(
@@ -108,6 +122,9 @@ export class GLTFModel implements Model {
     this.outline.position.x = x;
     this.outline.position.y = -0.49;
     this.outline.position.z = y;
+    this.clickHull.position.x = x + this.renderable.size / 2;
+    this.clickHull.position.y = -0.49;
+    this.clickHull.position.z = y - this.renderable.size / 2;
 
     if (this.loadedModel && this.mixer) {
       const { index, priority } = this.renderable.getNewAnimation();
@@ -139,6 +156,7 @@ export class GLTFModel implements Model {
     }
     if (this.outline.parent === scene) {
       scene.remove(this.outline);
+      scene.remove(this.clickHull);
     }
   }
 
