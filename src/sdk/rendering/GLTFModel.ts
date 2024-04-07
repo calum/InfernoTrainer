@@ -12,8 +12,6 @@ const CANVAS_TILE_SIZE = 20;
 const OUTLINE_NORMAL = 0xffffff;
 const OUTLINE_SELECTED = 0xff0000;
 
-const clock = new THREE.Clock();
-
 /**
  * Render the model using a sprite derived from the 2d representation of the renderable.
  */
@@ -21,6 +19,8 @@ export class GLTFModel implements Model {
   static forRenderable(r: Renderable, model: string, scale: number) {
     return new GLTFModel(r, model, scale);
   }
+
+  private clock = new THREE.Clock();
 
   private outline: THREE.LineSegments;
   private outlineMaterial: THREE.LineBasicMaterial;
@@ -72,7 +72,6 @@ export class GLTFModel implements Model {
       this.mixer = new THREE.AnimationMixer(gltf.scene);
       this.animations = gltf.animations.map((animation) => {
         const anim = this.mixer.clipAction(animation);
-        anim.timeScale = 0.85;
         return anim;
       });
       const { index, priority } = renderable.getNewAnimation();
@@ -135,7 +134,7 @@ export class GLTFModel implements Model {
         this.playingAnimationId = index;
         this.onAnimationFinished();
       }
-      this.mixer.update(clock.getDelta());
+      this.mixer.update(this.clock.getDelta());
 
       const { scene } = this.loadedModel;
       const { size } = this.renderable;

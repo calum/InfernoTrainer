@@ -139,7 +139,7 @@ export class JalXil extends Mob {
     context.rotate(Math.sin(-tickPercent * Math.PI));
   }
 
-  create3dModel(): Model {
+  create3dModel() {
     return GLTFModel.forRenderable(this, RangerModel, 0.0075);
   }
 
@@ -148,7 +148,10 @@ export class JalXil extends Mob {
       return { index: 2, priority: 5 }; // attack
     } else {
       const perceivedLocation = this.perceivedLocation;
-      if (perceivedLocation.x !== this.location.x || perceivedLocation.y !== this.location.y) {
+      if (
+        perceivedLocation.x !== this.location.x ||
+        perceivedLocation.y !== this.location.y
+      ) {
         return { index: 1, priority: 2 }; // moving
       }
       return { index: 0, priority: 0 }; // idle

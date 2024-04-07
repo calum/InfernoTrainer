@@ -15,6 +15,9 @@ import { Random } from "../../../../sdk/Random";
 import { Sound } from "../../../../sdk/utils/SoundCache";
 import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
 
+import MagerModel from "../../assets/models/7699_33000.glb";
+import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
+
 export class JalZek extends Mob {
   shouldRespawnMobs: boolean;
 
@@ -200,6 +203,25 @@ export class JalZek extends Mob {
       } else {
         this.attack();
       }
+    }
+  }
+
+  create3dModel() {
+    return GLTFModel.forRenderable(this, MagerModel, 0.0075);
+  }
+
+  getNewAnimation() {
+    if (this.attackDelay === this.attackSpeed) {
+      return { index: 2, priority: 5 }; // attack
+    } else {
+      const perceivedLocation = this.perceivedLocation;
+      if (
+        perceivedLocation.x !== this.location.x ||
+        perceivedLocation.y !== this.location.y
+      ) {
+        return { index: 1, priority: 2 }; // moving
+      }
+      return { index: 0, priority: 0 }; // idle
     }
   }
 }
