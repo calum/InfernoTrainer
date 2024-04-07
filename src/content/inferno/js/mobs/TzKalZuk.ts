@@ -346,11 +346,6 @@ export class TzKalZuk extends Mob {
   ) {
     super.drawOverTile(tickPercent, context, scale);
     // Draw mob
-
-    context.fillStyle = "#FFFF00";
-    context.font = "16px OSRS";
-
-    context.fillText(String(this.currentStats.hitpoint), 0, 0);
   }
 
   create3dModel(): Model {
@@ -368,5 +363,14 @@ export class TzKalZuk extends Mob {
   getPerceivedRotation(tickPercent: any) {
     // zuk doesn't rotate for some reason
     return -Math.PI / 2;
+  }
+
+  drawUILayer(tickPercent, offset, context, scale, hitsplatsAbove) {
+    super.drawUILayer(tickPercent, offset, context, scale, hitsplatsAbove)
+    
+    context.fillStyle = "#FFFF00";
+    context.font = "16px OSRS";
+
+    context.fillText(String(this.currentStats.hitpoint), offset.x, offset.y + 20);
   }
 }
