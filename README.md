@@ -40,4 +40,16 @@ Running test
 
 Sounds: https://github.com/lequietriot/Old-School-RuneScape-Cache-Tools
 Models: Runemonk https://github.com/Dezinater/osrscachereader (currently using branch https://github.com/Dezinater/osrscachereader/pull/11/files)
-Run models through https://gltf.report/ with export settings: JSON (.gltf), buffers Separate, compression Meshopt.
+Run models through https://gltf.report/ with:
+
+    import { prune, dedup, resample, weld, unpartition } from '@gltf-transform/functions';
+
+    await document.transform(
+        weld({exhaustive: true}),
+        unpartition(),
+        dedup(),
+        resample(),
+        prune()
+    );
+    
+and export settings: Binary (.glb), Interleaved, Meshopt compression.
