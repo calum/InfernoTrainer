@@ -199,7 +199,7 @@ export class InfernoPillar extends Entity {
   }
 
   get height() {
-    return 15;
+    return 10;
   }
 
   get color() {

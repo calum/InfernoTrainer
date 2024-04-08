@@ -17,6 +17,10 @@ import { Mob } from '../../../sdk/Mob';
 import { Region } from '../../../sdk/Region';
 import { Random } from '../../../sdk/Random';
 import { BasicModel } from '../../../sdk/rendering/BasicModel';
+import { Assets } from "../../../sdk/utils/Assets";
+import { GLTFModel } from "../../../sdk/rendering/GLTFModel";
+
+const ShieldModel = Assets.getAssetUrl("models/7707_33036-v20.glb");
 
 export class ZukShield extends Mob {
   incomingProjectiles: Projectile[] = [];
@@ -178,7 +182,7 @@ export class ZukShield extends Mob {
   }
 
   getPerceivedRotation(tickPercent: any) {
-    return 0;
+    return -Math.PI / 2;
   }
 
   drawUnderTile() {
@@ -193,6 +197,14 @@ export class ZukShield extends Mob {
   }
 
   create3dModel() {
-    return new BasicModel(3, 5, 0x333333, this, { x: 1, z: -1 });
+    return GLTFModel.forRenderable(this, ShieldModel, 0.0075);
+  }
+
+  getNewAnimation() {
+    if (this.dying >= 0) {
+      return { index: 1, priority: 5 }; // dying
+    } else {
+      return { index: 0, priority: 0 }; // idle
+    }
   }
 }
