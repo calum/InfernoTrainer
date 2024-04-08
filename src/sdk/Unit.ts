@@ -243,10 +243,10 @@ export class Unit extends Renderable {
     if (this.aggro) {
       const perceivedLocation = this.aggro.getPerceivedLocation(tickPercent);
       return -Pathing.angle(
-        this.location.x,
-        this.location.y,
-        perceivedLocation.x,
-        perceivedLocation.y
+        this.location.x + this.size / 2,
+        this.location.y - this.size / 2,
+        perceivedLocation.x + this.aggro.size / 2,
+        perceivedLocation.y - this.aggro.size / 2
       );
     }
     return 0;
