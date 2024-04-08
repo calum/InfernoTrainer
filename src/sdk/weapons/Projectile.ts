@@ -159,7 +159,6 @@ export class Projectile extends Renderable {
   onHit() {
     //
     if (this.options.hitSound) {
-      console.log('play hitsound');
       SoundCache.play(this.options.hitSound);
     }
   }

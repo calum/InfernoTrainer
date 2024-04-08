@@ -10,7 +10,6 @@ import { Pathing } from './Pathing'
 
 
 export class World {
-
   regions: Region[] = [];
   globalTickCounter = 0;
   isPaused = true;
