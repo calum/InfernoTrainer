@@ -43,7 +43,7 @@ export abstract class Renderable {
   }
 
   set selected(selected: boolean) {
-    this._selected = selected
+    this._selected = selected;
   }
 
   drawUILayer(
@@ -51,7 +51,7 @@ export abstract class Renderable {
     screenPosition: Location,
     context: OffscreenCanvasRenderingContext2D,
     scale: number,
-    hitsplatAbove = true,
+    hitsplatAbove = true
   ) {
     // Override me
   }
@@ -62,7 +62,7 @@ export abstract class Renderable {
     context: OffscreenCanvasRenderingContext2D,
     offset: Location = { x: 0, y: 0 },
     scale = 20,
-    drawUnderTile = true,
+    drawUnderTile = true
   ) {
     // Override me
   }
@@ -75,8 +75,15 @@ export abstract class Renderable {
     return null;
   }
 
-  getNewAnimation(): { index: number, priority: number } {
+  getNewAnimation(): {
+    index: number;
+    priority: number;
+    nonce?: number;
+    nonceFallback?: number;
+    speedScale?: number; // default 1
+  } {
     // return the id of the animation that should start playing. If priority is higher than the current animation, will abort and start this one
+    // if nonce is provided, will not play again with the same nonce value, and play nonceFallback instead - good for preventing loops
     return { index: 0, priority: 0 };
   }
 }

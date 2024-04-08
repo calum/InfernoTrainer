@@ -15,6 +15,10 @@ import { Unit, UnitBonuses } from "../../../../sdk/Unit";
 import { EntityName } from "../../../../sdk/EntityName";
 import { Random } from "../../../../sdk/Random";
 import { Sound } from "../../../../sdk/utils/SoundCache";
+import { Assets } from "../../../../sdk/utils/Assets";
+import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
+
+const BlobModel = Assets.getAssetUrl("models/7693_33001-v17.glb");
 
 export class JalAk extends Mob {
   playerPrayerScan?: string = null;
@@ -188,5 +192,29 @@ export class JalAk extends Mob {
       { aggro: this.aggro, cooldown: 4 }
     );
     this.region.addMob(mej as Mob);
+  }
+
+  create3dModel() {
+    return GLTFModel.forRenderable(this, BlobModel, 0.0075);
+  }
+
+  getNewAnimation() {
+    if (this.attackDelay === this.attackSpeed && !this.playerPrayerScan) {
+      return {
+        index: 2,
+        priority: 5,
+        nonce: this.attackDelay,
+        nonceFallback: 0,
+      }; // attack
+    } else {
+      const perceivedLocation = this.perceivedLocation;
+      if (
+        perceivedLocation.x !== this.location.x ||
+        perceivedLocation.y !== this.location.y
+      ) {
+        return { index: 1, priority: 2 }; // moving
+      }
+      return { index: 0, priority: 0 }; // idle
+    }
   }
 }

@@ -32,6 +32,7 @@ export class GLTFModel implements Model {
 
   private playingAnimationId = -1;
   private playingAnimationPriority = 0;
+  private playingAnimationNonce = undefined;
   private animations: THREE.AnimationAction[] = [];
 
   constructor(private renderable: Renderable, model: string, scale: number) {
@@ -74,9 +75,10 @@ export class GLTFModel implements Model {
         const anim = this.mixer.clipAction(animation);
         return anim;
       });
-      const { index, priority } = renderable.getNewAnimation();
+      const { index, priority, nonce } = renderable.getNewAnimation();
       this.playingAnimationId = index;
       this.playingAnimationPriority = priority;
+      this.playingAnimationNonce = nonce;
       this.animations[this.playingAnimationId].setLoop(THREE.LoopOnce, 1);
       this.animations[this.playingAnimationId].play();
 
@@ -89,12 +91,26 @@ export class GLTFModel implements Model {
   }
 
   onAnimationFinished() {
-    const { index, priority } = this.renderable.getNewAnimation();
-    this.playingAnimationId = index;
+    const currentNonce = this.playingAnimationNonce;
+    const { index, priority, nonce, nonceFallback, speedScale } =
+      this.renderable.getNewAnimation();
+    this.playingAnimationNonce = nonce;
+    if (
+      nonce !== undefined &&
+      currentNonce === nonce &&
+      index === this.playingAnimationId
+    ) {
+      // do not play it again, play the fallbcak instead
+      this.playingAnimationNonce = nonce;
+      this.playingAnimationId = nonceFallback;
+    } else {
+      this.playingAnimationId = index;
+    }
     this.playingAnimationPriority = priority;
     this.animations[this.playingAnimationId].stop();
     const newAnimation = this.animations[this.playingAnimationId];
     newAnimation.reset();
+    newAnimation.setEffectiveTimeScale(speedScale ?? 1.0);
     newAnimation.setLoop(THREE.LoopOnce, 1);
     newAnimation.play();
   }
@@ -140,7 +156,7 @@ export class GLTFModel implements Model {
       const { size } = this.renderable;
       const adjustedRotation = rotation + Math.PI / 2;
       scene.position.x = x + size / 2;
-      scene.position.y = -0.49;
+      scene.position.y = -0.45;
       scene.position.z = y - size / 2;
       scene.setRotationFromAxisAngle(
         new THREE.Vector3(0, 1, 0),

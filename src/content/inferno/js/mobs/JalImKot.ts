@@ -11,8 +11,17 @@ import { EntityName } from "../../../../sdk/EntityName";
 import { Random } from "../../../../sdk/Random";
 import { Player } from "../../../../sdk/Player";
 import { Sound } from "../../../../sdk/utils/SoundCache";
+import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
+import { Assets } from "../../../../sdk/utils/Assets";
+import { Location } from "../../../../sdk/Location";
+
+const MeleerModel = Assets.getAssetUrl("models/7697_33010-v18.glb");
 
 export class JalImKot extends Mob {
+  private digSequenceTime = 0;
+  private digLocation: Location = { x: 0, y: 0 };
+  private digCount = 0;
+
   mobName(): EntityName {
     return EntityName.JAL_IM_KOT;
   }
@@ -105,22 +114,23 @@ export class JalImKot extends Mob {
 
   movementStep() {
     super.movementStep();
-    if (!this.hasLOS) {
+    if (!this.hasLOS && !this.digSequenceTime) {
       if (
         (this.attackDelay <= -38 && Random.get() < 0.1) ||
         this.attackDelay <= -50
       ) {
-        this.dig();
+        this.startDig();
       }
+    }
+    if (this.digSequenceTime && --this.digSequenceTime === 0) {
+      this.endDig();
     }
   }
 
-  dig() {
-    if (this.aggro.type === UnitTypes.PLAYER) {
-      const player = this.aggro as Player;
-      player.interruptCombat();
-    }
-    this.attackDelay = 12;
+  startDig() {
+    this.freeze(6);
+    this.digSequenceTime = 6;
+    this.digCount++;
     if (
       !Collision.collidesWithAnyEntities(
         this.region,
@@ -129,8 +139,10 @@ export class JalImKot extends Mob {
         this.size
       )
     ) {
-      this.location.x = this.aggro.location.x - this.size + 1;
-      this.location.y = this.aggro.location.y + this.size - 1;
+      this.digLocation = {
+        x: this.aggro.location.x - this.size + 1,
+        y: this.aggro.location.y + this.size - 1,
+      };
     } else if (
       !Collision.collidesWithAnyEntities(
         this.region,
@@ -139,8 +151,10 @@ export class JalImKot extends Mob {
         this.size
       )
     ) {
-      this.location.x = this.aggro.location.x;
-      this.location.y = this.aggro.location.y;
+      this.digLocation = {
+        x: this.aggro.location.x,
+        y: this.aggro.location.y,
+      };
     } else if (
       !Collision.collidesWithAnyEntities(
         this.region,
@@ -149,8 +163,10 @@ export class JalImKot extends Mob {
         this.size
       )
     ) {
-      this.location.x = this.aggro.location.x - this.size + 1;
-      this.location.y = this.aggro.location.y;
+      this.digLocation = {
+        x: this.aggro.location.x - this.size + 1,
+        y: this.aggro.location.y,
+      };
     } else if (
       !Collision.collidesWithAnyEntities(
         this.region,
@@ -159,12 +175,62 @@ export class JalImKot extends Mob {
         this.size
       )
     ) {
-      this.location.x = this.aggro.location.x;
-      this.location.y = this.aggro.location.y + this.size - 1;
+      this.digLocation = {
+        x: this.aggro.location.x,
+        y: this.aggro.location.y + this.size - 1,
+      };
     } else {
-      this.location.x = this.aggro.location.x - 1;
-      this.location.y = this.aggro.location.y + 1;
+      this.digLocation = {
+        x: this.aggro.location.x - 1,
+        y: this.aggro.location.y + 1,
+      };
     }
     this.perceivedLocation = this.location;
+  }
+
+  endDig() {
+    if (this.aggro.type === UnitTypes.PLAYER) {
+      const player = this.aggro as Player;
+      player.interruptCombat();
+    }
+    this.attackDelay = 6;
+    this.freeze(2);
+    this.location = this.digLocation;
+    this.perceivedLocation = this.location;
+  }
+
+  create3dModel() {
+    return GLTFModel.forRenderable(this, MeleerModel, 0.0075);
+  }
+
+  getNewAnimation() {
+    if (this.digSequenceTime > 4) {
+      return {
+        index: 3,
+        priority: 10,
+        nonce: this.digCount,
+        nonceFallback: 0,
+        speedScale: 0.8,
+      }; // dig
+    } else if (this.attackDelay > this.attackSpeed) {
+      return {
+        index: 4,
+        priority: 5,
+        nonce: this.digCount,
+        nonceFallback: 0,
+        speedScale: 0.6,
+      }; // dig
+    } else if (this.attackDelay === this.attackSpeed) {
+      return { index: 2, priority: 5 }; // attack
+    } else {
+      const perceivedLocation = this.perceivedLocation;
+      if (
+        perceivedLocation.x !== this.location.x ||
+        perceivedLocation.y !== this.location.y
+      ) {
+        return { index: 1, priority: 2 }; // moving
+      }
+      return { index: 0, priority: 0 }; // idle
+    }
   }
 }
