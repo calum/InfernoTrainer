@@ -63,7 +63,7 @@ export class Viewport3d implements ViewportDelegate {
       70,
       this.canvasDimensions.width / this.canvasDimensions.height,
       0.1,
-      1000
+      50
     );
     this.raycaster = new THREE.Raycaster();
     this.raycaster.params.Points.threshold = 0.1;
@@ -187,7 +187,7 @@ export class Viewport3d implements ViewportDelegate {
     const floorTexture = new THREE.Texture(floorCanvas);
     floorTexture.needsUpdate = true;
 
-    const floorGeometry = new THREE.PlaneGeometry(region.width, region.height, 8, 8);
+    const floorGeometry = new THREE.PlaneGeometry(region.width, region.height, 1, 1);
     const floorMaterial = new THREE.MeshStandardMaterial({
       map: floorTexture,
       transparent: true,

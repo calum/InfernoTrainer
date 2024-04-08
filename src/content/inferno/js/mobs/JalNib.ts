@@ -18,6 +18,10 @@ import { EntityName } from "../../../../sdk/EntityName";
 import { Random } from "../../../../sdk/Random";
 import { Region } from "../../../../sdk/Region";
 import { Sound } from "../../../../sdk/utils/SoundCache";
+import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
+import { Assets } from "../../../../sdk/utils/Assets";
+
+const NibblerModel = Assets.getAssetUrl("models/7691_33005-v16.glb");
 
 class NibblerWeapon extends MeleeWeapon {
   attack(
@@ -166,6 +170,25 @@ export class JalNib extends Mob {
       this.attackDelay <= 0
     ) {
       this.attack();
+    }
+  }
+
+  create3dModel() {
+    return GLTFModel.forRenderable(this, NibblerModel, 0.0075);
+  }
+
+  getNewAnimation() {
+    if (this.attackDelay === this.attackSpeed) {
+      return { index: 2, priority: 5 }; // attack
+    } else {
+      const perceivedLocation = this.perceivedLocation;
+      if (
+        perceivedLocation.x !== this.location.x ||
+        perceivedLocation.y !== this.location.y
+      ) {
+        return { index: 1, priority: 2 }; // moving
+      }
+      return { index: 0, priority: 0 }; // idle
     }
   }
 }

@@ -144,7 +144,7 @@ export class JalXil extends Mob {
   }
 
   getNewAnimation() {
-    if (this.attackDelay > this.attackSpeed / 2) {
+    if (this.attackDelay === this.attackSpeed) {
       return { index: 2, priority: 5 }; // attack
     } else {
       const perceivedLocation = this.perceivedLocation;
