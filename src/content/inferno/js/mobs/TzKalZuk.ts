@@ -21,10 +21,12 @@ import { Region } from "../../../../sdk/Region";
 import { Sound } from "../../../../sdk/utils/SoundCache";
 import { Model } from "../../../../sdk/rendering/Model";
 import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
+import { getAssetUrl } from "../../../../sdk/utils/Assets";
 
 import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
 import ZukAttackSound from "../../assets/sounds/fireblast_cast_and_fire_155.ogg";
-import ZukModel from "../../assets/models/7706_33011.glb";
+
+const ZukModel = getAssetUrl("models/7706_33011.glb");
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

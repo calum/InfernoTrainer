@@ -13,10 +13,10 @@ import { DelayedAction } from "../../../../sdk/DelayedAction";
 import { EntityName } from "../../../../sdk/EntityName";
 import { Sound } from "../../../../sdk/utils/SoundCache";
 import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
-import { Model } from "../../../../sdk/rendering/Model";
 import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
+import { getAssetUrl } from "../../../../sdk/utils/Assets";
 
-import RangerModel from "../../assets/models/7698_33014.glb";
+const RangerModel = getAssetUrl("models/7698_33014.glb");
 
 class JalXilWeapon extends RangedWeapon {
   registerProjectile(from: Unit, to: Unit) {
