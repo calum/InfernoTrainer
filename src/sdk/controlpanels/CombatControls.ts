@@ -16,10 +16,9 @@ import { startCase, toLower } from 'lodash'
 import { Settings } from '../Settings'
 import { Viewport } from '../Viewport'
 import { PlayerStats } from '../PlayerStats'
-import { is } from '@babel/types'
 
 export class CombatControls extends BaseControls {
-  private playerStats: PlayerStats | null = null;
+  private playerStats: PlayerStats;
 
   selectedCombatStyleButtonImage: HTMLImageElement = ImageLoader.createImage(SelectedCombatStyleButtonImage)
   combatStyleButtonImage: HTMLImageElement = ImageLoader.createImage(CombatStyleButtonImage)

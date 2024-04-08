@@ -14,9 +14,9 @@ import { EntityName } from "../../../../sdk/EntityName";
 import { Sound } from "../../../../sdk/utils/SoundCache";
 import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
 import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
-import { getAssetUrl } from "../../../../sdk/utils/Assets";
+import { Assets } from "../../../../sdk/utils/Assets";
 
-const RangerModel = getAssetUrl("models/7698_33014.glb");
+const RangerModel = Assets.getAssetUrl("models/7698_33014.glb");
 
 class JalXilWeapon extends RangedWeapon {
   registerProjectile(from: Unit, to: Unit) {

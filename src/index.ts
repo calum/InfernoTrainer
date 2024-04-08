@@ -27,9 +27,10 @@ import { EntityName } from "./sdk/EntityName";
 import { Mob } from "./sdk/Mob";
 import { Location } from "./sdk/Location";
 import { MapController } from "./sdk/MapController";
-import { Blowpipe } from "./content/weapons/Blowpipe";
-import { NecklaceOfAnguish } from "./content/equipment/NecklaceOfAnguish";
-import { PegasianBoots } from "./content/equipment/PegasianBoots";
+import { Assets } from "./sdk/utils/Assets";
+import { Chrome } from "./sdk/Chrome";
+
+import SpecialAttackBarBackground from './assets/images/attackstyles/interface/special_attack_background.png'
 
 declare global {
   interface Window {
@@ -463,13 +464,90 @@ ImageLoader.onAllImagesLoaded(() =>
 );
 
 ImageLoader.onAllImagesLoaded(() => {
-  // Start the engine
-  world.startTicking();
+  drawAssetLoadingBar(loadingAssetProgress);
+  imagesReady = true;
+  checkStart();
 });
 
 const interval = setInterval(() => {
   ImageLoader.checkImagesLoaded(interval);
 }, 50);
+
+Assets.onAllAssetsLoaded(() => {
+  assetsReady = true;
+  checkStart();
+});
+
+function drawAssetLoadingBar(loadingProgress: number) {
+  const specialAttackBarBackground = ImageLoader.createImage(SpecialAttackBarBackground);
+  const { width: canvasWidth, height: canvasHeight } = Chrome.size();
+  const canvas = document.getElementById("world") as HTMLCanvasElement;
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "#FFFF00";
+  context.font = '32px OSRS';
+  context.textAlign = "center";
+  context.fillText(`Loading models: ${Math.floor(loadingProgress * 100)}%`, canvas.width / 2, canvas.height / 2);
+  const scale = 2;
+  const left = canvasWidth / 2 - (specialAttackBarBackground.width * scale) / 2;
+  const top = canvasHeight / 2 + 20;
+  const width = specialAttackBarBackground.width * scale;
+  const height = specialAttackBarBackground.height * scale;
+  context.drawImage(      
+    specialAttackBarBackground,
+    left,
+    top,
+    width,
+    height,
+  )
+  context.fillStyle = "#730606";
+  context.fillRect(
+    left + 2 * scale,
+    top + 6 * scale,
+    width - 4 * scale,
+    height - 12 * scale);
+  context.fillStyle = "#397d3b"
+  context.fillRect(
+    left + 2 * scale,
+    top + 6 * scale,
+    (width - 4 * scale) * loadingProgress,
+    height - 12 * scale);
+  context.fillStyle = "#000000"
+  context.globalAlpha = 0.5
+  context.strokeRect(
+    left + 2 * scale,
+    top + 6 * scale,
+    width - 4 * scale,
+    height - 12 * scale);
+  context.globalAlpha = 1
+
+}
+
+let loadingAssetProgress = 0.0;
+drawAssetLoadingBar(loadingAssetProgress);
+
+Assets.onAssetProgress((loaded, total) => {
+  loadingAssetProgress = loaded / total;
+  drawAssetLoadingBar(loadingAssetProgress);
+});
+
+const assets2 = setInterval(() => {
+  Assets.checkAssetsLoaded(assets2);
+}, 50);
+
+let imagesReady = false;
+let assetsReady = false;
+let started = false;
+
+function checkStart() {
+  if (!started && imagesReady && assetsReady) {
+    started = true;
+    // Start the engine
+    world.startTicking();
+  }
+}
 
 /// /////////////////////////////////////////////////////////
 
