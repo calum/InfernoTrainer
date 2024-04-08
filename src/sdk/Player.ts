@@ -30,7 +30,7 @@ import HumanHit from "../assets/sounds/human_hit_513.ogg";
 import { Model } from "./rendering/Model";
 import { BasicModel } from "./rendering/BasicModel";
 import { TileMarker } from "../content/TileMarker";
-import { PointingModel } from "./rendering/PlayerModel";
+import { PointingModel } from "./rendering/PointingModel";
 import _ from "lodash";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

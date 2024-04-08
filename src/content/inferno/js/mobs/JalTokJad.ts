@@ -29,6 +29,10 @@ import {
 import { BasicModel } from "../../../../sdk/rendering/BasicModel";
 import { Sound } from "../../../../sdk/utils/SoundCache";
 import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
+import { Assets } from "../../../../sdk/utils/Assets";
+import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
+
+const JadModel = Assets.getAssetUrl("models/7700_33012-v21.glb");
 
 interface JadUnitOptions extends UnitOptions {
   attackSpeed: number;
@@ -60,7 +64,13 @@ class JadMagicWeapon extends MagicWeapon {
 
   registerProjectile(from: Unit, to: Unit) {
     to.addProjectile(
-      new Projectile(this, this.damage, from, to, "magic", { reduceDelay: JAD_PROJECTILE_DELAY, motionInterpolator: new ArcProjectionMotionInterpolator(1), color: "#FFAA00", size: 2, sound: MageProjectileSound })
+      new Projectile(this, this.damage, from, to, "magic", {
+        reduceDelay: JAD_PROJECTILE_DELAY,
+        motionInterpolator: new ArcProjectionMotionInterpolator(1),
+        color: "#FFAA00",
+        size: 2,
+        sound: MageProjectileSound,
+      })
     );
   }
 }
@@ -82,7 +92,11 @@ class JadRangeWeapon extends RangedWeapon {
 
   registerProjectile(from: Unit, to: Unit) {
     to.addProjectile(
-      new JadRangeProjectile(this, this.damage, from, to, "range", { reduceDelay: JAD_PROJECTILE_DELAY, motionInterpolator: new CeilingFallMotionInterpolator(8), sound: RangeProjectileSound})
+      new JadRangeProjectile(this, this.damage, from, to, "range", {
+        reduceDelay: JAD_PROJECTILE_DELAY,
+        motionInterpolator: new CeilingFallMotionInterpolator(8),
+        sound: RangeProjectileSound,
+      })
     );
   }
 }
@@ -286,7 +300,6 @@ export class JalTokJad extends Mob {
     return new Sound(HitSound, 0.1);
   }
 
-
   attack() {
     super.attack();
     this.attackFeedback = AttackIndicators.NONE;
@@ -311,5 +324,28 @@ export class JalTokJad extends Mob {
       }
     }
     super.draw(tickPercent, context, offset, scale, drawUnderTile);
+  }
+
+  create3dModel() {
+    return GLTFModel.forRenderable(this, JadModel, 0.0075);
+  }
+
+  getNewAnimation() {
+    if (this.attackDelay === this.attackSpeed) {
+      if (this.attackStyle === "magic") {
+        return { index: 2, priority: 5 }; // attack mage
+      } else {
+        return { index: 3, priority: 5 }; // attack range
+      }
+    } else {
+      const perceivedLocation = this.perceivedLocation;
+      if (
+        perceivedLocation.x !== this.location.x ||
+        perceivedLocation.y !== this.location.y
+      ) {
+        return { index: 1, priority: 2 }; // moving
+      }
+      return { index: 0, priority: 0 }; // idle
+    }
   }
 }

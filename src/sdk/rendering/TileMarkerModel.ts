@@ -30,7 +30,12 @@ export class TileMarkerModel implements Model {
     this.outline = new THREE.LineSegments(geometry, lineMaterial);
   }
 
-  draw(scene: THREE.Scene, tickPercent: number, location: Location) {
+  draw(
+    scene: THREE.Scene,
+    clockDelta: number,
+    tickPercent: number,
+    location: Location
+  ) {
     if (this.outline.parent !== scene) {
       scene.add(this.outline);
     }

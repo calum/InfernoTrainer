@@ -4,7 +4,6 @@ import { Renderable } from "../Renderable";
 import { Location3 } from "../Location";
 
 export class PointingModel implements Model {
-
   static forRenderable(r: Renderable) {
     return new PointingModel(r.size, r.height, r.colorHex, r);
   }
@@ -20,7 +19,7 @@ export class PointingModel implements Model {
     height: number,
     color: number,
     unit: Renderable | null,
-    private drawOffset: {x?: number , y?: number, z?: number} = {},
+    private drawOffset: { x?: number; y?: number; z?: number } = {}
   ) {
     this.geometry = new THREE.BoxGeometry(size * 0.6, height, size * 0.6);
     this.material = new THREE.MeshStandardMaterial({ color });
@@ -29,11 +28,22 @@ export class PointingModel implements Model {
     this.mainMesh.userData.unit = unit;
 
     // west is 0 degrees
-    this.arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(1,0,0), new THREE.Vector3(0, 0, 0), 1, color);
+    this.arrowHelper = new THREE.ArrowHelper(
+      new THREE.Vector3(1, 0, 0),
+      new THREE.Vector3(0, 0, 0),
+      1,
+      color
+    );
     this.mainMesh.add(this.arrowHelper);
   }
 
-  draw(scene: THREE.Scene, tickPercent: number, location: Location3, rotation: number) {
+  draw(
+    scene: THREE.Scene,
+    clockDelta: number,
+    tickPercent: number,
+    location: Location3,
+    rotation: number
+  ) {
     if (this.mainMesh.parent !== scene) {
       scene.add(this.mainMesh);
     }
@@ -42,10 +52,19 @@ export class PointingModel implements Model {
 
     // conversion from Location3 to Vector3
     // lerp because we only move the perceived location in client ticks
-    const targetPosition = new THREE.Vector3(x + size / 2, z, y - size / 2).add({x: this.drawOffset.x || 0, y: this.drawOffset.y || 0, z: this.drawOffset.z || 0});
+    const targetPosition = new THREE.Vector3(x + size / 2, z, y - size / 2).add(
+      {
+        x: this.drawOffset.x || 0,
+        y: this.drawOffset.y || 0,
+        z: this.drawOffset.z || 0,
+      }
+    );
     this.mainMesh.position.lerp(targetPosition, 0.25);
 
-    this.mainMesh.setRotationFromAxisAngle(new THREE.Vector3(0, 1, 0), rotation);
+    this.mainMesh.setRotationFromAxisAngle(
+      new THREE.Vector3(0, 1, 0),
+      rotation
+    );
   }
 
   destroy(scene: THREE.Scene) {

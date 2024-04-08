@@ -8,7 +8,12 @@ export class EmptyModel implements Model {
     return new EmptyModel();
   }
 
-  draw(scene: THREE.Scene, tickPercent: number, location: Location) {
+  draw(
+    scene: THREE.Scene,
+    clockDelta: number,
+    tickPercent: number,
+    location: Location
+  ) {
     // do nothing
   }
 
@@ -17,6 +22,6 @@ export class EmptyModel implements Model {
   }
 
   getWorldPosition(): THREE.Vector3 {
-    return new THREE.Vector3(0,0,0);
+    return new THREE.Vector3(0, 0, 0);
   }
 }

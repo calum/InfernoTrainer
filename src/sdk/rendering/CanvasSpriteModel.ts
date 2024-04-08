@@ -49,7 +49,9 @@ export class CanvasSpriteModel implements Model {
     this.sprite.userData.clickable = renderable.selectable;
     this.sprite.userData.unit = renderable;
 
-    this.outlineMaterial = new THREE.LineBasicMaterial({ color: OUTLINE_NORMAL });
+    this.outlineMaterial = new THREE.LineBasicMaterial({
+      color: OUTLINE_NORMAL,
+    });
     const points = [
       new THREE.Vector3(0, 0, 0),
       new THREE.Vector3(size, 0, 0),
@@ -64,7 +66,12 @@ export class CanvasSpriteModel implements Model {
     this.outline = new THREE.LineSegments(geometry, this.outlineMaterial);
   }
 
-  draw(scene: THREE.Scene, tickPercent: number, location: Location) {
+  draw(
+    scene: THREE.Scene,
+    clockDelta: number,
+    tickPercent: number,
+    location: Location
+  ) {
     if (this.sprite.parent !== scene) {
       scene.add(this.sprite);
       scene.add(this.outline);
@@ -76,11 +83,13 @@ export class CanvasSpriteModel implements Model {
       this.context,
       { x: 0, y: size - 1 },
       CANVAS_TILE_SIZE,
-      false, // do not draw under-tile
+      false // do not draw under-tile
     );
     this.texture.needsUpdate = true;
 
-    this.outlineMaterial.color.setHex(this.renderable.selected ? OUTLINE_SELECTED : OUTLINE_NORMAL);
+    this.outlineMaterial.color.setHex(
+      this.renderable.selected ? OUTLINE_SELECTED : OUTLINE_NORMAL
+    );
 
     const { x, y } = location;
     this.outline.position.x = x;

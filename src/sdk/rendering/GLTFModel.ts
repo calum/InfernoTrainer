@@ -20,8 +20,6 @@ export class GLTFModel implements Model {
     return new GLTFModel(r, model, scale);
   }
 
-  private clock = new THREE.Clock();
-
   private outline: THREE.LineSegments;
   private outlineMaterial: THREE.LineBasicMaterial;
 
@@ -96,6 +94,8 @@ export class GLTFModel implements Model {
     const { index, priority, nonce, nonceFallback, speedScale } =
       this.renderable.getNewAnimation();
     this.playingAnimationNonce = nonce;
+    // needed otherwise the animations bleed into each other
+    this.mixer.stopAllAction();
     if (
       nonce !== undefined &&
       currentNonce === nonce &&
@@ -108,7 +108,6 @@ export class GLTFModel implements Model {
       this.playingAnimationId = index;
     }
     this.playingAnimationPriority = priority;
-    this.animations[this.playingAnimationId].stop();
     const newAnimation = this.animations[this.playingAnimationId];
     newAnimation.reset();
     newAnimation.setEffectiveTimeScale(speedScale ?? 1.0);
@@ -118,6 +117,7 @@ export class GLTFModel implements Model {
 
   draw(
     scene: THREE.Scene,
+    clockDelta: number,
     tickPercent: number,
     location: Location,
     rotation: number
@@ -151,7 +151,7 @@ export class GLTFModel implements Model {
         this.playingAnimationId = index;
         this.onAnimationFinished();
       }
-      this.mixer.update(this.clock.getDelta());
+      this.mixer.update(clockDelta);
 
       const { scene } = this.loadedModel;
       const { size } = this.renderable;

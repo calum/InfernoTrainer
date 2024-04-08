@@ -46,6 +46,8 @@ export class Viewport3d implements ViewportDelegate {
   private selectedTile: Location | null = null;
   private selectedTileMesh: THREE.LineSegments;
 
+  private clock = new THREE.Clock();
+
   constructor(faceCameraSouth = true) {
     this.scene = new THREE.Scene();
 
@@ -89,7 +91,6 @@ export class Viewport3d implements ViewportDelegate {
     this.pivot.add(this.yaw);
     this.yaw.add(this.pitch);
     this.pitch.add(this.camera);
-
 
     const lineMaterial = new THREE.LineBasicMaterial({
       color: "#FFFFFF",
@@ -160,8 +161,8 @@ export class Viewport3d implements ViewportDelegate {
     requestAnimationFrame(() => this.animate());
 
     this.render();
-    
-    this.stats.update()
+
+    this.stats.update();
   }
 
   initialise(world: World, region: Region) {
@@ -170,7 +171,7 @@ export class Viewport3d implements ViewportDelegate {
     /*const light = new THREE.PointLight(0xffffaa, 1200);
     light.position.set(region.width / 2, 30, region.height / 2);
     this.scene.add(light);*/
-    const hemiLight = new THREE.HemisphereLight(0xFFFFFF, 0xffffaa);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffaa);
     hemiLight.position.set(0, 100, 0);
     this.scene.add(hemiLight);
     const ambientLight = new THREE.AmbientLight(0xffffff, 1);
@@ -183,15 +184,20 @@ export class Viewport3d implements ViewportDelegate {
     const floorContext = floorCanvas.getContext("2d");
 
     region.drawWorldBackground(floorContext, SPRITE_SCALE);
-    
+
     const floorTexture = new THREE.Texture(floorCanvas);
     floorTexture.needsUpdate = true;
 
-    const floorGeometry = new THREE.PlaneGeometry(region.width, region.height, 1, 1);
+    const floorGeometry = new THREE.PlaneGeometry(
+      region.width,
+      region.height,
+      1,
+      1
+    );
     const floorMaterial = new THREE.MeshStandardMaterial({
       map: floorTexture,
       transparent: true,
-      color: 0xFFFFFF,
+      color: 0xffffff,
       side: THREE.FrontSide,
     });
     floorGeometry.rotateX(-Math.PI / 2);
@@ -279,13 +285,15 @@ export class Viewport3d implements ViewportDelegate {
       }
     });
 
+    const delta = this.clock.getDelta();
+
     this.knownActors.forEach((actor, entity) => {
       if (actor.shouldRemove()) {
         // remove destroyed actors
         actor.destroy(this.scene);
         this.knownActors.delete(entity);
       } else {
-        actor.draw(this.scene, world.tickPercent);
+        actor.draw(this.scene, delta, world.tickPercent);
       }
     });
 
@@ -305,11 +313,18 @@ export class Viewport3d implements ViewportDelegate {
       this.uiCanvas.width,
       this.uiCanvas.height
     );
-    const translator = (pos: Location, z = 0) => this.projectToScreen(new THREE.Vector3(pos.x, z, pos.y));
+    const translator = (pos: Location, z = 0) =>
+      this.projectToScreen(new THREE.Vector3(pos.x, z, pos.y));
 
     const get2dOffset = (r: Renderable) => {
       const perceivedLocation = r.getPerceivedLocation(world.tickPercent);
-      const { x, y } = translator({x: perceivedLocation.x + r.size / 2, y: perceivedLocation.y - r.size / 2}, r.height);
+      const { x, y } = translator(
+        {
+          x: perceivedLocation.x + r.size / 2,
+          y: perceivedLocation.y - r.size / 2,
+        },
+        r.height
+      );
       return { x, y };
     };
     const units: Unit[] = [...region.players, ...region.mobs];
@@ -324,7 +339,7 @@ export class Viewport3d implements ViewportDelegate {
         get2dOffset(r),
         this.uiCanvasContext,
         SPRITE_SCALE,
-        false,
+        false
       );
     });
   }
@@ -347,10 +362,9 @@ export class Viewport3d implements ViewportDelegate {
     const rayY = -(offsetY / height) * 2 + 1;
 
     this.raycaster.setFromCamera(new THREE.Vector2(rayX, rayY), this.camera);
-    const intersections = this.raycaster
-      .intersectObjects(
-        this.scene.children.filter((c) => c.userData.clickable === true)
-      );
+    const intersections = this.raycaster.intersectObjects(
+      this.scene.children.filter((c) => c.userData.clickable === true)
+    );
 
     if (intersections.length === 0) {
       return null;
@@ -377,7 +391,7 @@ export class Viewport3d implements ViewportDelegate {
         location: {
           x: this.selectedTile.x,
           y: this.selectedTile.y,
-        }
+        },
       };
     }
     return {
