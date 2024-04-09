@@ -25,6 +25,10 @@ export class World {
   tickTimer = 0;
   clientTickTimer = 0;
 
+  async preloadAssets() {
+    await Promise.all(this.regions.map((r) => r.preload()));
+  }
+
   addRegion(region: Region) {
     this.regions.push(region);
   }
@@ -34,7 +38,7 @@ export class World {
     if (this.deltaTimeSincePause === -1) {
       this.tickTimer = window.performance.now();
       this.then = window.performance.now();
-    }else{
+    } else{
       this.then = window.performance.now() - this.deltaTimeSincePause;
 
       this.tickTimer = window.performance.now() - this.deltaTimeSinceLastTick;

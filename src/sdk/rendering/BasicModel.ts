@@ -89,4 +89,9 @@ export class BasicModel implements Model {
   getWorldPosition(): THREE.Vector3 {
     return this.mesh.getWorldPosition(new THREE.Vector3());
   }
+
+  async preload() {
+    // do nothing
+    return;
+  }
 }

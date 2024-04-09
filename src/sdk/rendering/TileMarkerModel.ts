@@ -54,4 +54,9 @@ export class TileMarkerModel implements Model {
   getWorldPosition(): THREE.Vector3 {
     return this.outline.getWorldPosition(new THREE.Vector3());
   }
+
+  async preload() {
+    // do nothing
+    return;
+  }
 }

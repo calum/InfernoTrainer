@@ -1,3 +1,4 @@
+import { create } from "lodash";
 import { Location, Location3 } from "./Location";
 
 import { Model } from "./rendering/Model";
@@ -85,5 +86,13 @@ export abstract class Renderable {
     // return the id of the animation that should start playing. If priority is higher than the current animation, will abort and start this one
     // if nonce is provided, will not play again with the same nonce value, and play nonceFallback instead - good for preventing loops
     return { index: 0, priority: 0 };
+  }
+
+  async preload() {
+    // Create a dummy version of the model so that loading it is faster next time.
+    const model = this.create3dModel();
+    if (model) {
+      await model.preload();
+    }
   }
 }

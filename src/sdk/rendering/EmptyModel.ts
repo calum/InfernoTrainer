@@ -24,4 +24,9 @@ export class EmptyModel implements Model {
   getWorldPosition(): THREE.Vector3 {
     return new THREE.Vector3(0, 0, 0);
   }
+
+  async preload() {
+    // do nothing
+    return;
+  }
 }

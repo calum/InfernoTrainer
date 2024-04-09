@@ -1,6 +1,6 @@
 "use strict";
 import { World } from "./World";
-import { ViewportDelegate } from "./Viewport";
+import { Viewport, ViewportDelegate } from "./Viewport";
 import { Region } from "./Region";
 
 import * as THREE from "three";
@@ -30,7 +30,7 @@ export class Viewport3d implements ViewportDelegate {
   private canvasDimensions: { width: number; height: number } =
     this.calculateCanvasDimensions();
 
-  private scene: THREE.Scene;
+  public scene: THREE.Scene;
   private renderer: THREE.WebGLRenderer;
   private camera: THREE.PerspectiveCamera;
   private raycaster: THREE.Raycaster;
@@ -165,7 +165,7 @@ export class Viewport3d implements ViewportDelegate {
     this.stats.update();
   }
 
-  initialise(world: World, region: Region) {
+  async initialise(world: World, region: Region) {
     document.body.appendChild(this.stats.dom);
 
     /*const light = new THREE.PointLight(0xffffaa, 1200);
@@ -209,6 +209,10 @@ export class Viewport3d implements ViewportDelegate {
     this.scene.add(plane);
 
     this.scene.add(this.selectedTileMesh);
+
+    // preload by adding a bunch of models to the scene but out of sight
+    await Viewport.viewport.player.region.preload();
+    await this.renderer.compileAsync(this.scene, this.camera);
   }
 
   private updateCanvasSize() {

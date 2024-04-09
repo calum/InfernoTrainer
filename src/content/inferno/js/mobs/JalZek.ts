@@ -18,7 +18,7 @@ import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
 import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
 import { Assets } from "../../../../sdk/utils/Assets";
 
-const MagerModel = Assets.getAssetUrl("models/7699_33000.glb");
+export const MagerModel = Assets.getAssetUrl("models/7699_33000.glb");
 
 export class JalZek extends Mob {
   shouldRespawnMobs: boolean;

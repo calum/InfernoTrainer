@@ -6,11 +6,17 @@ import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module";
 import { Model } from "./Model";
 import { Renderable } from "../Renderable";
 import { Location } from "../Location";
+import { Viewport } from "../Viewport";
+import { Viewport3d } from "../Viewport3d";
 
 const CANVAS_TILE_SIZE = 20;
 
 const OUTLINE_NORMAL = 0xffffff;
 const OUTLINE_SELECTED = 0xff0000;
+
+// global loader across models
+const loader = new GLTFLoader();
+loader.setMeshoptDecoder(MeshoptDecoder);
 
 /**
  * Render the model using a sprite derived from the 2d representation of the renderable.
@@ -26,6 +32,7 @@ export class GLTFModel implements Model {
   private clickHull: THREE.Mesh;
 
   private loadedModel: GLTF | null = null;
+  private hasInitialisedModel = false;
   private mixer: THREE.AnimationMixer | null = null;
 
   private playingAnimationId = -1;
@@ -33,7 +40,7 @@ export class GLTFModel implements Model {
   private playingAnimationNonce = undefined;
   private animations: THREE.AnimationAction[] = [];
 
-  constructor(private renderable: Renderable, model: string, scale: number) {
+  constructor(private renderable: Renderable, private model: string, private scale: number) {
     const { size } = renderable;
 
     this.outlineMaterial = new THREE.LineBasicMaterial({
@@ -61,32 +68,6 @@ export class GLTFModel implements Model {
     this.clickHull.userData.clickable = renderable.selectable;
     this.clickHull.userData.unit = renderable;
     this.clickHull.visible = false;
-
-    const loader = new GLTFLoader();
-    loader.setMeshoptDecoder(MeshoptDecoder);
-    loader.load(model, (gltf: GLTF) => {
-      this.loadedModel = gltf;
-      // make adjustments
-      gltf.scene.scale.set(scale, scale, scale);
-      gltf.scene.frustumCulled = false;
-      this.mixer = new THREE.AnimationMixer(gltf.scene);
-      this.animations = gltf.animations.map((animation) => {
-        const anim = this.mixer.clipAction(animation);
-        return anim;
-      });
-      const { index, priority, nonce } = renderable.getNewAnimation();
-      this.playingAnimationId = index;
-      this.playingAnimationPriority = priority;
-      this.playingAnimationNonce = nonce;
-      this.animations[this.playingAnimationId].setLoop(THREE.LoopOnce, 1);
-      this.animations[this.playingAnimationId].play();
-
-      this.mixer.addEventListener("finished", (e) => {
-        if (e.action === this.animations[this.playingAnimationId]) {
-          this.onAnimationFinished();
-        }
-      });
-    });
   }
 
   onAnimationFinished() {
@@ -115,6 +96,31 @@ export class GLTFModel implements Model {
     newAnimation.play();
   }
 
+  // called the first time the model needs to appear on the scene
+  initialiseModel() {
+    loader.load(this.model, (gltf: GLTF) => {
+      this.loadedModel = gltf;
+      const scale = this.scale;
+      // make adjustments
+      gltf.scene.scale.set(scale, scale, scale);
+      gltf.scene.frustumCulled = false;
+      this.mixer = new THREE.AnimationMixer(gltf.scene);
+      this.animations = gltf.animations.map((animation) => this.mixer.clipAction(animation));
+      const { index, priority, nonce } = this.renderable.getNewAnimation();
+      this.playingAnimationId = index;
+      this.playingAnimationPriority = priority;
+      this.playingAnimationNonce = nonce;
+      this.animations[this.playingAnimationId].setLoop(THREE.LoopOnce, 1);
+      this.animations[this.playingAnimationId].play();
+  
+      this.mixer.addEventListener("finished", (e) => {
+        if (e.action === this.animations[this.playingAnimationId]) {
+          this.onAnimationFinished();
+        }
+      });
+    });
+  }
+
   draw(
     scene: THREE.Scene,
     clockDelta: number,
@@ -122,6 +128,10 @@ export class GLTFModel implements Model {
     location: Location,
     rotation: number
   ) {
+    if (!this.hasInitialisedModel) {
+      this.initialiseModel();
+      this.hasInitialisedModel = true;
+    }
     if (this.loadedModel && this.loadedModel.scene.parent !== scene) {
       scene.add(this.loadedModel.scene);
     }
@@ -178,5 +188,44 @@ export class GLTFModel implements Model {
 
   getWorldPosition(): THREE.Vector3 {
     return this.outline.getWorldPosition(new THREE.Vector3());
+  }
+
+  private static until(condition: () => boolean) {
+    const poll = (res) => {
+      if (condition()) {
+        res();
+      } else {
+        setTimeout(() => poll(res), 50);
+      }
+    };
+    return new Promise(poll);
+  }
+
+  async preload() {
+    return await GLTFModel.preload(this.model);
+  }
+
+  static async preload(model: string) {
+    const gltf = await loader.loadAsync(model);
+    const scene = (Viewport.viewport.getDelegate() as Viewport3d).scene;
+    const camera = new THREE.PerspectiveCamera();
+    gltf.scene.scale.set(0.01, 0.01, 0.01);
+    gltf.scene.position.set(20, 0, 20);
+    
+    scene.add(gltf.scene);
+    camera.position.set(10, 10, 10);
+    camera.lookAt(gltf.scene.position);
+    
+
+    const renderer = new THREE.WebGLRenderer({ canvas: new OffscreenCanvas(1, 1)});
+    renderer.setSize(1, 1, false);
+    let didRender = false;
+    requestAnimationFrame(() => {
+      renderer.render(scene, camera);
+      didRender = true;
+    });
+    await GLTFModel.until(() => didRender);
+    scene.remove(gltf.scene);
+    return;
   }
 }
