@@ -129,7 +129,7 @@ export class JalAk extends Mob {
   }
 
   canMeleeIfClose() {
-    return "crush";
+    return "crush" as const;
   }
 
   magicMaxHit() {

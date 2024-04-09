@@ -290,7 +290,7 @@ export class Mob extends Unit {
     return yTiles;
   }
   // todo: Rename this possibly? it returns the attack style if it's possible
-  canMeleeIfClose() {
+  canMeleeIfClose(): "slash" | "crush" | "stab" | "" {
     return "";
   }
 
@@ -386,14 +386,19 @@ export class Mob extends Unit {
 
   playAttackSound() {
     if (Settings.playsAudio && this.sound) {
-      let attemptedVolume = 1 / Pathing.dist(
+      let attemptedVolume =
+        1 /
+        Pathing.dist(
           Viewport.viewport.player.location.x,
           Viewport.viewport.player.location.y,
           this.location.x,
           this.location.y
         );
       attemptedVolume = Math.min(1, Math.max(0, Math.sqrt(attemptedVolume)));
-      SoundCache.play({src: this.sound.src, volume: attemptedVolume * this.sound.volume});
+      SoundCache.play({
+        src: this.sound.src,
+        volume: attemptedVolume * this.sound.volume,
+      });
     }
   }
 
@@ -485,7 +490,7 @@ export class Mob extends Unit {
     context: OffscreenCanvasRenderingContext2D,
     offset: Location,
     scale: number,
-    drawUnderTile: boolean,
+    drawUnderTile: boolean
   ) {
     super.draw(tickPercent, context, offset, scale, drawUnderTile);
     if (Settings.displayMobLoS) {

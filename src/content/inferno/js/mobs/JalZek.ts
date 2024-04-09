@@ -119,7 +119,7 @@ export class JalZek extends Mob {
   }
 
   canMeleeIfClose() {
-    return "stab";
+    return "stab" as const;
   }
 
   magicMaxHit() {

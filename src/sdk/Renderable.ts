@@ -85,11 +85,12 @@ export abstract class Renderable {
     index: number;
     priority: number;
     nonce?: number;
-    nonceFallback?: number;
+    nonceFallback?: number | null;
     speedScale?: number; // default 1
   } {
     // return the id of the animation that should start playing. If priority is higher than the current animation, will abort and start this one
     // if nonce is provided, will not play again with the same nonce value, and play nonceFallback instead - good for preventing loops
+    // if nonceFallback is null, pause the last frame of the animation
     return { index: 0, priority: 0 };
   }
 
