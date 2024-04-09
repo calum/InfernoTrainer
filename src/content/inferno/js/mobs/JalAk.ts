@@ -18,7 +18,7 @@ import { Sound } from "../../../../sdk/utils/SoundCache";
 import { Assets } from "../../../../sdk/utils/Assets";
 import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
 
-const BlobModel = Assets.getAssetUrl("models/7693_33001-v17.glb");
+const BlobModel = Assets.getAssetUrl("models/7693_33001.glb");
 
 export class JalAk extends Mob {
   playerPrayerScan?: string = null;

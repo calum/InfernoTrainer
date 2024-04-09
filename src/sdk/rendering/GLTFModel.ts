@@ -103,7 +103,6 @@ export class GLTFModel implements Model {
       const scale = this.scale;
       // make adjustments
       gltf.scene.scale.set(scale, scale, scale);
-      gltf.scene.frustumCulled = false;
       this.mixer = new THREE.AnimationMixer(gltf.scene);
       this.animations = gltf.animations.map((animation) => this.mixer.clipAction(animation));
       const { index, priority, nonce } = this.renderable.getNewAnimation();

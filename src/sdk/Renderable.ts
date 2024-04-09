@@ -5,6 +5,7 @@ import { Model } from "./rendering/Model";
 
 export abstract class Renderable {
   private _selected = false;
+  private cachedModel: Model | null = null;
 
   abstract getPerceivedLocation(tickPercent: number): Location3;
 
@@ -72,8 +73,12 @@ export abstract class Renderable {
    * Return a new model for this renderable in 3d mode. it will be associated with the Renderable and destroyed when the renderable is
    * destroyed.
    */
-  create3dModel(): Model | null {
+  protected create3dModel(): Model | null {
     return null;
+  }
+
+  public get3dModel(): Model | null {
+    return this.cachedModel ?? this.create3dModel();
   }
 
   getNewAnimation(): {
@@ -89,10 +94,10 @@ export abstract class Renderable {
   }
 
   async preload() {
-    // Create a dummy version of the model so that loading it is faster next time.
-    const model = this.create3dModel();
-    if (model) {
-      await model.preload();
+    // Create an offscreen version of the model so that loading it is faster next time.
+    this.cachedModel = this.create3dModel();
+    if (this.cachedModel) {
+      await this.cachedModel.preload();
     }
   }
 }

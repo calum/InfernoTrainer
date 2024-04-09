@@ -21,7 +21,7 @@ import { Sound } from "../../../../sdk/utils/SoundCache";
 import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
 import { Assets } from "../../../../sdk/utils/Assets";
 
-const NibblerModel = Assets.getAssetUrl("models/7691_33005-v16.glb");
+const NibblerModel = Assets.getAssetUrl("models/7691_33005.glb");
 
 class NibblerWeapon extends MeleeWeapon {
   attack(

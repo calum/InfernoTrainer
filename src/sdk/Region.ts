@@ -94,7 +94,7 @@ export class Region {
     }
   }
 
-  removeMob(mob: Unit) {
+  removeMob(mob: Mob) {
     remove(this.mobs, mob);
   }
   removePlayer(player: Player) {

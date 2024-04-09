@@ -191,7 +191,7 @@ export class Projectile extends Renderable {
     return this._color;
   }
 
-  create3dModel() {
+  protected create3dModel() {
     if (this.options.hidden || !this.attackStyle || this.color === "#000000" ) {
       return null;
     }
