@@ -76,4 +76,9 @@ export class PointingModel implements Model {
   getWorldPosition(): THREE.Vector3 {
     return this.mainMesh.getWorldPosition(new THREE.Vector3());
   }
+
+  async preload() {
+    // do nothing
+    return;
+  }
 }

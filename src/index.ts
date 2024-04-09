@@ -97,7 +97,6 @@ Viewport.viewport.setPlayer(player);
 
 ImageLoader.onAllImagesLoaded(() => {
   MapController.controller.updateOrbsMask(player.currentStats, player.stats);
-  Viewport.viewport.initialise()
 });
 if (selectedRegion.wave < 67 || selectedRegion.wave >= 70) {
   // Add pillars
@@ -474,8 +473,12 @@ const interval = setInterval(() => {
 }, 50);
 
 Assets.onAllAssetsLoaded(() => {
-  assetsReady = true;
-  checkStart();
+  // renders a single frame
+  Viewport.viewport.initialise().then(() => {
+    console.log('assets are preloaded');
+    assetsPreloaded = true;
+    checkStart();
+  });
 });
 
 function drawAssetLoadingBar(loadingProgress: number) {
@@ -538,11 +541,11 @@ const assets2 = setInterval(() => {
 }, 50);
 
 let imagesReady = false;
-let assetsReady = false;
+let assetsPreloaded = false;
 let started = false;
 
 function checkStart() {
-  if (!started && imagesReady && assetsReady) {
+  if (!started && imagesReady && assetsPreloaded) {
     started = true;
     // Start the engine
     world.startTicking();

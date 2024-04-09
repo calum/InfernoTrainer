@@ -15,7 +15,7 @@ import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
 import { Assets } from "../../../../sdk/utils/Assets";
 import { Location } from "../../../../sdk/Location";
 
-const MeleerModel = Assets.getAssetUrl("models/7697_33010-v18.glb");
+const MeleerModel = Assets.getAssetUrl("models/7697_33010.glb");
 
 export class JalImKot extends Mob {
   private digSequenceTime = 0;

@@ -7,7 +7,7 @@ export class Actor {
   private model: Model;
 
   constructor(private unit: Renderable) {
-    this.model = unit.create3dModel();
+    this.model = unit.get3dModel();
   }
 
   draw(scene: THREE.Scene, clockDelta: number, tickPercent: number) {

@@ -16,11 +16,10 @@ import { JalXil } from './mobs/JalXil';
 import { Mob } from '../../../sdk/Mob';
 import { Region } from '../../../sdk/Region';
 import { Random } from '../../../sdk/Random';
-import { BasicModel } from '../../../sdk/rendering/BasicModel';
 import { Assets } from "../../../sdk/utils/Assets";
 import { GLTFModel } from "../../../sdk/rendering/GLTFModel";
 
-const ShieldModel = Assets.getAssetUrl("models/7707_33036-v20.glb");
+const ShieldModel = Assets.getAssetUrl("models/7707_33036.glb");
 
 export class ZukShield extends Mob {
   incomingProjectiles: Projectile[] = [];

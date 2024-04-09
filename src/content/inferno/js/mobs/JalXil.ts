@@ -16,7 +16,7 @@ import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
 import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
 import { Assets } from "../../../../sdk/utils/Assets";
 
-const RangerModel = Assets.getAssetUrl("models/7698_33014.glb");
+export const RangerModel = Assets.getAssetUrl("models/7698_33014.glb");
 
 class JalXilWeapon extends RangedWeapon {
   registerProjectile(from: Unit, to: Unit) {

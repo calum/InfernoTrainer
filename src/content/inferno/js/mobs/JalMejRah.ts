@@ -14,7 +14,7 @@ import BatImage from "../../assets/images/bat.png";
 import BatSound from "../../assets/sounds/bat.ogg";
 import { InfernoMobDeathStore } from "../InfernoMobDeathStore";
 
-const BatModel = Assets.getAssetUrl("models/7692_33018-v15.glb");
+const BatModel = Assets.getAssetUrl("models/7692_33018.glb");
 
 class JalMejRahWeapon extends RangedWeapon {
   attack(

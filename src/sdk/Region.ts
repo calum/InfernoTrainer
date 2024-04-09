@@ -94,7 +94,7 @@ export class Region {
     }
   }
 
-  removeMob(mob: Unit) {
+  removeMob(mob: Mob) {
     remove(this.mobs, mob);
   }
   removePlayer(player: Player) {
@@ -162,5 +162,14 @@ export class Region {
         }
       );
     });
+  }
+
+  // calls preload on all renderable children
+  async preload() {
+    console.log('preloading region', this.entities, this.mobs, this.players);
+    await Promise.all(this.entities.map((entity) => entity.preload()));
+    await Promise.all(this.mobs.map((mob) => mob.preload()));
+    await Promise.all(this.newMobs.map((mob) => mob.preload()));
+    await Promise.all(this.players.map((players) => players.preload()));
   }
 }

@@ -32,7 +32,7 @@ import HitSound from "../../../../assets/sounds/dragon_hit_410.ogg";
 import { Assets } from "../../../../sdk/utils/Assets";
 import { GLTFModel } from "../../../../sdk/rendering/GLTFModel";
 
-const JadModel = Assets.getAssetUrl("models/7700_33012-v21.glb");
+export const JadModel = Assets.getAssetUrl("models/7700_33012.glb");
 
 interface JadUnitOptions extends UnitOptions {
   attackSpeed: number;

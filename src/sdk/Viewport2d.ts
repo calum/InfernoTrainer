@@ -9,8 +9,9 @@ import { Unit } from "./Unit";
 import { Pathing } from "./Pathing";
 
 export class Viewport2d implements ViewportDelegate {
-  initialise(world: World, region: Region) {
+  async initialise(world: World, region: Region) {
     // do nothing, but maybe we should buffer the world background
+    return;
   }
 
   draw(world: World, region: Region) {

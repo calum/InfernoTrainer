@@ -14,4 +14,6 @@ export interface Model {
   destroy(scene: THREE.Scene);
 
   getWorldPosition(): THREE.Vector3;
+
+  preload(): Promise<void>;
 }

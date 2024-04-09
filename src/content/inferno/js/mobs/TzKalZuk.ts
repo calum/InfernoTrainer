@@ -12,10 +12,10 @@ import { EntityName } from "../../../../sdk/EntityName";
 import { ImageLoader } from "../../../../sdk/utils/ImageLoader";
 import ZukAttackImage from "../../assets/images/zuk_attack.png";
 import { Projectile } from "../../../../sdk/weapons/Projectile";
-import { JalZek } from "./JalZek";
-import { JalXil } from "./JalXil";
+import { JalZek, MagerModel } from "./JalZek";
+import { JalXil, RangerModel } from "./JalXil";
 import { JalMejJak } from "./JalMejJak";
-import { JalTokJad } from "./JalTokJad";
+import { JadModel, JalTokJad } from "./JalTokJad";
 import { Viewport } from "../../../../sdk/Viewport";
 import { Region } from "../../../../sdk/Region";
 import { Sound } from "../../../../sdk/utils/SoundCache";
@@ -374,5 +374,12 @@ export class TzKalZuk extends Mob {
     context.font = "16px OSRS";
 
     context.fillText(String(this.currentStats.hitpoint), offset.x, offset.y + 20);
+  }
+
+  async preload() {
+    await super.preload();
+    await GLTFModel.preload(RangerModel);
+    await GLTFModel.preload(MagerModel);
+    await GLTFModel.preload(JadModel);
   }
 }

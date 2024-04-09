@@ -47,7 +47,7 @@ type ViewportDrawResult = {
 };
 
 export interface ViewportDelegate {
-  initialise(world: World, region: Region);
+  initialise(world: World, region: Region): Promise<void>;
 
   draw(world: World, region: Region): ViewportDrawResult;
 
@@ -98,7 +98,6 @@ export class Viewport {
   get context() {
     return this.canvas.getContext("2d");
   }
-
   setPlayer(player: Player) {
     this.player = player;
     window.addEventListener("orientationchange", () =>
@@ -116,8 +115,9 @@ export class Viewport {
   }
 
   // called after all graphics have loaded
-  initialise() {
-    this.delegate.initialise(this.player.region.world, this.player.region);
+  async initialise() {
+    await this.delegate.initialise(this.player.region.world, this.player.region);
+    return;
   }
 
   calculateViewport() {
@@ -156,6 +156,10 @@ export class Viewport {
         this.player.stats
       );
     }
+  }
+
+  getDelegate() {
+    return this.delegate;
   }
 
   draw(world: World) {
