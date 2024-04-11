@@ -50,7 +50,7 @@ export class DizanasQuiver extends Cape {
   }
 
   updateBonuses(gear: Equipment[]): void {
-    const weapon = gear.find(item => item.type === EquipmentTypes.WEAPON);
+    const weapon = gear.find(item => item?.type === EquipmentTypes.WEAPON);
     if (!weapon || !(weapon instanceof RangedWeapon)) {
       this.bonuses.other.rangedStrength = 3;
       return;

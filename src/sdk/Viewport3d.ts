@@ -206,6 +206,7 @@ export class Viewport3d implements ViewportDelegate {
     plane.userData.clickable = true;
     // used for right-click walk here
     plane.userData.isFloor = true;
+    plane.visible = Viewport.viewport.player.region.drawDefaultFloor();
     this.scene.add(plane);
 
     this.scene.add(this.selectedTileMesh);

@@ -22,8 +22,8 @@ loader.setMeshoptDecoder(MeshoptDecoder);
  * Render the model using a sprite derived from the 2d representation of the renderable.
  */
 export class GLTFModel implements Model {
-  static forRenderable(r: Renderable, model: string, scale: number) {
-    return new GLTFModel(r, model, scale);
+  static forRenderable(r: Renderable, model: string, scale: number, verticalOffset = -0.49, originOffset: Location = {x: 0, y: 0},) {
+    return new GLTFModel(r, model, scale, verticalOffset, originOffset);
   }
 
   private outline: THREE.LineSegments;
@@ -40,7 +40,7 @@ export class GLTFModel implements Model {
   private playingAnimationNonce = undefined;
   private animations: THREE.AnimationAction[] = [];
 
-  constructor(private renderable: Renderable, private model: string, private scale: number) {
+  constructor(private renderable: Renderable, private model: string, private scale: number, private verticalOffset, private originOffset) {
     const { size } = renderable;
 
     this.outlineMaterial = new THREE.LineBasicMaterial({
@@ -103,6 +103,11 @@ export class GLTFModel implements Model {
       const scale = this.scale;
       // make adjustments
       gltf.scene.scale.set(scale, scale, scale);
+      // load and start animating
+      
+      if (gltf.animations.length === 0) {
+        return;
+      }
       this.mixer = new THREE.AnimationMixer(gltf.scene);
       this.animations = gltf.animations.map((animation) => this.mixer.clipAction(animation));
       const { index, priority, nonce } = this.renderable.getNewAnimation();
@@ -151,7 +156,7 @@ export class GLTFModel implements Model {
     this.clickHull.position.y = -0.49;
     this.clickHull.position.z = y - this.renderable.size / 2;
 
-    if (this.loadedModel && this.mixer) {
+    if (this.loadedModel) {
       const { index, priority } = this.renderable.getNewAnimation();
       if (
         priority > this.playingAnimationPriority &&
@@ -160,14 +165,16 @@ export class GLTFModel implements Model {
         this.playingAnimationId = index;
         this.onAnimationFinished();
       }
-      this.mixer.update(clockDelta);
+      if (this.mixer) {
+        this.mixer.update(clockDelta);
+      }
 
       const { scene } = this.loadedModel;
       const { size } = this.renderable;
       const adjustedRotation = rotation + Math.PI / 2;
-      scene.position.x = x + size / 2;
-      scene.position.y = -0.45;
-      scene.position.z = y - size / 2;
+      scene.position.x = x + size / 2 + this.originOffset.x;
+      scene.position.y = this.verticalOffset;
+      scene.position.z = y - size / 2 + this.originOffset.y;
       scene.setRotationFromAxisAngle(
         new THREE.Vector3(0, 1, 0),
         adjustedRotation

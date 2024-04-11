@@ -31,6 +31,7 @@ import { Assets } from "./sdk/utils/Assets";
 import { Chrome } from "./sdk/Chrome";
 
 import SpecialAttackBarBackground from './assets/images/attackstyles/interface/special_attack_background.png'
+import { InfernoScene } from "./content/InfernoScene";
 
 declare global {
   interface Window {
@@ -279,6 +280,11 @@ if (Settings.tile_markers) {
     .forEach((tileMarker: TileMarker) => {
       selectedRegion.addEntity(tileMarker);
     });
+}
+
+// Add 3d scene (except for Zuk because we need to remove the wall)
+if (Settings.use3dView && selectedRegion.wave !== 69) {
+  selectedRegion.addEntity(new InfernoScene(selectedRegion, {x: 0, y: 48}));
 }
 
 // Add mobs

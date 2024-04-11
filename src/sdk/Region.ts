@@ -131,6 +131,11 @@ export class Region {
   drawWorldBackground(context: OffscreenCanvasRenderingContext2D, scale: number) {
     // Override me
   }
+
+  drawDefaultFloor() {
+    return true;
+  }
+
   groundItemsAtLocation(x: number, y: number) {
     return (this.groundItems[x] ? this.groundItems[x][y] : []) || [];
   }

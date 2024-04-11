@@ -25,10 +25,6 @@ export class World {
   tickTimer = 0;
   clientTickTimer = 0;
 
-  async preloadAssets() {
-    await Promise.all(this.regions.map((r) => r.preload()));
-  }
-
   addRegion(region: Region) {
     this.regions.push(region);
   }
