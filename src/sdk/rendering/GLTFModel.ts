@@ -29,6 +29,7 @@ export class GLTFModel implements Model {
   private outline: THREE.LineSegments;
   private outlineMaterial: THREE.LineBasicMaterial;
 
+  private hullGeometry: THREE.CylinderGeometry;
   private clickHull: THREE.Mesh;
 
   private loadedModel: GLTF | null = null;
@@ -61,10 +62,9 @@ export class GLTFModel implements Model {
 
     const hullMaterial = new THREE.MeshBasicMaterial({ color: 0x00000000 });
     hullMaterial.transparent = true;
-    this.clickHull = new THREE.Mesh(
-      new THREE.CylinderGeometry(size * 0.4, size * 0.4, renderable.height, 6),
-      hullMaterial
-    );
+    // size of hull get set once the model loads
+    this.hullGeometry = new THREE.CylinderGeometry(1, 1, 1, 6);
+    this.clickHull = new THREE.Mesh(this.hullGeometry, hullMaterial);
     this.clickHull.userData.clickable = renderable.selectable;
     this.clickHull.userData.unit = renderable;
     this.clickHull.visible = false;
@@ -75,19 +75,23 @@ export class GLTFModel implements Model {
     const { index, priority, nonce, nonceFallback, speedScale } =
       this.renderable.getNewAnimation();
     this.playingAnimationNonce = nonce;
-    // needed otherwise the animations bleed into each other
-    this.mixer.stopAllAction();
     if (
       nonce !== undefined &&
       currentNonce === nonce &&
       index === this.playingAnimationId
     ) {
-      // do not play it again, play the fallbcak instead
+      // do not play it again, play the fallback instead
       this.playingAnimationNonce = nonce;
-      this.playingAnimationId = nonceFallback;
+      if (nonceFallback !== null) {
+        this.playingAnimationId = nonceFallback;
+      } else {
+        return;
+      }
     } else {
       this.playingAnimationId = index;
     }
+    // needed otherwise the animations bleed into each other
+    this.mixer.stopAllAction();
     this.playingAnimationPriority = priority;
     const newAnimation = this.animations[this.playingAnimationId];
     newAnimation.reset();
@@ -108,15 +112,27 @@ export class GLTFModel implements Model {
       if (gltf.animations.length === 0) {
         return;
       }
+      const size = new THREE.Vector3();
+      new THREE.Box3().setFromObject(gltf.scene).getSize(size);
+      console.log(size);
+      const clickboxHeight = Math.max(this.renderable.size, 0.4 * size.y);
+      this.hullGeometry.scale(
+        0.4 * this.renderable.size,
+        clickboxHeight,
+        0.4 * this.renderable.size
+      );
+      this.hullGeometry.translate(0, clickboxHeight / 2 - 0.49, 0);
       this.mixer = new THREE.AnimationMixer(gltf.scene);
-      this.animations = gltf.animations.map((animation) => this.mixer.clipAction(animation));
+      this.animations = gltf.animations.map((animation) =>
+        this.mixer.clipAction(animation)
+      );
       const { index, priority, nonce } = this.renderable.getNewAnimation();
       this.playingAnimationId = index;
       this.playingAnimationPriority = priority;
       this.playingAnimationNonce = nonce;
       this.animations[this.playingAnimationId].setLoop(THREE.LoopOnce, 1);
       this.animations[this.playingAnimationId].play();
-  
+
       this.mixer.addEventListener("finished", (e) => {
         if (e.action === this.animations[this.playingAnimationId]) {
           this.onAnimationFinished();
@@ -153,7 +169,6 @@ export class GLTFModel implements Model {
     this.outline.position.y = -0.49;
     this.outline.position.z = y;
     this.clickHull.position.x = x + this.renderable.size / 2;
-    this.clickHull.position.y = -0.49;
     this.clickHull.position.z = y - this.renderable.size / 2;
 
     if (this.loadedModel) {
@@ -217,13 +232,14 @@ export class GLTFModel implements Model {
     const camera = new THREE.PerspectiveCamera();
     gltf.scene.scale.set(0.01, 0.01, 0.01);
     gltf.scene.position.set(20, 0, 20);
-    
+
     scene.add(gltf.scene);
     camera.position.set(10, 10, 10);
     camera.lookAt(gltf.scene.position);
-    
 
-    const renderer = new THREE.WebGLRenderer({ canvas: new OffscreenCanvas(1, 1)});
+    const renderer = new THREE.WebGLRenderer({
+      canvas: new OffscreenCanvas(1, 1),
+    });
     renderer.setSize(1, 1, false);
     let didRender = false;
     requestAnimationFrame(() => {

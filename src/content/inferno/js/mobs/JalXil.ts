@@ -41,6 +41,10 @@ export class JalXil extends Mob {
     return 370;
   }
 
+  override get height() {
+    return 4;
+  }
+
   dead() {
     super.dead();
     InfernoMobDeathStore.npcDied(this);
@@ -126,7 +130,7 @@ export class JalXil extends Mob {
   }
 
   canMeleeIfClose() {
-    return "crush";
+    return "crush" as const;
   }
 
   playAttackSound() {
@@ -139,13 +143,20 @@ export class JalXil extends Mob {
     context.rotate(Math.sin(-tickPercent * Math.PI));
   }
 
-  create3dModel() {
+  override create3dModel() {
     return GLTFModel.forRenderable(this, RangerModel, 0.0075);
   }
 
-  getNewAnimation() {
+  override getNewAnimation() {
     if (this.attackDelay === this.attackSpeed) {
-      return { index: 2, priority: 5 }; // attack
+      return {
+        index: this.attackStyle === this.canMeleeIfClose() ? 3 : 2,
+        priority: 5,
+      }; // attack
+    } else if (this.lastHitAgo === 0) {
+      return { index: 5, priority: 3 }; // flinch
+    } else if (this.dying > 0) {
+      return { index: 4, priority: 4, nonce: 0, nonceFallback: null }; // dying
     } else {
       const perceivedLocation = this.perceivedLocation;
       if (
@@ -156,5 +167,9 @@ export class JalXil extends Mob {
       }
       return { index: 0, priority: 0 }; // idle
     }
+  }
+
+  override get deathAnimationLength() {
+    return 5;
   }
 }

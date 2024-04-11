@@ -79,7 +79,7 @@ export class Player extends Unit {
 
   seekingItem: Item = null;
 
-  path: (Location & {run: boolean})[] = [];
+  path: (Location & { run: boolean })[] = [];
 
   clickMarker: ClickMarker | null = null;
   aggroMarker: ClickMarker | null = null;
@@ -100,7 +100,11 @@ export class Player extends Unit {
     this.setUnitOptions(options);
 
     this.prayerController = new PrayerController(this);
-    this.trueTileMarker = new ClickMarker(this.region, this.location, "#00FFFF");
+    this.trueTileMarker = new ClickMarker(
+      this.region,
+      this.location,
+      "#00FFFF"
+    );
     this.region.addEntity(this.trueTileMarker);
   }
 
@@ -539,7 +543,11 @@ export class Player extends Unit {
           });
         });
         // Create paths to all npc tiles
-        const path = Pathing.constructPaths(this.region, this.location, seekingTiles)
+        const path = Pathing.constructPaths(
+          this.region,
+          this.location,
+          seekingTiles
+        );
         this.destinationLocation = path.destination ?? this.location;
       } else {
         // stop moving
@@ -559,25 +567,29 @@ export class Player extends Unit {
     const { x: nextX, y: nextY, run } = this.path[0];
 
     const currentAngle = this.getPerceivedRotation(tickPercent);
-    
-    // 30 client ticks per tick and we want to walk 1 tile per tick so 
-    const baseMovementSpeed = 1/25;
+
+    // 30 client ticks per tick and we want to walk 1 tile per tick so
+    const baseMovementSpeed = 1 / 25;
     let movementSpeed = baseMovementSpeed;
     const canRotate = true;
     if (currentAngle !== this.nextAngle && canRotate) {
-      if (ENABLE_POSITION_DEBUG) console.log('must rotate', this.path.length, run);
+      if (ENABLE_POSITION_DEBUG)
+        console.log("must rotate", this.path.length, run);
       movementSpeed = baseMovementSpeed / 2;
     }
     if (this.path.length === 3) {
-      if (ENABLE_POSITION_DEBUG) console.log('path length medium', this.path.length, run);
+      if (ENABLE_POSITION_DEBUG)
+        console.log("path length medium", this.path.length, run);
       movementSpeed = baseMovementSpeed * 1.5;
     }
     if (this.path.length > 3) {
-      if (ENABLE_POSITION_DEBUG) console.log('path length warp', this.path.length, run);
+      if (ENABLE_POSITION_DEBUG)
+        console.log("path length warp", this.path.length, run);
       movementSpeed = baseMovementSpeed * 2;
     }
     if (this.path.length < 3) {
-      if (ENABLE_POSITION_DEBUG) console.log('normal speed', this.path.length, run);
+      if (ENABLE_POSITION_DEBUG)
+        console.log("normal speed", this.path.length, run);
     }
     if (run) {
       movementSpeed *= 2;
@@ -648,13 +660,17 @@ export class Player extends Unit {
     this.effects.stamina = Math.min(Math.max(this.effects.stamina, 0), 200);
 
     // Path to next position if not already there.
-    if (!this.destinationLocation || (this.location.x === this.destinationLocation.x && this.location.y === this.destinationLocation.y)) {
+    if (
+      !this.destinationLocation ||
+      (this.location.x === this.destinationLocation.x &&
+        this.location.y === this.destinationLocation.y)
+    ) {
       this.pathTargetLocation = null;
       return;
     }
 
     const speed = this.running ? 2 : 1;
-    
+
     const { path, destination } = Pathing.path(
       this.region,
       this.location,
@@ -679,23 +695,34 @@ export class Player extends Unit {
     let newTiles = path.map((pos, idx) => ({
       ...pos,
       run: path.length >= 2,
-      direction: Pathing.angle(idx === 0 ? originalLocation.x : path[idx-1].x, idx === 0 ? originalLocation.y : path[idx-1].y, pos.x, pos.y)
+      direction: Pathing.angle(
+        idx === 0 ? originalLocation.x : path[idx - 1].x,
+        idx === 0 ? originalLocation.y : path[idx - 1].y,
+        pos.x,
+        pos.y
+      ),
     }));
     // only add corners to the path (and the last point)
-    newTiles = newTiles.filter((v, idx) => idx === path.length - 1 || v.direction !== newTiles[idx + 1].direction);
-    if (newTiles.length > 1 && newTiles[1].direction === newTiles[0].direction) {
+    newTiles = newTiles.filter(
+      (v, idx) =>
+        idx === path.length - 1 || v.direction !== newTiles[idx + 1].direction
+    );
+    if (
+      newTiles.length > 1 &&
+      newTiles[1].direction === newTiles[0].direction
+    ) {
       newTiles.shift();
     }
     if (ENABLE_POSITION_DEBUG) {
-        newTiles.forEach((tile) => {
+      newTiles.forEach((tile) => {
         const marker = new ClickMarker(this.region, tile, "#FF0000");
         this.pathMarkers.push(marker);
-        this.region.addEntity(marker)
+        this.region.addEntity(marker);
       });
     }
     this.path.push(...newTiles);
     //console.log(this.location, path, [...this.path]);
-    
+
     this.trueTileMarker.location = this.location;
     this.nextAngle = this.getTargetAngle();
   }
@@ -739,15 +766,16 @@ export class Player extends Unit {
     // https://gist.github.com/shaunlebron/8832585
     function shortAngleDist(a0, a1) {
       const da = (a1 - a0) % (Math.PI * 2);
-      return 2 * da % (Math.PI * 2) - da;
+      return ((2 * da) % (Math.PI * 2)) - da;
     }
     //
-    const turnAmount = (RADIANS_PER_TICK * Math.max(0, (tickPercent - this.lastTickPercent)));
+    const turnAmount =
+      RADIANS_PER_TICK * Math.max(0, tickPercent - this.lastTickPercent);
     this.lastTickPercent = tickPercent;
-    const diff = ((this.nextAngle - this._angle + Math.PI * 2) % (Math.PI * 2));
+    const diff = (this.nextAngle - this._angle + Math.PI * 2) % (Math.PI * 2);
     const direction = diff - Math.PI > 0 ? -1 : 1;
     if (diff >= turnAmount) {
-      this._angle += turnAmount * direction; 
+      this._angle += turnAmount * direction;
     } else {
       this._angle = this.nextAngle;
     }
@@ -802,13 +830,17 @@ export class Player extends Unit {
     this.region.removeEntity(this.clickMarker);
     this.clickMarker = null;
   }
-  
+
   updatePathMarker() {
     if (!this.pathTargetLocation) {
       this.removeClickMarker();
       return;
     }
-    if (this.clickMarker && this.location.x === this.pathTargetLocation.x && this.location.y === this.pathTargetLocation.x) {
+    if (
+      this.clickMarker &&
+      this.location.x === this.pathTargetLocation.x &&
+      this.location.y === this.pathTargetLocation.x
+    ) {
       this.removeClickMarker();
     } else if (!this.clickMarker) {
       this.clickMarker = new ClickMarker(this.region, this.pathTargetLocation);
@@ -819,7 +851,7 @@ export class Player extends Unit {
   }
 
   hitSound(damaged: boolean): Sound | null {
-    return damaged ? new Sound(HumanHit, 0.10) : new Sound(LeatherHit, 0.15); 
+    return damaged ? new Sound(HumanHit, 0.1) : new Sound(LeatherHit, 0.15);
   }
 
   damageTaken() {
@@ -836,7 +868,7 @@ export class Player extends Unit {
     this.prayerController.tick(this);
   }
 
-  attackStep() {
+  override attackStep() {
     this.detectDeath();
 
     this.processIncomingAttacks();

@@ -105,6 +105,7 @@ export class Unit extends Renderable {
   aggro?: Unit;
   perceivedLocation: Location;
   attackDelay = 0;
+  lastHitAgo = Number.MAX_SAFE_INTEGER;
   hasLOS = false;
   frozen = 0;
   stunned = 0;
@@ -445,7 +446,7 @@ export class Unit extends Renderable {
   }
 
   hitSound(damaged: boolean): Sound | null {
-    return null; 
+    return null;
   }
 
   get color(): string {
@@ -583,6 +584,7 @@ export class Unit extends Renderable {
   }
 
   processIncomingAttacks() {
+    this.lastHitAgo++;
     this.incomingProjectiles = filter(
       this.incomingProjectiles,
       (projectile: Projectile) => projectile.remainingDelay > -1
@@ -631,6 +633,7 @@ export class Unit extends Renderable {
           }
         }
         this.damageTaken();
+        this.lastHitAgo = 0;
         if (this.shouldChangeAggro(projectile)) {
           this.setAggro(projectile.from);
 
@@ -683,7 +686,11 @@ export class Unit extends Renderable {
     context.fillRect((-this.size / 2) * scale, (-this.size / 2) * scale, w, 5);
   }
 
-  drawHitsplats(context: OffscreenCanvasRenderingContext2D, scale: number, above: boolean) {
+  drawHitsplats(
+    context: OffscreenCanvasRenderingContext2D,
+    scale: number,
+    above: boolean
+  ) {
     let projectileOffsets = [
       [0, 12],
       [0, 28],
