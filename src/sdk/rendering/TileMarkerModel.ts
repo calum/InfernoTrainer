@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Model } from "./Model";
 import { Renderable } from "../Renderable";
 import { Location } from "../Location";
+import { drawLineOnTop } from "./RenderUtils";
 
 export class TileMarkerModel implements Model {
   static forRenderable(r: Renderable) {
@@ -14,7 +15,7 @@ export class TileMarkerModel implements Model {
     const { size } = renderable;
     const lineMaterial = new THREE.LineBasicMaterial({
       color: renderable.colorHex,
-      linewidth: 3,
+      linewidth: 2,
     });
     const points = [
       new THREE.Vector3(0, 0, 0),
@@ -28,6 +29,7 @@ export class TileMarkerModel implements Model {
     ];
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     this.outline = new THREE.LineSegments(geometry, lineMaterial);
+    drawLineOnTop(this.outline)
   }
 
   draw(

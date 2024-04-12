@@ -112,6 +112,10 @@ export class ZukShield extends Mob {
     );
   }
 
+  get drawOutline() {
+    return false;
+  }
+
   contextActions() {
     return [];
   }

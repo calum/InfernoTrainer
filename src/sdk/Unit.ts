@@ -377,7 +377,7 @@ export class Unit extends Renderable {
     if (ticks < this.frozen) {
       return;
     }
-    this.perceivedLocation = this.location;
+    //this.perceivedLocation = this.location;
     this.frozen = ticks;
   }
 

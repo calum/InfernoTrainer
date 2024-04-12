@@ -8,6 +8,7 @@ import { Renderable } from "../Renderable";
 import { Location } from "../Location";
 import { Viewport } from "../Viewport";
 import { Viewport3d } from "../Viewport3d";
+import { drawLineNormally, drawLineOnTop } from "./RenderUtils";
 
 const CANVAS_TILE_SIZE = 20;
 
@@ -59,8 +60,9 @@ export class GLTFModel implements Model {
     ];
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
     this.outline = new THREE.LineSegments(geometry, this.outlineMaterial);
+    this.outline.visible = renderable.drawOutline;
 
-    const hullMaterial = new THREE.MeshBasicMaterial({ color: 0x00000000 });
+    const hullMaterial = new THREE.MeshBasicMaterial({ color: 0x00000000  });
     hullMaterial.transparent = true;
     // size of hull get set once the model loads
     this.hullGeometry = new THREE.CylinderGeometry(1, 1, 1, 6);
@@ -163,6 +165,11 @@ export class GLTFModel implements Model {
     this.outlineMaterial.color.setHex(
       this.renderable.selected ? OUTLINE_SELECTED : OUTLINE_NORMAL
     );
+    if (this.renderable.selected) {
+      drawLineOnTop(this.outline);
+    } else {
+      drawLineNormally(this.outline);
+    }
 
     const { x, y } = location;
     this.outline.position.x = x;

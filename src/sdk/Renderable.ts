@@ -17,6 +17,10 @@ export abstract class Renderable {
 
   abstract get size(): number;
 
+  get drawOutline(): boolean {
+    return true;
+  }
+
   get height(): number {
     return this.size;
   }
