@@ -2,11 +2,12 @@ import * as THREE from "three";
 import { Model } from "./Model";
 import { Renderable } from "../Renderable";
 import { Location } from "../Location";
+import { drawLineNormally, drawLineOnTop } from "./RenderUtils";
 
 const CANVAS_TILE_SIZE = 20;
 
-const OUTLINE_NORMAL = 0xFFFFFF;
-const OUTLINE_SELECTED = 0xFF0000;
+const OUTLINE_NORMAL = 0xffffff;
+const OUTLINE_SELECTED = 0xff0000;
 
 /**
  * Render the model using a sprite derived from the 2d representation of the renderable.
@@ -90,6 +91,11 @@ export class CanvasSpriteModel implements Model {
     this.outlineMaterial.color.setHex(
       this.renderable.selected ? OUTLINE_SELECTED : OUTLINE_NORMAL
     );
+    if (this.renderable.selected) {
+      drawLineOnTop(this.outline);
+    } else {
+      drawLineNormally(this.outline);
+    }
 
     const { x, y } = location;
     this.outline.position.x = x;
