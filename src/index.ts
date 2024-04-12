@@ -282,8 +282,8 @@ if (Settings.tile_markers) {
     });
 }
 
-// Add 3d scene (except for Zuk because we need to remove the wall)
-if (Settings.use3dView && selectedRegion.wave !== 69) {
+// Add 3d scene
+if (Settings.use3dView) {
   selectedRegion.addEntity(new InfernoScene(selectedRegion, {x: 0, y: 48}));
 }
 

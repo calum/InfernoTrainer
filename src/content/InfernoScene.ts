@@ -7,7 +7,8 @@ import { LineOfSightMask } from '../sdk/LineOfSight';
 import { GLTFModel } from '../sdk/rendering/GLTFModel';
 import { Assets } from '../sdk/utils/Assets';
 
-export const InfernoSceneModel = Assets.getAssetUrl("models/scene-v1.glb");
+// note: v1 has the rocks where zuk should be - we could use that in the future
+export const InfernoSceneModel = Assets.getAssetUrl("models/scene-v3.glb");
 
 export class InfernoScene extends Entity {
 
@@ -17,7 +18,7 @@ export class InfernoScene extends Entity {
   }
 
   get size() {
-    return 64;
+    return 1;
   }
 
   draw () {
@@ -37,7 +38,7 @@ export class InfernoScene extends Entity {
   }
 
   create3dModel(): Model {
-    return new GLTFModel(this, InfernoSceneModel, 1, -2.5, { x: -38, y: 44 });
+    return new GLTFModel(this, InfernoSceneModel, 1, -2.5, { x: -6.5, y: 12.5 });
   }
 
 }

@@ -39,7 +39,7 @@ Running test
 ### Asset Pipeline
 
 Sounds: https://github.com/lequietriot/Old-School-RuneScape-Cache-Tools
-Models: Runemonk https://github.com/Dezinater/osrscachereader (currently using branch https://github.com/Dezinater/osrscachereader/pull/11/files)
+NPC/object Models: Runemonk https://github.com/Dezinater/osrscachereader (currently using branch https://github.com/Dezinater/osrscachereader/pull/11/files)
 Run models through https://gltf.report/ with:
 
     import { prune, dedup, resample, weld, unpartition } from '@gltf-transform/functions';
@@ -53,3 +53,4 @@ Run models through https://gltf.report/ with:
     );
     
 and export settings: Binary (.glb), Interleaved, Meshopt compression.
+Scene models: 

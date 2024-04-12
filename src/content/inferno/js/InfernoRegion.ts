@@ -238,6 +238,6 @@ export class InfernoRegion extends Region {
 
   drawDefaultFloor() {
     // replaced by an Entity in 3d view
-    return !Settings.use3dView || this.wave === 69;
+    return !Settings.use3dView;
   }
 }
