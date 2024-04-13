@@ -158,8 +158,6 @@ export class JalZek extends Mob {
   }
 
   attackIfPossible() {
-    this.attackDelay--;
-
     this.attackStyle = this.attackStyleForNewAttack();
 
     this.attackFeedback = AttackIndicators.NONE;
@@ -186,7 +184,7 @@ export class JalZek extends Mob {
           this.region
         );
         if (!mobToResurrect) {
-          this.attack();
+          this.attack() && this.didAttack();
         } else {
           // Set to 50% health
           mobToResurrect.currentStats.hitpoint = Math.floor(
@@ -201,9 +199,10 @@ export class JalZek extends Mob {
           this.region.addMob(mobToResurrect);
           // (15, 10) to  (21 , 22)
           this.attackDelay = 8;
+          this.playAnimation(3);
         }
       } else {
-        this.attack();
+        this.attack() && this.didAttack();
       }
     }
   }
@@ -212,18 +211,7 @@ export class JalZek extends Mob {
     return GLTFModel.forRenderable(this, MagerModel, 0.0075);
   }
 
-  getNewAnimation() {
-    if (this.attackDelay === this.attackSpeed) {
-      return { index: 2, priority: 5 }; // attack
-    } else {
-      const perceivedLocation = this.perceivedLocation;
-      if (
-        perceivedLocation.x !== this.location.x ||
-        perceivedLocation.y !== this.location.y
-      ) {
-        return { index: 1, priority: 2 }; // moving
-      }
-      return { index: 0, priority: 0 }; // idle
-    }
+  override get attackAnimationId() {
+    return 2;
   }
 }

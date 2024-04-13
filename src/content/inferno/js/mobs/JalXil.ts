@@ -146,30 +146,12 @@ export class JalXil extends Mob {
   override create3dModel() {
     return GLTFModel.forRenderable(this, RangerModel, 0.0075);
   }
-
-  override getNewAnimation() {
-    if (this.attackDelay === this.attackSpeed) {
-      return {
-        index: this.attackStyle === this.canMeleeIfClose() ? 3 : 2,
-        priority: 5,
-      }; // attack
-    } else if (this.lastHitAgo === 0) {
-      return { index: 5, priority: 3 }; // flinch
-    } else if (this.dying > 0) {
-      return { index: 4, priority: 4, nonce: 0, nonceFallback: null }; // dying
-    } else {
-      const perceivedLocation = this.perceivedLocation;
-      if (
-        perceivedLocation.x !== this.location.x ||
-        perceivedLocation.y !== this.location.y
-      ) {
-        return { index: 1, priority: 2 }; // moving
-      }
-      return { index: 0, priority: 0 }; // idle
-    }
-  }
-
+  
   override get deathAnimationLength() {
     return 5;
+  }
+
+  override get attackAnimationId() {
+    return 2;
   }
 }

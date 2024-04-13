@@ -310,6 +310,7 @@ export class JalTokJad extends Mob {
     }
     this.currentAnimationFrame = 0;
     this.currentAnimationTick = 0;
+    return true;
   }
 
   draw(tickPercent, context, offset, scale, drawUnderTile) {
@@ -330,22 +331,14 @@ export class JalTokJad extends Mob {
     return GLTFModel.forRenderable(this, JadModel, 0.0075);
   }
 
-  getNewAnimation() {
-    if (this.attackDelay === this.attackSpeed) {
-      if (this.attackStyle === "magic") {
-        return { index: 2, priority: 5 }; // attack mage
-      } else {
-        return { index: 3, priority: 5 }; // attack range
-      }
-    } else {
-      const perceivedLocation = this.perceivedLocation;
-      if (
-        perceivedLocation.x !== this.location.x ||
-        perceivedLocation.y !== this.location.y
-      ) {
-        return { index: 1, priority: 2 }; // moving
-      }
-      return { index: 0, priority: 0 }; // idle
+  get attackAnimationId() {
+    switch (this.attackStyle) {
+      case "magic":
+        return 2;
+        case "range":
+          return 3;
+        default:
+          return 4;
     }
   }
 }

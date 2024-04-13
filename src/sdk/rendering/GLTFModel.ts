@@ -38,8 +38,6 @@ export class GLTFModel implements Model {
   private mixer: THREE.AnimationMixer | null = null;
 
   private playingAnimationId = -1;
-  private playingAnimationPriority = 0;
-  private playingAnimationNonce = undefined;
   private animations: THREE.AnimationAction[] = [];
 
   constructor(private renderable: Renderable, private model: string, private scale: number, private verticalOffset, private originOffset) {
@@ -70,34 +68,17 @@ export class GLTFModel implements Model {
     this.clickHull.userData.clickable = renderable.selectable;
     this.clickHull.userData.unit = renderable;
     this.clickHull.visible = false;
+
+    renderable.setAnimationListener((id) => this.onAnimationFinished(id));
   }
 
-  onAnimationFinished() {
-    const currentNonce = this.playingAnimationNonce;
-    const { index, priority, nonce, nonceFallback, speedScale } =
-      this.renderable.getNewAnimation();
-    this.playingAnimationNonce = nonce;
-    if (
-      nonce !== undefined &&
-      currentNonce === nonce &&
-      index === this.playingAnimationId
-    ) {
-      // do not play it again, play the fallback instead
-      this.playingAnimationNonce = nonce;
-      if (nonceFallback !== null) {
-        this.playingAnimationId = nonceFallback;
-      } else {
-        return;
-      }
-    } else {
-      this.playingAnimationId = index;
-    }
+  onAnimationFinished(id: number | null = null) {
+    const nextAnimIndex = id !== null ? id : this.renderable.animationIndex;
     // needed otherwise the animations bleed into each other
     this.mixer.stopAllAction();
-    this.playingAnimationPriority = priority;
-    const newAnimation = this.animations[this.playingAnimationId];
+    this.playingAnimationId = nextAnimIndex;
+    const newAnimation = this.animations[nextAnimIndex];
     newAnimation.reset();
-    newAnimation.setEffectiveTimeScale(speedScale ?? 1.0);
     newAnimation.setLoop(THREE.LoopOnce, 1);
     newAnimation.play();
   }
@@ -128,10 +109,8 @@ export class GLTFModel implements Model {
       this.animations = gltf.animations.map((animation) =>
         this.mixer.clipAction(animation)
       );
-      const { index, priority, nonce } = this.renderable.getNewAnimation();
+      const index = this.renderable.animationIndex;
       this.playingAnimationId = index;
-      this.playingAnimationPriority = priority;
-      this.playingAnimationNonce = nonce;
       this.animations[this.playingAnimationId].setLoop(THREE.LoopOnce, 1);
       this.animations[this.playingAnimationId].play();
 
@@ -179,14 +158,6 @@ export class GLTFModel implements Model {
     this.clickHull.position.z = y - this.renderable.size / 2;
 
     if (this.loadedModel) {
-      const { index, priority } = this.renderable.getNewAnimation();
-      if (
-        priority > this.playingAnimationPriority &&
-        index !== this.playingAnimationId
-      ) {
-        this.playingAnimationId = index;
-        this.onAnimationFinished();
-      }
       if (this.mixer) {
         this.mixer.update(clockDelta);
       }

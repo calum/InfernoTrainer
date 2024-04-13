@@ -202,12 +202,11 @@ export class ZukShield extends Mob {
   create3dModel() {
     return GLTFModel.forRenderable(this, ShieldModel, 0.0075);
   }
-
-  getNewAnimation() {
+  get animationIndex() {
     if (this.dying >= 0) {
-      return { index: 1, priority: 5 }; // dying
+      return 1; // dying
     } else {
-      return { index: 0, priority: 0 }; // idle
+      return 0; // idle
     }
   }
 }

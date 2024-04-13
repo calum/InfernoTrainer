@@ -197,6 +197,10 @@ export class Projectile extends Renderable {
     }
     return BasicModel.sphereForRenderable(this);
   }
+
+  get animationIndex() {
+    return -1;
+  }
 }
 
 export class LinearProjectionMotionInterpolator implements ProjectileMotionInterpolator {

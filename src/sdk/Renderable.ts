@@ -6,6 +6,7 @@ import { Model } from "./rendering/Model";
 export abstract class Renderable {
   private _selected = false;
   private cachedModel: Model | null = null;
+  private animationChangeListener: (id: number) => void | null = null;
 
   abstract getPerceivedLocation(tickPercent: number): Location3;
 
@@ -85,20 +86,28 @@ export abstract class Renderable {
     return this.cachedModel ?? this.create3dModel();
   }
 
-  getNewAnimation(): {
-    index: number;
-    priority: number;
-    nonce?: number;
-    nonceFallback?: number | null;
-    speedScale?: number; // default 1
-  } {
-    // return the id of the animation that should start playing. If priority is higher than the current animation, will abort and start this one
-    // if nonce is provided, will not play again with the same nonce value, and play nonceFallback instead - good for preventing loops
-    // if nonceFallback is null, pause the last frame of the animation
-    return { index: 0, priority: 0 };
+
+  /**
+   * Return the index of the animation that should be playing at this moment.
+   * Note: if the value changes, the new animation will start upon the next tick.
+   */
+  abstract get animationIndex();
+
+  playAnimation(index: number) {
+    if (this.animationChangeListener) {
+      this.animationChangeListener(index);
+    }
   }
 
-  async preload() {
+  setAnimationListener(listener: (index: number) => void) {
+    this.animationChangeListener = listener;
+  }
+
+  clearAnimationListener() {
+    this.animationChangeListener = null;
+  }
+
+  async preload() { 
     // Create an offscreen version of the model so that loading it is faster next time.
     this.cachedModel = this.create3dModel();
     if (this.cachedModel) {

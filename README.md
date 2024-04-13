@@ -53,4 +53,5 @@ Run models through https://gltf.report/ with:
     );
     
 and export settings: Binary (.glb), Interleaved, Meshopt compression.
-Scene models: 
+
+Scene models: branch of [OSRS-Environment-Exporter](https://github.com/Supalosa/OSRS-Environment-Exporter/pull/1) with hardcoded overrides for the Inferno region to remove ground clutter and clear the space around Zuk.

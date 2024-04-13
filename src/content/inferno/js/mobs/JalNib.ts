@@ -135,7 +135,6 @@ export class JalNib extends Mob {
   }
 
   attackIfPossible() {
-    this.attackDelay--;
     this.attackStyle = this.attackStyleForNewAttack();
 
     if (this.dying === -1 && this.aggro.dying > -1) {
@@ -169,7 +168,7 @@ export class JalNib extends Mob {
       ) <= this.attackRange &&
       this.attackDelay <= 0
     ) {
-      this.attack();
+      this.attack() && this.didAttack();
     }
   }
 
@@ -177,18 +176,7 @@ export class JalNib extends Mob {
     return GLTFModel.forRenderable(this, NibblerModel, 0.0075);
   }
 
-  getNewAnimation() {
-    if (this.attackDelay === this.attackSpeed) {
-      return { index: 2, priority: 5 }; // attack
-    } else {
-      const perceivedLocation = this.perceivedLocation;
-      if (
-        perceivedLocation.x !== this.location.x ||
-        perceivedLocation.y !== this.location.y
-      ) {
-        return { index: 1, priority: 2 }; // moving
-      }
-      return { index: 0, priority: 0 }; // idle
-    }
+  override get attackAnimationId() {
+    return 2;
   }
 }

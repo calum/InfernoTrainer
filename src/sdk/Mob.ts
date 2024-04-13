@@ -295,6 +295,8 @@ export class Mob extends Unit {
   }
 
   override attackStep() {
+    super.attackStep();
+
     if (this.spawnDelay > 0) {
       return;
     }
@@ -314,8 +316,6 @@ export class Mob extends Unit {
   }
 
   attackIfPossible() {
-    this.attackDelay--;
-
     this.hadLOS = this.hasLOS;
     this.setHasLOS();
 
@@ -340,7 +340,7 @@ export class Mob extends Unit {
     this.attackFeedback = AttackIndicators.NONE;
 
     if (!isUnderAggro && this.hasLOS && this.attackDelay <= 0) {
-      this.attack();
+      this.attack() && this.didAttack();
     }
   }
 
@@ -350,7 +350,7 @@ export class Mob extends Unit {
 
   attack() {
     if (this.aggro.dying >= 0) {
-      return;
+      return false;
     }
     if (
       this.canMeleeIfClose() &&
@@ -375,16 +375,14 @@ export class Mob extends Unit {
       magicBaseSpellDamage: this.magicMaxHit(),
     });
 
-    this.playAttackSound();
-
-    this.attackDelay = this.attackSpeed;
+    return true;
   }
 
   get consumesSpace(): Unit {
     return this;
   }
 
-  playAttackSound() {
+  override playAttackSound() {
     if (Settings.playsAudio && this.sound) {
       let attemptedVolume =
         1 /

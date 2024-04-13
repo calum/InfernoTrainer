@@ -123,17 +123,7 @@ export class JalMejRah extends Mob {
     return GLTFModel.forRenderable(this, BatModel, 0.0075);
   }
 
-  getNewAnimation() {
-    if (this.attackDelay === this.attackSpeed) {
-      return {
-        index: 1,
-        priority: 5,
-        nonce: this.attackDelay,
-        nonceFallback: 0,
-        speedScale: 1.5,
-      }; // attack
-    } else {
-      return { index: 0, priority: 0, speedScale: 1.5 }; // idle or moving
-    }
+  override get attackAnimationId() {
+    return 1;
   }
 }

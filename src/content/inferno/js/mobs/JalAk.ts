@@ -137,7 +137,6 @@ export class JalAk extends Mob {
   }
 
   attackIfPossible() {
-    this.attackDelay--;
     this.attackFeedback = AttackIndicators.NONE;
 
     this.hadLOS = this.hasLOS;
@@ -166,8 +165,7 @@ export class JalAk extends Mob {
 
     // Perform attack. Blobs can hit through LoS if they got a scan.
     if (this.playerPrayerScan && this.attackDelay <= 0) {
-      this.attack();
-      this.attackDelay = this.attackSpeed;
+      this.attack() && this.didAttack();
       this.playerPrayerScan = null;
     }
   }
@@ -198,23 +196,7 @@ export class JalAk extends Mob {
     return GLTFModel.forRenderable(this, BlobModel, 0.0075);
   }
 
-  getNewAnimation() {
-    if (this.attackDelay === this.attackSpeed && !this.playerPrayerScan) {
-      return {
-        index: 2,
-        priority: 5,
-        nonce: this.attackDelay,
-        nonceFallback: 0,
-      }; // attack
-    } else {
-      const perceivedLocation = this.perceivedLocation;
-      if (
-        perceivedLocation.x !== this.location.x ||
-        perceivedLocation.y !== this.location.y
-      ) {
-        return { index: 1, priority: 2 }; // moving
-      }
-      return { index: 0, priority: 0 }; // idle
-    }
+  override get attackAnimationId() {
+    return this.attackStyle === "magic"? 2 : 4;
   }
 }

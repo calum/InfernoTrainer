@@ -413,7 +413,6 @@ export class Player extends Unit {
             bonuses.gearMageMultiplier = 1.15;
           }
 
-          this.playAttackSound();
           return this.equipment.weapon.attack(
             this,
             this.aggro /* hack */,
@@ -428,8 +427,8 @@ export class Player extends Unit {
     return true;
   }
 
-  playAttackSound() {
-    if (Settings.playsAudio && this.equipment.weapon?.attackSound) {
+  override playAttackSound() {
+    if (this.equipment.weapon?.attackSound) {
       SoundCache.play(this.equipment.weapon?.attackSound);
     }
   }
@@ -614,8 +613,7 @@ export class Player extends Unit {
     if (diffX < EPSILON && diffY < EPSILON) {
       this.perceivedLocation.x = nextX;
       this.perceivedLocation.y = nextY;
-      const reached = this.path.shift();
-      //console.log('reached', reached);
+      this.path.shift();
       if (ENABLE_POSITION_DEBUG) {
         const headTile = this.pathMarkers.shift();
         this.region.removeEntity(headTile);
@@ -869,6 +867,7 @@ export class Player extends Unit {
   }
 
   override attackStep() {
+    super.attackStep();
     this.detectDeath();
 
     this.processIncomingAttacks();
@@ -889,8 +888,6 @@ export class Player extends Unit {
   }
 
   attackIfPossible() {
-    this.attackDelay--;
-
     if (this.canAttack() === false) {
       return;
     }
@@ -902,10 +899,7 @@ export class Player extends Unit {
         this.attackDelay <= 0 &&
         this.aggro.isDying() === false
       ) {
-        const attackDelay = this.attackSpeed;
-        if (this.attack()) {
-          this.attackDelay = attackDelay;
-        }
+        this.attack() && this.didAttack();
       } else if (
         this.manualSpellCastSelection &&
         this.manualCastHasTarget &&
@@ -914,10 +908,7 @@ export class Player extends Unit {
         this.aggro.dying == this.aggro.deathAnimationLength
       ) {
         // Phantom/ghost barrage
-        const attackDelay = this.attackSpeed;
-        if (this.attack()) {
-          this.attackDelay = attackDelay;
-        }
+        this.attack() && this.didAttack();
       }
 
       // After allowing ghost barrage, unset aggro if enemy is dead

@@ -112,4 +112,8 @@ export class Entity extends Renderable {
       this.size * Settings.tileSize
     );
   }
+
+  get animationIndex() {
+    return -1;
+  }
 }

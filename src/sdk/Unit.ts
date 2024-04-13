@@ -99,7 +99,7 @@ export interface UnitTargetBonuses {
   slayer: number;
 }
 
-export class Unit extends Renderable {
+export abstract class Unit extends Renderable {
   prayerController: PrayerController;
   lastOverhead?: BasePrayer = null;
   aggro?: Unit;
@@ -219,11 +219,29 @@ export class Unit extends Renderable {
   setStats() {
     // Override me
   }
+
   movementStep() {
     // Override me
   }
+
   attackStep() {
-    // Override me
+    // Override me, called after all movement has been resolved
+    this.attackDelay--;
+  }
+
+  // called when the unit has attacked
+  didAttack() {
+    this.attackDelay = this.attackSpeed;
+    this.playAttackSound();
+    this.playAttackAnimation();
+  }
+
+  playAttackSound() {
+    // override me
+  }
+
+  playAttackAnimation() {
+    this.playAnimation(this.attackAnimationId);
   }
 
   getPerceivedLocation(tickPercent: number) {
@@ -403,6 +421,7 @@ export class Unit extends Renderable {
   get size() {
     return 1;
   }
+
   isDying() {
     return this.dying > 0;
   }
@@ -766,5 +785,25 @@ export class Unit extends Renderable {
         context.drawImage(overheadImg, -scale / 2, -scale * 3, scale, scale);
       }
     }
+  }
+
+  get idlePoseId() {
+    return 0;
+  }
+
+  get walkingPoseId(): number | null {
+    return 1;
+  }
+
+  get animationIndex() {
+    // can be overriden by setAnimation
+    if (this.perceivedLocation.x !== this.location.x || this.perceivedLocation.y !== this.location.y) {
+      return this.walkingPoseId ?? this.idlePoseId;
+    }
+    return this.idlePoseId;
+  }
+
+  get attackAnimationId(): number | null {
+    return null;
   }
 }

@@ -120,10 +120,12 @@ export class JalImKot extends Mob {
         this.attackDelay <= -50
       ) {
         this.startDig();
+        this.playAnimation(3);
       }
     }
     if (this.digSequenceTime && --this.digSequenceTime === 0) {
       this.endDig();
+      this.playAnimation(4);
     }
   }
 
@@ -202,35 +204,8 @@ export class JalImKot extends Mob {
   create3dModel() {
     return GLTFModel.forRenderable(this, MeleerModel, 0.0075);
   }
-
-  getNewAnimation() {
-    if (this.digSequenceTime > 4) {
-      return {
-        index: 3,
-        priority: 10,
-        nonce: this.digCount,
-        nonceFallback: 0,
-        speedScale: 0.8,
-      }; // dig
-    } else if (this.attackDelay > this.attackSpeed) {
-      return {
-        index: 4,
-        priority: 5,
-        nonce: this.digCount,
-        nonceFallback: 0,
-        speedScale: 0.6,
-      }; // dig
-    } else if (this.attackDelay === this.attackSpeed) {
-      return { index: 2, priority: 5 }; // attack
-    } else {
-      const perceivedLocation = this.perceivedLocation;
-      if (
-        perceivedLocation.x !== this.location.x ||
-        perceivedLocation.y !== this.location.y
-      ) {
-        return { index: 1, priority: 2 }; // moving
-      }
-      return { index: 0, priority: 0 }; // idle
-    }
+  
+  get attackAnimationId() {
+    return 2;
   }
 }

@@ -125,8 +125,6 @@ export class TzKalZuk extends Mob {
   }
 
   attackIfPossible() {
-    this.attackDelay--;
-
     this.attackStyle = this.attackStyleForNewAttack();
 
     if (this.timerPaused === false) {
@@ -151,7 +149,7 @@ export class TzKalZuk extends Mob {
     }
 
     if (this.canAttack() && this.attackDelay <= 0) {
-      this.attack();
+      this.attack() && this.didAttack();
     }
   }
   damageTaken() {
@@ -224,7 +222,7 @@ export class TzKalZuk extends Mob {
 
   attack() {
     if (this.aggro.dying >= 0) {
-      return;
+      return false;
     }
     let shieldOrPlayer: Unit = this.shield;
 
@@ -242,8 +240,7 @@ export class TzKalZuk extends Mob {
       magicBaseSpellDamage:
         shieldOrPlayer.type === UnitTypes.PLAYER ? this.magicMaxHit() : 0,
     });
-
-    this.attackDelay = this.attackSpeed;
+    return true;
   }
 
   get combatLevel() {
@@ -354,14 +351,6 @@ export class TzKalZuk extends Mob {
     return GLTFModel.forRenderable(this, ZukModel, 0.0075);
   }
 
-  getNewAnimation() {
-    if (this.attackDelay <= 1) {
-      return { index: 1, priority: 10 }; // attack
-    } else {
-      return { index: 0, priority: 0 }; // idle
-    }
-  }
-
   getPerceivedRotation(tickPercent: any) {
     // zuk doesn't rotate for some reason
     return -Math.PI / 2;
@@ -381,5 +370,9 @@ export class TzKalZuk extends Mob {
     await GLTFModel.preload(RangerModel);
     await GLTFModel.preload(MagerModel);
     await GLTFModel.preload(JadModel);
+  }
+
+  get attackAnimationId() {
+    return 1;
   }
 }
