@@ -68,19 +68,16 @@ export class GLTFModel implements Model {
     this.clickHull.userData.clickable = renderable.selectable;
     this.clickHull.userData.unit = renderable;
     this.clickHull.visible = false;
-
-    renderable.setAnimationListener((id) => this.onAnimationFinished(id));
   }
 
   onAnimationFinished(id: number | null = null) {
     const nextAnimIndex = id !== null ? id : this.renderable.animationIndex;
+    console.log('onAnimationFinished', this.playingAnimationId, id, nextAnimIndex);
     // needed otherwise the animations bleed into each other
     this.mixer.stopAllAction();
     this.playingAnimationId = nextAnimIndex;
     const newAnimation = this.animations[nextAnimIndex];
-    newAnimation.reset();
-    newAnimation.setLoop(THREE.LoopOnce, 1);
-    newAnimation.play();
+    newAnimation.reset().setLoop(THREE.LoopOnce, 1).play();
   }
 
   // called the first time the model needs to appear on the scene
@@ -135,6 +132,7 @@ export class GLTFModel implements Model {
     }
     if (this.loadedModel && this.loadedModel.scene.parent !== scene) {
       scene.add(this.loadedModel.scene);
+      this.renderable.setAnimationListener((id) => this.onAnimationFinished(id));
     }
     if (this.outline.parent !== scene) {
       scene.add(this.outline);
@@ -178,6 +176,7 @@ export class GLTFModel implements Model {
   destroy(scene: THREE.Scene) {
     if (this.loadedModel && this.loadedModel.scene.parent === scene) {
       scene.remove(this.loadedModel.scene);
+      this.renderable.clearAnimationListener();
     }
     if (this.outline.parent === scene) {
       scene.remove(this.outline);
