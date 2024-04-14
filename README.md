@@ -35,23 +35,3 @@ Use Node 16 for now. There's an SSL error on version >= 18.
 Running test
 
     npx jest
-
-### Asset Pipeline
-
-Sounds: https://github.com/lequietriot/Old-School-RuneScape-Cache-Tools
-NPC/object Models: Runemonk https://github.com/Dezinater/osrscachereader (currently using branch https://github.com/Dezinater/osrscachereader/pull/11/files)
-Run models through https://gltf.report/ with:
-
-    import { prune, dedup, resample, weld, unpartition } from '@gltf-transform/functions';
-
-    await document.transform(
-        weld({exhaustive: true}),
-        unpartition(),
-        dedup(),
-        resample(),
-        prune()
-    );
-    
-and export settings: Binary (.glb), Interleaved, Meshopt compression.
-
-Scene models: branch of [OSRS-Environment-Exporter](https://github.com/Supalosa/OSRS-Environment-Exporter/pull/1) with hardcoded overrides for the Inferno region to remove ground clutter and clear the space around Zuk.
