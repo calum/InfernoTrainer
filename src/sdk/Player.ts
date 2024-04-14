@@ -1,8 +1,20 @@
 "use strict";
+import _ from "lodash";
+
 import { Pathing } from "./Pathing";
 import { Settings } from "./Settings";
 import { LineOfSight } from "./LineOfSight";
-import { minBy, range, filter, find, map, min, uniq, sumBy, flatMap } from "lodash";
+import {
+  minBy,
+  range,
+  filter,
+  find,
+  map,
+  min,
+  uniq,
+  sumBy,
+  flatMap,
+} from "lodash";
 import { Unit, UnitTypes, UnitBonuses, UnitOptions } from "./Unit";
 import { XpDropController } from "./XpDropController";
 import { AttackBonuses, Weapon } from "./gear/Weapon";
@@ -28,10 +40,18 @@ import { Sound, SoundCache } from "./utils/SoundCache";
 import LeatherHit from "../assets/sounds/hit.ogg";
 import HumanHit from "../assets/sounds/human_hit_513.ogg";
 import { Model } from "./rendering/Model";
-import { BasicModel } from "./rendering/BasicModel";
 import { TileMarker } from "../content/TileMarker";
-import { PointingModel } from "./rendering/PointingModel";
-import _ from "lodash";
+
+import SlayerHelmetModel from "../assets/models/male_Tzkal_slayer helmet (i).gltf";
+import TwistedBowModel from "../assets/models/male_Twisted_bow.gltf";
+import ToxicBlowpipeModel from "../assets/models/male_Toxic_blowpipe.gltf";
+import MasoriBodyModel from "../assets/models/male_Masori_body (f).gltf";
+import MasoriChapsModel from "../assets/models/male_Masori_chaps (f).gltf";
+import PegasianBootsModel from "../assets/models/male_Pegasian_boots.gltf";
+import DizanasMaxCapeModel from "../assets/models/male_Dizana's_max cape.gltf";
+
+import { GLTFModel } from "./rendering/GLTFModel";
+import { PlayerAnimationIndices } from "./rendering/GLTFAnimationConstants";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -45,7 +65,8 @@ class PlayerEffects {
 const PLAYER_ROTATION_RATE_JAU = 64;
 const CLIENT_TICKS_PER_SECOND = 50;
 const JAU_PER_RADIAN = 512;
-const RADIANS_PER_TICK = ((CLIENT_TICKS_PER_SECOND * PLAYER_ROTATION_RATE_JAU) / JAU_PER_RADIAN) * 0.6; 
+const RADIANS_PER_TICK =
+  ((CLIENT_TICKS_PER_SECOND * PLAYER_ROTATION_RATE_JAU) / JAU_PER_RADIAN) * 0.6;
 const LOCAL_POINTS_PER_CELL = 128;
 
 const ENABLE_POSITION_DEBUG = false;
@@ -86,6 +107,7 @@ export class Player extends Unit {
   trueTileMarker: ClickMarker;
 
   pathMarkers: ClickMarker[] = [];
+  currentPoseAnimation = PlayerAnimationIndices.Idle;
 
   constructor(region: Region, location: Location, options: UnitOptions = {}) {
     super(region, location, options);
@@ -248,6 +270,8 @@ export class Player extends Unit {
       }
     });
     this.setEffects = completeSetEffects;
+
+    this.invalidateModel();
   }
 
   get bonuses(): UnitBonuses {
@@ -570,11 +594,15 @@ export class Player extends Unit {
     // 30 client ticks per tick and we want to walk 1 tile per tick so
     const baseMovementSpeed = 1 / 25;
     let movementSpeed = baseMovementSpeed;
+
+    this.currentPoseAnimation = PlayerAnimationIndices.Walk;
+
     const canRotate = true;
     if (currentAngle !== this.nextAngle && canRotate) {
       if (ENABLE_POSITION_DEBUG)
         console.log("must rotate", this.path.length, run);
       movementSpeed = baseMovementSpeed / 2;
+      this.currentPoseAnimation = PlayerAnimationIndices.Rotate180;
     }
     if (this.path.length === 3) {
       if (ENABLE_POSITION_DEBUG)
@@ -592,6 +620,7 @@ export class Player extends Unit {
     }
     if (run) {
       movementSpeed *= 2;
+      this.currentPoseAnimation = PlayerAnimationIndices.Run;
     }
     let diffX = Math.abs(x - nextX);
     let diffY = Math.abs(y - nextY);
@@ -619,6 +648,7 @@ export class Player extends Unit {
         this.region.removeEntity(headTile);
       }
       if (this.path.length === 0) {
+        this.currentPoseAnimation = PlayerAnimationIndices.Idle;
         this.restingAngle = this.nextAngle;
       } else {
         this.nextAngle = this.getTargetAngle();
@@ -1019,7 +1049,26 @@ export class Player extends Unit {
   }
 
   create3dModel(): Model {
-    return PointingModel.forRenderable(this);
+    return GLTFModel.forRenderableMulti(
+      this,
+      Object.values(this.equipment)
+        .map((e) => e?.model)
+        .filter((e) => !!e),
+      1 / 128
+    );
+  }
+
+  override get animationIndex() {
+    return this.currentPoseAnimation;
+  }
+
+  override get drawOutline() {
+    // not needed with a real 3d model
+    return false;
+  }
+
+  override get attackAnimationId() {
+    return this.equipment.weapon?.attackAnimationId;
   }
 }
 

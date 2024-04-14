@@ -3,20 +3,23 @@ import InventImage from '../../assets/images/equipment/Masori_body_(f).png';
 import { Chest } from "../../sdk/gear/Chest";
 import { ItemName } from "../../sdk/ItemName";
 
-export class MasoriBodyF extends Chest{
-  inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage)
+import MasoriBodyModel from "../../assets/models/male_Masori_body-v9.glb";
 
-  get inventoryImage () {
-    return InventImage
+export class MasoriBodyF extends Chest {
+  inventorySprite: HTMLImageElement = ImageLoader.createImage(
+    this.inventoryImage
+  );
+
+  get inventoryImage() {
+    return InventImage;
   }
   get itemName(): ItemName {
-    return ItemName.MASORI_BODY_F
+    return ItemName.MASORI_BODY_F;
   }
 
   get weight(): number {
     return 10;
   }
-
 
   constructor() {
     super();
@@ -26,7 +29,7 @@ export class MasoriBodyF extends Chest{
         slash: 0,
         crush: 0,
         magic: -4,
-        range: 43
+        range: 43,
       },
       defence: {
         stab: 59,
@@ -39,12 +42,16 @@ export class MasoriBodyF extends Chest{
         meleeStrength: 0,
         rangedStrength: 4,
         magicDamage: 0,
-        prayer: 1
+        prayer: 1,
       },
       targetSpecific: {
         undead: 0,
-        slayer: 0
-      }
-    }
+        slayer: 0,
+      },
+    };
+  }
+
+  override get model() {
+    return MasoriBodyModel;
   }
 }

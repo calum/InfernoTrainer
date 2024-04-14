@@ -12,6 +12,9 @@ import BPAttackSound from '../../assets/sounds/dart_2696.ogg';
 import BPSpecSound from '../../assets/sounds/snake_hit_800.ogg';
 import { Sound, SoundCache } from '../../sdk/utils/SoundCache';
 
+import BlowpipeModel from "../../assets/models/male_Toxic_blowpipe-v5.glb";
+import { PlayerAnimationIndices } from "../../sdk/rendering/GLTFAnimationConstants";
+
 export class Blowpipe extends RangedWeapon {
   constructor() {
     super();
@@ -21,26 +24,26 @@ export class Blowpipe extends RangedWeapon {
         slash: 0,
         crush: 0,
         magic: 0,
-        range: 30
+        range: 30,
       },
       defence: {
         stab: 0,
         slash: 0,
         crush: 0,
         magic: 0,
-        range: 0
+        range: 0,
       },
       other: {
         meleeStrength: 0,
-        rangedStrength: 20 + 35,  // simulating dragon darts atm
+        rangedStrength: 20 + 35, // simulating dragon darts atm
         magicDamage: 0,
-        prayer: 0
+        prayer: 0,
       },
       targetSpecific: {
         undead: 0,
-        slayer: 0
-      }
-    }
+        slayer: 0,
+      },
+    };
     SoundCache.preload(this.attackSound.src);
   }
 
@@ -49,11 +52,7 @@ export class Blowpipe extends RangedWeapon {
   }
 
   attackStyles() {
-    return [
-      AttackStyle.ACCURATE,
-      AttackStyle.RAPID,
-      AttackStyle.LONGRANGE,
-    ]
+    return [AttackStyle.ACCURATE, AttackStyle.RAPID, AttackStyle.LONGRANGE];
   }
 
   attackStyleCategory(): AttackStyleTypes {
@@ -64,44 +63,51 @@ export class Blowpipe extends RangedWeapon {
     return AttackStyle.RAPID;
   }
 
-  get attackRange () {
-    if (this.attackStyle() === AttackStyle.LONGRANGE){
+  get attackRange() {
+    if (this.attackStyle() === AttackStyle.LONGRANGE) {
       return 7;
     }
-    return 5
+    return 5;
   }
 
-  get attackSpeed () {
-    if (this.attackStyle() === AttackStyle.LONGRANGE){
+  get attackSpeed() {
+    if (this.attackStyle() === AttackStyle.LONGRANGE) {
       return 3;
     }
-    return 2
-  }
-  
-  
-  get weight(): number {
-    return 0.5
+    return 2;
   }
 
-  specialAttack(from: Unit, to: Unit, bonuses: AttackBonuses = {}, options: ProjectileOptions = {}) {
-    super.specialAttack(from, to, bonuses, options);    
+  get weight(): number {
+    return 0.5;
+  }
+
+  specialAttack(
+    from: Unit,
+    to: Unit,
+    bonuses: AttackBonuses = {},
+    options: ProjectileOptions = {}
+  ) {
+    super.specialAttack(from, to, bonuses, options);
     bonuses.isSpecialAttack = true;
     // BP special attack takes an extra tick to land
     options.reduceDelay = -1;
-    super.attack(from, to, bonuses)
-    
+    super.attack(from, to, bonuses);
+
     const healAttackerBy = Math.floor(this.damageRoll / 2);
     from.currentStats.hitpoint += healAttackerBy;
-    from.currentStats.hitpoint = Math.min(from.currentStats.hitpoint, from.stats.hitpoint);
+    from.currentStats.hitpoint = Math.min(
+      from.currentStats.hitpoint,
+      from.stats.hitpoint
+    );
   }
 
-  _damageMultiplier (from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _damageMultiplier(from: Unit, to: Unit, bonuses: AttackBonuses) {
     if (bonuses.isSpecialAttack) {
       return 1.5;
     }
     return 1;
   }
-  _accuracyMultiplier (from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _accuracyMultiplier(from: Unit, to: Unit, bonuses: AttackBonuses) {
     if (bonuses.isSpecialAttack) {
       return 2;
     }
@@ -109,18 +115,18 @@ export class Blowpipe extends RangedWeapon {
   }
 
   get itemName(): ItemName {
-    return ItemName.TOXIC_BLOWPIPE
+    return ItemName.TOXIC_BLOWPIPE;
   }
-  
+
   get isTwoHander(): boolean {
     return true;
   }
-  
+
   hasSpecialAttack(): boolean {
     return true;
   }
-  get inventoryImage () {
-    return BPInventImage
+  get inventoryImage() {
+    return BPInventImage;
   }
 
   get attackSound() {
@@ -133,7 +139,18 @@ export class Blowpipe extends RangedWeapon {
 
   registerProjectile(from: Unit, to: Unit) {
     to.addProjectile(
-      new Projectile(this, this.damage, from, to, "range", { visualDelayTicks: 1, sound: this.attackSound })
+      new Projectile(this, this.damage, from, to, "range", {
+        visualDelayTicks: 1,
+        sound: this.attackSound,
+      })
     );
+  }
+
+  override get model() {
+    return BlowpipeModel;
+  }
+
+  get attackAnimationId() {
+    return PlayerAnimationIndices.FireBlowpipe;
   }
 }

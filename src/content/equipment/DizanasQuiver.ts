@@ -6,19 +6,23 @@ import { Item } from "../../sdk/Item";
 import { Equipment, EquipmentTypes } from "../../sdk/Equipment";
 import { RangedWeapon } from "../../sdk/weapons/RangedWeapon";
 
-export class DizanasQuiver extends Cape {
-  inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage)
+import DizanasQuiverModel from "../../assets/models/male_Dizanas_maxcape-v10.glb";
 
-  get inventoryImage () {
-    return InventImage
+export class DizanasQuiver extends Cape {
+  inventorySprite: HTMLImageElement = ImageLoader.createImage(
+    this.inventoryImage
+  );
+
+  get inventoryImage() {
+    return InventImage;
   }
   get itemName(): ItemName {
-    return ItemName.DIZANAS_QUIVER
+    return ItemName.DIZANAS_QUIVER;
   }
   get weight(): number {
     return 0.453;
   }
-  
+
   constructor() {
     super();
     this.bonuses = {
@@ -27,30 +31,30 @@ export class DizanasQuiver extends Cape {
         slash: 0,
         crush: 0,
         magic: 0,
-        range: 18
+        range: 18,
       },
       defence: {
         stab: 0,
         slash: 0,
         crush: 0,
         magic: 0,
-        range: 0
+        range: 0,
       },
       other: {
         meleeStrength: 0,
         rangedStrength: 3,
         magicDamage: 0,
-        prayer: 0
+        prayer: 0,
       },
       targetSpecific: {
         undead: 0,
-        slayer: 0
-      }
-    }
+        slayer: 0,
+      },
+    };
   }
 
   updateBonuses(gear: Equipment[]): void {
-    const weapon = gear.find(item => item?.type === EquipmentTypes.WEAPON);
+    const weapon = gear.find((item) => item?.type === EquipmentTypes.WEAPON);
     if (!weapon || !(weapon instanceof RangedWeapon)) {
       this.bonuses.other.rangedStrength = 3;
       return;
@@ -60,5 +64,9 @@ export class DizanasQuiver extends Cape {
     } else {
       this.bonuses.other.rangedStrength = 3;
     }
+  }
+
+  override get model() {
+    return DizanasQuiverModel;
   }
 }

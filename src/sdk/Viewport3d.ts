@@ -74,7 +74,12 @@ export class Viewport3d implements ViewportDelegate {
     const worldCanvas = document.getElementById("world") as HTMLCanvasElement;
     this.initCameraEvents(worldCanvas);
 
-    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      logarithmicDepthBuffer: true,
+      antialias: true,
+      precision: "lowp",
+    });
 
     // Set up camera positioning
     this.camera.position.set(0, 3, 5);

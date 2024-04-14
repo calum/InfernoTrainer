@@ -241,7 +241,9 @@ export abstract class Unit extends Renderable {
   }
 
   playAttackAnimation() {
-    this.playAnimation(this.attackAnimationId);
+    if (this.attackAnimationId) {
+      this.playAnimation(this.attackAnimationId);
+    }
   }
 
   getPerceivedLocation(tickPercent: number) {

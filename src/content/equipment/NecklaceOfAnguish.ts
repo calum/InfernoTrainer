@@ -3,19 +3,23 @@ import { ImageLoader } from "../../sdk/utils/ImageLoader";
 import InventImage from '../../assets/images/equipment/Necklace_of_anguish.png';
 import { ItemName } from "../../sdk/ItemName";
 
-export class NecklaceOfAnguish extends Necklace{
-  inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage)
+import NecklaceofAnguishModel from "../../assets/models/male_Necklace_ofanguish-v7.glb";
 
-  get inventoryImage () {
-    return InventImage
+export class NecklaceOfAnguish extends Necklace {
+  inventorySprite: HTMLImageElement = ImageLoader.createImage(
+    this.inventoryImage
+  );
+
+  get inventoryImage() {
+    return InventImage;
   }
   get itemName(): ItemName {
-    return ItemName.NECKLACE_OF_ANGUISH
+    return ItemName.NECKLACE_OF_ANGUISH;
   }
   get weight(): number {
     return 0.01;
   }
-  
+
   constructor() {
     super();
     this.bonuses = {
@@ -24,25 +28,29 @@ export class NecklaceOfAnguish extends Necklace{
         slash: 0,
         crush: 0,
         magic: 0,
-        range: 15
+        range: 15,
       },
       defence: {
         stab: 0,
         slash: 0,
         crush: 0,
         magic: 0,
-        range: 0
+        range: 0,
       },
       other: {
         meleeStrength: 0,
         rangedStrength: 5,
         magicDamage: 0,
-        prayer: 2
+        prayer: 2,
       },
       targetSpecific: {
         undead: 0,
-        slayer: 0
-      }
-    }
+        slayer: 0,
+      },
+    };
+  }
+
+  override get model() {
+    return NecklaceofAnguishModel;
   }
 }

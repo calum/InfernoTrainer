@@ -3,10 +3,15 @@ import { Location, Location3 } from "./Location";
 
 import { Model } from "./rendering/Model";
 
+export interface RenderableListener {
+  animationChanged(id: number);
+  modelChanged();
+}
+
 export abstract class Renderable {
   private _selected = false;
   private cachedModel: Model | null = null;
-  private animationChangeListener: (id: number) => void | null = null;
+  private animationChangeListener: RenderableListener | null = null;
 
   abstract getPerceivedLocation(tickPercent: number): Location3;
 
@@ -86,7 +91,6 @@ export abstract class Renderable {
     return this.cachedModel ?? this.create3dModel();
   }
 
-
   /**
    * Return the index of the animation that should be playing at this moment.
    * Note: if the value changes, the new animation will start upon the next tick.
@@ -95,11 +99,11 @@ export abstract class Renderable {
 
   playAnimation(index: number) {
     if (this.animationChangeListener) {
-      this.animationChangeListener(index);
+      this.animationChangeListener.animationChanged(index);
     }
   }
 
-  setAnimationListener(listener: (index: number) => void) {
+  setAnimationListener(listener: RenderableListener) {
     this.animationChangeListener = listener;
   }
 
@@ -107,7 +111,14 @@ export abstract class Renderable {
     this.animationChangeListener = null;
   }
 
-  async preload() { 
+  invalidateModel() {
+    this.cachedModel = null;
+    if (this.animationChangeListener) {
+      this.animationChangeListener.modelChanged();
+    }
+  }
+
+  async preload() {
     // Create an offscreen version of the model so that loading it is faster next time.
     this.cachedModel = this.create3dModel();
     if (this.cachedModel) {
