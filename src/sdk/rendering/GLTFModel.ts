@@ -23,7 +23,13 @@ loader.setMeshoptDecoder(MeshoptDecoder);
  * Render the model using a sprite derived from the 2d representation of the renderable.
  */
 export class GLTFModel implements Model {
-  static forRenderable(r: Renderable, model: string, scale: number, verticalOffset = -0.49, originOffset: Location = {x: 0, y: 0},) {
+  static forRenderable(
+    r: Renderable,
+    model: string,
+    scale: number,
+    verticalOffset = -0.49,
+    originOffset: Location = { x: 0, y: 0 }
+  ) {
     return new GLTFModel(r, model, scale, verticalOffset, originOffset);
   }
 
@@ -40,7 +46,13 @@ export class GLTFModel implements Model {
   private playingAnimationId = -1;
   private animations: THREE.AnimationAction[] = [];
 
-  constructor(private renderable: Renderable, private model: string, private scale: number, private verticalOffset, private originOffset) {
+  constructor(
+    private renderable: Renderable,
+    private model: string,
+    private scale: number,
+    private verticalOffset,
+    private originOffset
+  ) {
     const { size } = renderable;
 
     this.outlineMaterial = new THREE.LineBasicMaterial({
@@ -60,7 +72,7 @@ export class GLTFModel implements Model {
     this.outline = new THREE.LineSegments(geometry, this.outlineMaterial);
     this.outline.visible = renderable.drawOutline;
 
-    const hullMaterial = new THREE.MeshBasicMaterial({ color: 0x00000000  });
+    const hullMaterial = new THREE.MeshBasicMaterial({ color: 0x00000000 });
     hullMaterial.transparent = true;
     // size of hull get set once the model loads
     this.hullGeometry = new THREE.CylinderGeometry(1, 1, 1, 6);
@@ -70,14 +82,33 @@ export class GLTFModel implements Model {
     this.clickHull.visible = false;
   }
 
-  onAnimationFinished(id: number | null = null) {
-    const nextAnimIndex = id !== null ? id : this.renderable.animationIndex;
-    console.log('onAnimationFinished', this.playingAnimationId, id, nextAnimIndex);
+  stopCurrentAnimation() {
     // needed otherwise the animations bleed into each other
     this.mixer.stopAllAction();
-    this.playingAnimationId = nextAnimIndex;
+  }
+
+  startPlayingAnimation(id: number) {
+    this.stopCurrentAnimation();
+    this.playingAnimationId = id;
+    const newAnimation = this.animations[id];
+    newAnimation.stop().setLoop(THREE.LoopOnce, 1).play();
+    this.mixer.setTime(0);
+  }
+
+  onAnimationFinished() {
+    const nextAnimIndex = this.renderable.animationIndex;
     const newAnimation = this.animations[nextAnimIndex];
-    newAnimation.reset().setLoop(THREE.LoopOnce, 1).play();
+    // play the fallback/pose animation
+    newAnimation
+      .stop()
+      .setLoop(THREE.LoopRepeat, Number.POSITIVE_INFINITY)
+      .play();
+    console.log(
+      "onAnimationFinished",
+      (this.renderable as any).name,
+      nextAnimIndex
+    );
+    /*.play()*/
   }
 
   // called the first time the model needs to appear on the scene
@@ -88,13 +119,12 @@ export class GLTFModel implements Model {
       // make adjustments
       gltf.scene.scale.set(scale, scale, scale);
       // load and start animating
-      
+
       if (gltf.animations.length === 0) {
         return;
       }
       const size = new THREE.Vector3();
       new THREE.Box3().setFromObject(gltf.scene).getSize(size);
-      console.log(size);
       const clickboxHeight = Math.max(this.renderable.size, 0.4 * size.y);
       this.hullGeometry.scale(
         0.4 * this.renderable.size,
@@ -103,18 +133,22 @@ export class GLTFModel implements Model {
       );
       this.hullGeometry.translate(0, clickboxHeight / 2 - 0.49, 0);
       this.mixer = new THREE.AnimationMixer(gltf.scene);
-      this.animations = gltf.animations.map((animation) =>
-        this.mixer.clipAction(animation)
-      );
+      this.animations = gltf.animations.map((animation) => {
+        const action = this.mixer.clipAction(animation);
+        action.clampWhenFinished = true;
+        action.zeroSlopeAtEnd = false;
+        action.zeroSlopeAtStart = false;
+        return action;
+      });
       const index = this.renderable.animationIndex;
       this.playingAnimationId = index;
       this.animations[this.playingAnimationId].setLoop(THREE.LoopOnce, 1);
       this.animations[this.playingAnimationId].play();
 
       this.mixer.addEventListener("finished", (e) => {
-        if (e.action === this.animations[this.playingAnimationId]) {
-          this.onAnimationFinished();
-        }
+        //if (e.action === this.animations[this.playingAnimationId]) {
+        this.onAnimationFinished();
+        //}
       });
     });
   }
@@ -132,7 +166,9 @@ export class GLTFModel implements Model {
     }
     if (this.loadedModel && this.loadedModel.scene.parent !== scene) {
       scene.add(this.loadedModel.scene);
-      this.renderable.setAnimationListener((id) => this.onAnimationFinished(id));
+      this.renderable.setAnimationListener((id) =>
+        this.startPlayingAnimation(id)
+      );
     }
     if (this.outline.parent !== scene) {
       scene.add(this.outline);
