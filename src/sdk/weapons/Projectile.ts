@@ -176,8 +176,9 @@ export class Projectile extends Renderable {
     const startX = this.startLocation.x
     const startY = this.startLocation.y;
     const startHeight = this.currentHeight;
-    const endX = this.to.location.x + this.to.size / 2 - 1; // why? 2am me doesn't know
-    const endY = this.to.location.y - this.to.size / 2 + 1;
+    const { x: toX, y: toY } = this.to.getPerceivedLocation(tickPercent);
+    const endX = toX + this.to.size / 2 - 1; // why? 2am me doesn't know
+    const endY = toY - this.to.size / 2 + 1;
     const endHeight = this.to.height * 0.75;
     const percent = ((this.age - this.visualDelayTicks) + tickPercent) / (this.totalDelay - this.visualDelayTicks);
     return this.interpolator.interpolate({x: startX, y: startY, z: startHeight}, {x: endX, y: endY, z: endHeight}, percent);

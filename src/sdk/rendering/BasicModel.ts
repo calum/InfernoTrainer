@@ -31,7 +31,7 @@ export class BasicModel implements Model {
       r.height,
       r.colorHex,
       r,
-      {},
+      { x: r.size / 2, z: -r.size / 2 },
       BasicModelShape.SPHERE
     );
   }
