@@ -2,8 +2,7 @@ import { ImageLoader } from "../../sdk/utils/ImageLoader";
 import InventImage from '../../assets/images/equipment/Zaryte_vambraces.png';
 import { Gloves } from "../../sdk/gear/Gloves";
 import { ItemName } from "../../sdk/ItemName";
-
-import ZaryteVambracesModel from "../../assets/models/male_Zaryte_vambraces-v2.glb";
+import { Assets } from "../../sdk/utils/Assets";
 
 export class ZaryteVambraces extends Gloves {
   inventorySprite: HTMLImageElement = ImageLoader.createImage(
@@ -50,7 +49,8 @@ export class ZaryteVambraces extends Gloves {
     };
   }
 
+  Model = Assets.getAssetUrl("models/player_zaryte_vambraces.glb");
   override get model() {
-    return ZaryteVambracesModel;
+    return this.Model;
   }
 }

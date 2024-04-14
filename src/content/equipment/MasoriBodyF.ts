@@ -2,8 +2,7 @@ import { ImageLoader } from "../../sdk/utils/ImageLoader";
 import InventImage from '../../assets/images/equipment/Masori_body_(f).png';
 import { Chest } from "../../sdk/gear/Chest";
 import { ItemName } from "../../sdk/ItemName";
-
-import MasoriBodyModel from "../../assets/models/male_Masori_body-v9.glb";
+import { Assets } from "../../sdk/utils/Assets";
 
 export class MasoriBodyF extends Chest {
   inventorySprite: HTMLImageElement = ImageLoader.createImage(
@@ -52,6 +51,8 @@ export class MasoriBodyF extends Chest {
   }
 
   override get model() {
-    return MasoriBodyModel;
+    return this.Model;
   }
+  Model = Assets.getAssetUrl("models/player_masori_body__f_.glb");
 }
+

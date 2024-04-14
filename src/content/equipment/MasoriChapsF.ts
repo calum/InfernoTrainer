@@ -3,7 +3,7 @@ import InventImage from '../../assets/images/equipment/Masori_chaps_(f).png';
 import { Legs } from "../../sdk/gear/Legs";
 import { ItemName } from "../../sdk/ItemName";
 
-import MasoriChapsModel from "../../assets/models/male_Masori_chaps-v8.glb";
+import { Assets } from "../../sdk/utils/Assets";
 
 export class MasoriChapsF extends Legs {
   inventorySprite: HTMLImageElement = ImageLoader.createImage(
@@ -52,6 +52,8 @@ export class MasoriChapsF extends Legs {
   }
 
   override get model() {
-    return MasoriChapsModel;
+    return this.Model;
   }
+  Model = Assets.getAssetUrl("models/player_masori_chaps__f_.glb");
 }
+

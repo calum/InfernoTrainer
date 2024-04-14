@@ -1,4 +1,4 @@
-// this just happens to be the order that we exported the models animations in
+// this just happens to be the order that we exported the models animations in - see ASSETS.md
 export enum PlayerAnimationIndices {
   Idle = 0,
   Walk = 1,

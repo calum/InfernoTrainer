@@ -10,8 +10,8 @@ import { AttackBonuses } from '../../sdk/gear/Weapon'
 import TwistedBowAttackSound from '../../assets/sounds/shortbow_2702.ogg';
 import { Sound, SoundCache } from '../../sdk/utils/SoundCache'
 
-import TwistedBowModel from "../../assets/models/male_Twisted_bow-v4.glb";
 import { PlayerAnimationIndices } from '../../sdk/rendering/GLTFAnimationConstants'
+import { Assets } from '../../sdk/utils/Assets'
 
 export class TwistedBow extends RangedWeapon {
   constructor() {
@@ -118,10 +118,11 @@ export class TwistedBow extends RangedWeapon {
     return Math.min(2.5, Math.max(0, multiplier));
   }
 
-  get model() {
-    return TwistedBowModel;
+  Model = Assets.getAssetUrl("models/player_twisted_bow.glb");
+  override get model() {
+    return this.Model;
   }
-
+  
   get attackAnimationId() {
     return PlayerAnimationIndices.FireBow;
   }

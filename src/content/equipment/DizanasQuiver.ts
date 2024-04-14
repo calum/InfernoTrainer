@@ -5,8 +5,7 @@ import { ItemName } from "../../sdk/ItemName";
 import { Item } from "../../sdk/Item";
 import { Equipment, EquipmentTypes } from "../../sdk/Equipment";
 import { RangedWeapon } from "../../sdk/weapons/RangedWeapon";
-
-import DizanasQuiverModel from "../../assets/models/male_Dizanas_maxcape-v10.glb";
+import { Assets } from "../../sdk/utils/Assets";
 
 export class DizanasQuiver extends Cape {
   inventorySprite: HTMLImageElement = ImageLoader.createImage(
@@ -67,6 +66,7 @@ export class DizanasQuiver extends Cape {
   }
 
   override get model() {
-    return DizanasQuiverModel;
+    return this.Model;
   }
+  Model = Assets.getAssetUrl("models/player_dizana_s_max_cape.glb");
 }

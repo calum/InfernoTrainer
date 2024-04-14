@@ -2,8 +2,7 @@ import { Helmet } from "../../sdk/gear/Helmet";
 import { ImageLoader } from "../../sdk/utils/ImageLoader";
 import InventImage from '../../assets/images/equipment/Slayer_helmet_imbued.png';
 import { ItemName } from "../../sdk/ItemName";
-
-import SlayerHelmetModel from "../../assets/models/male_Tzkal_slayerhelmet-v3.glb";
+import { Assets } from "../../sdk/utils/Assets";
 
 export class SlayerHelmet extends Helmet {
   inventorySprite: HTMLImageElement = ImageLoader.createImage(
@@ -49,8 +48,9 @@ export class SlayerHelmet extends Helmet {
       },
     };
   }
-
+  
+  Model = Assets.getAssetUrl("models/player_tzkal_slayer_helmet__i_.glb");
   override get model() {
-    return SlayerHelmetModel;
+    return this.Model;
   }
 }

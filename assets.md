@@ -5,20 +5,17 @@
 ## Sounds
 Currently using https://github.com/lequietriot/Old-School-RuneScape-Cache-Tools. Sound IDs are just grabbed using Visual Sound Plugin or Runelite dev mode.
 
-## Models
-For all of the below, be sure to run models through https://gltf.report/ with:
+## Optimising Models
 
-    import { prune, dedup, resample, weld, unpartition } from '@gltf-transform/functions';
+Install the [gltf-transform CLI](https://gltf-transform.dev/) using:
 
-    await document.transform(
-        weld({exhaustive: true}),
-        unpartition(),
-        dedup(),
-        resample(),
-        prune()
-    );
-    
-with export settings: Binary (.glb), Interleaved, Meshopt compression. This will minimise the size of the models.
+    npm install --global @gltf-transform/cli
+
+Then in the directory that contains GLTF files:
+
+   for file in *.gltf; do
+    gltf-transform optimize --compress meshopt $file $(echo $file | sed 's/\.gltf$/\.glb/')
+   done
 
 ## Scene models
 Currently using a branch of [OSRS-Environment-Exporter](https://github.com/Supalosa/OSRS-Environment-Exporter/pull/1) with hardcoded overrides for the Inferno region to remove ground clutter and clear the space around Zuk.

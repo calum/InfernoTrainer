@@ -12,8 +12,8 @@ import BPAttackSound from '../../assets/sounds/dart_2696.ogg';
 import BPSpecSound from '../../assets/sounds/snake_hit_800.ogg';
 import { Sound, SoundCache } from '../../sdk/utils/SoundCache';
 
-import BlowpipeModel from "../../assets/models/male_Toxic_blowpipe-v5.glb";
 import { PlayerAnimationIndices } from "../../sdk/rendering/GLTFAnimationConstants";
+import { Assets } from '../../sdk/utils/Assets';
 
 export class Blowpipe extends RangedWeapon {
   constructor() {
@@ -146,8 +146,9 @@ export class Blowpipe extends RangedWeapon {
     );
   }
 
+  Model = Assets.getAssetUrl("models/player_toxic_blowpipe.glb");
   override get model() {
-    return BlowpipeModel;
+    return this.Model;
   }
 
   get attackAnimationId() {
