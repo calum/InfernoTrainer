@@ -92,6 +92,8 @@ export class GLTFModel implements Model {
     this.playingAnimationId = id;
     const newAnimation = this.animations[id];
     newAnimation.stop().setLoop(THREE.LoopOnce, 1).play();
+    // reset the timer of the mixer because it seems to bug out and show the first frame sometimes
+    // suspect that it has to do with the mixer time exceeding the length of the animation?
     this.mixer.setTime(0);
   }
 
@@ -103,12 +105,6 @@ export class GLTFModel implements Model {
       .stop()
       .setLoop(THREE.LoopRepeat, Number.POSITIVE_INFINITY)
       .play();
-    console.log(
-      "onAnimationFinished",
-      (this.renderable as any).name,
-      nextAnimIndex
-    );
-    /*.play()*/
   }
 
   // called the first time the model needs to appear on the scene
