@@ -78,7 +78,7 @@ export class Viewport3d implements ViewportDelegate {
       canvas: this.canvas,
       logarithmicDepthBuffer: true,
       antialias: true,
-      precision: "lowp",
+      //precision: "lowp",
     });
 
     // Set up camera positioning
