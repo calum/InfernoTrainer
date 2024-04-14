@@ -314,6 +314,8 @@ export class GLTFModel implements Model, RenderableListener {
     });
     await GLTFModel.until(() => didRender);
     scene.remove(gltf.scene);
+    renderer.dispose();
+    renderer.forceContextLoss();
     return;
   }
 }
