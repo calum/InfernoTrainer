@@ -38,7 +38,10 @@ export class InfernoScene extends Entity {
   }
 
   create3dModel(): Model {
-    return new GLTFModel(this, InfernoSceneModel, 1, -2.5, { x: -6.5, y: 12.5 });
+    return new GLTFModel(this, [InfernoSceneModel], 1, -2.5, {
+      x: -6.5,
+      y: 12.5,
+    });
   }
 
 }

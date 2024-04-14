@@ -20,7 +20,8 @@ const loader = new GLTFLoader();
 loader.setMeshoptDecoder(MeshoptDecoder);
 
 /**
- * Render the model using a sprite derived from the 2d representation of the renderable.
+ * Render the model using one or more GLTF models. If there are multiple models, they are drawn superimposed on the same spot and are expected
+ * to have the same animation set.
  */
 export class GLTFModel implements Model {
   static forRenderable(
@@ -30,7 +31,17 @@ export class GLTFModel implements Model {
     verticalOffset = -0.49,
     originOffset: Location = { x: 0, y: 0 }
   ) {
-    return new GLTFModel(r, model, scale, verticalOffset, originOffset);
+    return new GLTFModel(r, [model], scale, verticalOffset, originOffset);
+  }
+
+  static forRenderableMulti(
+    r: Renderable,
+    models: string[],
+    scale: number,
+    verticalOffset = -0.49,
+    originOffset: Location = { x: 0, y: 0 }
+  ) {
+    return new GLTFModel(r, models, scale, verticalOffset, originOffset);
   }
 
   private outline: THREE.LineSegments;
@@ -39,7 +50,8 @@ export class GLTFModel implements Model {
   private hullGeometry: THREE.CylinderGeometry;
   private clickHull: THREE.Mesh;
 
-  private loadedModel: GLTF | null = null;
+  // parent object for all models loaded into this
+  private loadedModel: THREE.Object3D | null = null;
   private hasInitialisedModel = false;
   private mixer: THREE.AnimationMixer | null = null;
 
@@ -48,7 +60,7 @@ export class GLTFModel implements Model {
 
   constructor(
     private renderable: Renderable,
-    private model: string,
+    private models: string[],
     private scale: number,
     private verticalOffset,
     private originOffset
@@ -109,44 +121,46 @@ export class GLTFModel implements Model {
 
   // called the first time the model needs to appear on the scene
   initialiseModel() {
-    loader.load(this.model, (gltf: GLTF) => {
-      this.loadedModel = gltf;
-      const scale = this.scale;
-      // make adjustments
-      gltf.scene.scale.set(scale, scale, scale);
-      // load and start animating
+    const preparingMesh = new THREE.Object3D();
+    this.models.forEach((model) => {
+      loader.load(model, (gltf: GLTF) => {
+        const scale = this.scale;
+        // make adjustments
+        gltf.scene.scale.set(scale, scale, scale);
+        preparingMesh.add(gltf.scene);
+        // load and start animating
+        if (gltf.animations.length === 0) {
+          return;
+        }
+        const size = new THREE.Vector3();
+        new THREE.Box3().setFromObject(gltf.scene).getSize(size);
+        const clickboxHeight = Math.max(this.renderable.size, 0.4 * size.y);
+        this.hullGeometry.scale(
+          0.4 * this.renderable.size,
+          clickboxHeight,
+          0.4 * this.renderable.size
+        );
+        this.hullGeometry.translate(0, clickboxHeight / 2 - 0.49, 0);
+        this.mixer = new THREE.AnimationMixer(gltf.scene);
+        this.animations = gltf.animations.map((animation) => {
+          const action = this.mixer.clipAction(animation);
+          action.clampWhenFinished = true;
+          action.zeroSlopeAtEnd = false;
+          action.zeroSlopeAtStart = false;
+          return action;
+        });
+        const index = this.renderable.animationIndex;
+        this.playingAnimationId = index;
+        this.animations[this.playingAnimationId].setLoop(THREE.LoopOnce, 1);
+        this.animations[this.playingAnimationId].play();
 
-      if (gltf.animations.length === 0) {
-        return;
-      }
-      const size = new THREE.Vector3();
-      new THREE.Box3().setFromObject(gltf.scene).getSize(size);
-      const clickboxHeight = Math.max(this.renderable.size, 0.4 * size.y);
-      this.hullGeometry.scale(
-        0.4 * this.renderable.size,
-        clickboxHeight,
-        0.4 * this.renderable.size
-      );
-      this.hullGeometry.translate(0, clickboxHeight / 2 - 0.49, 0);
-      this.mixer = new THREE.AnimationMixer(gltf.scene);
-      this.animations = gltf.animations.map((animation) => {
-        const action = this.mixer.clipAction(animation);
-        action.clampWhenFinished = true;
-        action.zeroSlopeAtEnd = false;
-        action.zeroSlopeAtStart = false;
-        return action;
-      });
-      const index = this.renderable.animationIndex;
-      this.playingAnimationId = index;
-      this.animations[this.playingAnimationId].setLoop(THREE.LoopOnce, 1);
-      this.animations[this.playingAnimationId].play();
-
-      this.mixer.addEventListener("finished", (e) => {
-        //if (e.action === this.animations[this.playingAnimationId]) {
-        this.onAnimationFinished();
-        //}
+        this.mixer.addEventListener("finished", (e) => {
+          this.onAnimationFinished();
+        });
       });
     });
+    
+    this.loadedModel = preparingMesh;
   }
 
   draw(
@@ -160,8 +174,8 @@ export class GLTFModel implements Model {
       this.initialiseModel();
       this.hasInitialisedModel = true;
     }
-    if (this.loadedModel && this.loadedModel.scene.parent !== scene) {
-      scene.add(this.loadedModel.scene);
+    if (this.loadedModel && this.loadedModel.parent !== scene) {
+      scene.add(this.loadedModel);
       this.renderable.setAnimationListener((id) =>
         this.startPlayingAnimation(id)
       );
@@ -192,13 +206,12 @@ export class GLTFModel implements Model {
         this.mixer.update(clockDelta);
       }
 
-      const { scene } = this.loadedModel;
       const { size } = this.renderable;
       const adjustedRotation = rotation + Math.PI / 2;
-      scene.position.x = x + size / 2 + this.originOffset.x;
-      scene.position.y = this.verticalOffset;
-      scene.position.z = y - size / 2 + this.originOffset.y;
-      scene.setRotationFromAxisAngle(
+      this.loadedModel.position.x = x + size / 2 + this.originOffset.x;
+      this.loadedModel.position.y = this.verticalOffset;
+      this.loadedModel.position.z = y - size / 2 + this.originOffset.y;
+      this.loadedModel.setRotationFromAxisAngle(
         new THREE.Vector3(0, 1, 0),
         adjustedRotation
       );
@@ -206,8 +219,8 @@ export class GLTFModel implements Model {
   }
 
   destroy(scene: THREE.Scene) {
-    if (this.loadedModel && this.loadedModel.scene.parent === scene) {
-      scene.remove(this.loadedModel.scene);
+    if (this.loadedModel && this.loadedModel.parent === scene) {
+      scene.remove(this.loadedModel);
       this.renderable.clearAnimationListener();
     }
     if (this.outline.parent === scene) {
@@ -232,7 +245,8 @@ export class GLTFModel implements Model {
   }
 
   async preload() {
-    return await GLTFModel.preload(this.model);
+    await Promise.all(this.models.map(model => GLTFModel.preload(model)));
+    return;
   }
 
   static async preload(model: string) {
