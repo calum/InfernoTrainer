@@ -76,8 +76,8 @@ export class Viewport3d implements ViewportDelegate {
 
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
-      logarithmicDepthBuffer: true,
-      antialias: true,
+      //logarithmicDepthBuffer: true,
+      //antialias: true,
       //precision: "lowp",
     });
 
