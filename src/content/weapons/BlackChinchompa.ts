@@ -13,6 +13,8 @@ import { AttackBonuses } from '../../sdk/gear/Weapon'
 import { Unit } from '../../sdk/Unit'
 import { Pathing } from '../../sdk/Pathing'
 import { Mob } from '../../sdk/Mob'
+import { Assets } from '../../sdk/utils/Assets'
+import { PlayerAnimationIndices } from '../../sdk/rendering/GLTFAnimationConstants'
 
 export class BlackChinchompa extends RangedWeapon {
 
@@ -147,5 +149,14 @@ export class BlackChinchompa extends RangedWeapon {
     } else {
       return super.attack(from, to, bonuses, options)
     }
+  }
+
+  Model = Assets.getAssetUrl("models/player_black_chinchompa.glb");
+  override get model() {
+    return this.Model;
+  }
+
+  get attackAnimationId() {
+    return PlayerAnimationIndices.ThrowChinchompa;
   }
 }

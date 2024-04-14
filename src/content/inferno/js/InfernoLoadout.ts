@@ -42,6 +42,7 @@ import { StaminaPotion } from '../../items/StaminaPotion'
 import { SaradominBrew } from '../../items/SaradominBrew'
 import { SuperRestore } from '../../items/SuperRestore'
 import { ZaryteVambraces } from '../../equipment/ZaryteVambraces'
+import { MasoriMaskF } from '../../equipment/MasoriMaskF'
 import { MasoriBodyF } from '../../equipment/MasoriBodyF'
 import { MasoriChapsF } from '../../equipment/MasoriChapsF'
 import { DizanasQuiver } from '../../equipment/DizanasQuiver'
@@ -90,7 +91,7 @@ export class InfernoLoadout {
       equipment: { 
         weapon: new KodaiWand(),
         offhand: new CrystalShield(),
-        helmet: new JusticiarFaceguard(),
+        helmet: new MasoriMaskF(),
         necklace: new OccultNecklace(),
         cape: new DizanasQuiver(),
         ammo: new DragonArrows(),

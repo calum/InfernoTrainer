@@ -8,4 +8,5 @@ export enum PlayerAnimationIndices {
   StrafeRight,
   FireBow,
   FireBlowpipe,
+  ThrowChinchompa,
 }
