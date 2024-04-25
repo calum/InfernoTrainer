@@ -1,0 +1,6 @@
+# redirect old links to new domain
+[[redirects]]
+from = "https://deploy-preview-14--soltrainer.netlify.app/*"
+to = "https://colosim.com/:splat"
+status = 301
+force = true
