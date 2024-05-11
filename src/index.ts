@@ -26,14 +26,6 @@ world.addRegion(selectedRegion);
 // Initialise UI
 document.getElementById('sidebar_content').innerHTML = selectedRegion.getSidebarContent();
 
-const use3dViewCheckbox = document.getElementById("use3dView") as HTMLInputElement;
-use3dViewCheckbox.checked = Settings.use3dView;
-use3dViewCheckbox.addEventListener("change", () => {
-  Settings.use3dView = use3dViewCheckbox.checked;
-  Settings.persistToStorage();
-  window.location.reload();
-});
-
 const { player } = selectedRegion.initialiseRegion();
 
 Viewport.setupViewport(selectedRegion);

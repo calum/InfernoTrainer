@@ -1,19 +1,19 @@
 "use strict";
-import { Region, CardinalDirection, Settings, Mob, Player, BrowserUtils, InvisibleMovementBlocker, ImageLoader, Location, TileMarker, ControlPanelController, Trainer, EntityNames } from "@supalosa/oldschool-trainer-sdk";
+import { Region, CardinalDirection, Player, BrowserUtils, ImageLoader } from "@supalosa/oldschool-trainer-sdk";
 
 import InfernoMapImage from "../assets/images/map.png";
 
-import { JalImKot } from "./mobs/JalImKot";
-import { InfernoScene } from "./InfernoScene";
+import { VerzikVitur } from "./mobs/VerzikVitur";
 
 import SidebarContent from "../sidebar.html";
-import { filter } from "lodash";
 import { VerzikLoadout } from "./VerzikLoadout";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export class VerzikRegion extends Region {
   mapImage: HTMLImageElement = ImageLoader.createImage(InfernoMapImage);
+
+  preEnrage = true;
 
   get initialFacing() {
     return CardinalDirection.NORTH;
@@ -35,68 +35,6 @@ export class VerzikRegion extends Region {
     return [];
   }
 
-  initializeAndGetLoadoutType() {
-    const loadoutSelector = document.getElementById("loadouts") as HTMLInputElement;
-    loadoutSelector.value = Settings.loadout;
-    loadoutSelector.addEventListener("change", () => {
-      Settings.loadout = loadoutSelector.value;
-      Settings.persistToStorage();
-    });
-
-    return loadoutSelector.value;
-  }
-
-  initializeAndGetOnTask() {
-    const onTaskCheckbox = document.getElementById("onTask") as HTMLInputElement;
-    onTaskCheckbox.checked = Settings.onTask;
-    onTaskCheckbox.addEventListener("change", () => {
-      Settings.onTask = onTaskCheckbox.checked;
-      Settings.persistToStorage();
-    });
-    return onTaskCheckbox.checked;
-  }
-
-  initializeAndGetSouthPillar() {
-    const southPillarCheckbox = document.getElementById("southPillar") as HTMLInputElement;
-    southPillarCheckbox.checked = Settings.southPillar;
-    southPillarCheckbox.addEventListener("change", () => {
-      Settings.southPillar = southPillarCheckbox.checked;
-      Settings.persistToStorage();
-    });
-    return southPillarCheckbox.checked;
-  }
-
-  initializeAndGetWestPillar() {
-    const westPillarCheckbox = document.getElementById("westPillar") as HTMLInputElement;
-    westPillarCheckbox.checked = Settings.westPillar;
-    westPillarCheckbox.addEventListener("change", () => {
-      Settings.westPillar = westPillarCheckbox.checked;
-      Settings.persistToStorage();
-    });
-    return westPillarCheckbox.checked;
-  }
-
-  initializeAndGetNorthPillar() {
-    const northPillarCheckbox = document.getElementById("northPillar") as HTMLInputElement;
-    northPillarCheckbox.checked = Settings.northPillar;
-    northPillarCheckbox.addEventListener("change", () => {
-      Settings.northPillar = northPillarCheckbox.checked;
-      Settings.persistToStorage();
-    });
-    return northPillarCheckbox.checked;
-  }
-
-  initializeAndGetUse3dView() {
-    const use3dViewCheckbox = document.getElementById("use3dView") as HTMLInputElement;
-    use3dViewCheckbox.checked = Settings.use3dView;
-    use3dViewCheckbox.addEventListener("change", () => {
-      Settings.use3dView = use3dViewCheckbox.checked;
-      Settings.persistToStorage();
-      window.location.reload();
-    });
-    return use3dViewCheckbox.checked;
-  }
-
   initialiseRegion() {
     // create player
     const player = new Player(this, {
@@ -106,14 +44,9 @@ export class VerzikRegion extends Region {
 
     this.addPlayer(player);
 
-    this.addMob(new JalImKot(this, { x: 25, y: 25 }, { aggro: player}));
+    this.addMob(new VerzikVitur(this, { x: 25, y: 25 }, { aggro: player }));
 
-    const loadoutType = this.initializeAndGetLoadoutType();
-    const onTask = this.initializeAndGetOnTask();
-
-    this.initializeAndGetUse3dView();
-
-    const loadout = new VerzikLoadout(loadoutType, onTask);
+    const loadout = new VerzikLoadout();
     loadout.setStats(player); // flip this around one day
     player.setUnitOptions(loadout.getLoadout());
 
@@ -121,12 +54,40 @@ export class VerzikRegion extends Region {
       .getElementById("pauseResumeLink")
       .addEventListener("click", () => (this.world.isPaused ? this.world.startTicking() : this.world.stopTicking()));
 
+    document.getElementById("preEnrage").addEventListener("click", () => this.updatePreEnrage(true));
+    document.getElementById("postEnrage").addEventListener("click", () => this.updatePreEnrage(false));
+    this.updatePreEnrage(true);
+
     // Add 3d scene
-    if (Settings.use3dView) {
+    /*if (Settings.use3dView) {
       this.addEntity(new InfernoScene(this, { x: 0, y: 48 }));
-    }
+    }*/
 
     return { player };
+  }
+
+  updatePreEnrage(preEnrage: boolean) {
+    this.preEnrage = preEnrage;
+    if (preEnrage) {
+      document
+        .getElementById("preEnrage")
+        .classList.add("selected");
+      document
+        .getElementById("postEnrage")
+        .classList.remove("selected");
+    } else {
+      document
+        .getElementById("preEnrage")
+        .classList.remove("selected");
+      document
+        .getElementById("postEnrage")
+        .classList.add("selected");
+    }
+    this.world.regions.forEach((region) => {
+      region.mobs.filter((mob): mob is VerzikVitur => mob.mobName() === "Verzik Vitur").forEach((mob) => {
+        mob.setAttackSpeed(preEnrage ? 7 : 5);
+      });
+    });
   }
 
   drawWorldBackground(context: OffscreenCanvasRenderingContext2D, scale: number) {
@@ -150,7 +111,7 @@ export class VerzikRegion extends Region {
 
   drawDefaultFloor() {
     // replaced by an Entity in 3d view
-    return !Settings.use3dView;
+    return true; // !Settings.use3dView;
   }
 
   getSidebarContent() {

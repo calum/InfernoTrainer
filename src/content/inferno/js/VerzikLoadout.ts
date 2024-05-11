@@ -29,13 +29,6 @@ import {
 import { filter, indexOf, map } from "lodash";
 
 export class VerzikLoadout {
-  loadoutType: string;
-  onTask: boolean;
-
-  constructor(loadoutType: string, onTask: boolean) {
-    this.loadoutType = loadoutType;
-    this.onTask = onTask;
-  }
 
   loadoutMaxMelee() {
     return {
@@ -105,20 +98,6 @@ export class VerzikLoadout {
     player.currentStats.prayer = 99;
     player.stats.defence = 99;
     player.currentStats.defence = 99;
-    switch (this.loadoutType) {
-      case "zerker":
-        player.stats.prayer = 52;
-        player.currentStats.prayer = 52;
-        player.stats.defence = 45;
-        player.currentStats.defence = 45;
-        break;
-      case "pure":
-        player.stats.prayer = 52;
-        player.currentStats.prayer = 52;
-        player.stats.defence = 1;
-        player.currentStats.defence = 1;
-        break;
-    }
   }
 
   getLoadout(): UnitOptions {
