@@ -14,7 +14,7 @@ enum VerzikAnimations {
   Range
 }
 
-class VerzikMelkee extends RangedWeapon {
+class VerzikMelee extends RangedWeapon {
   constructor() {
     super({
       sound: new Sound(MeleerSound, 0.6),
@@ -44,7 +44,7 @@ const DEFAULT_ATTACK_SPEED = 7;
 
 export class VerzikVitur extends Mob {
   private _attackSpeed = DEFAULT_ATTACK_SPEED;
-  
+
   constructor(region, location, options) {
     super(region, location, options);
     this.attackDelay = this._attackSpeed;

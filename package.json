@@ -45,6 +45,6 @@
   },
   "dependencies": {
     "three": "^0.163.0",
-    "@supalosa/oldschool-trainer-sdk": "0.0.15"
+    "@supalosa/oldschool-trainer-sdk": "0.0.18"
   }
 }
