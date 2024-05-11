@@ -4,7 +4,6 @@ import { Assets, Mob, EntityNames, MeleeWeapon, Sound, UnitBonuses, Location, Ra
 
 import MeleerImage from "../../assets/images/meleer.png";
 import MeleerSound from "../../assets/sounds/meleer.ogg";
-import { InfernoMobDeathStore } from "../InfernoMobDeathStore";
 
 const MeleerModel = Assets.getAssetUrl("models/7697_33010.glb");
 
@@ -23,7 +22,6 @@ export class JalImKot extends Mob {
 
   dead() {
     super.dead();
-    InfernoMobDeathStore.npcDied(this);
   }
 
   setStats() {
@@ -86,7 +84,7 @@ export class JalImKot extends Mob {
   }
 
   get size() {
-    return 4;
+    return 7;
   }
 
   get image() {
@@ -99,75 +97,6 @@ export class JalImKot extends Mob {
 
   attackAnimation(tickPercent: number, context) {
     context.transform(1, 0, Math.sin(-tickPercent * Math.PI * 2) / 2, 1, 0, 0);
-  }
-
-  movementStep() {
-    super.movementStep();
-    if (!this.hasLOS && !this.digSequenceTime) {
-      if ((this.attackDelay <= -38 && Random.get() < 0.1) || this.attackDelay <= -50) {
-        this.startDig();
-        this.playAnimation(3);
-      }
-    }
-    if (this.digSequenceTime && --this.digSequenceTime === 0) {
-      this.endDig();
-      this.playAnimation(4);
-    }
-  }
-
-  startDig() {
-    if (!this.aggro) {
-      return;
-    }
-    this.freeze(6);
-    this.digSequenceTime = 6;
-    this.digCount++;
-    if (
-      !Collision.collidesWithAnyEntities(this.region, this.aggro.location.x - 3, this.aggro.location.y + 3, this.size)
-    ) {
-      this.digLocation = {
-        x: this.aggro.location.x - this.size + 1,
-        y: this.aggro.location.y + this.size - 1,
-      };
-    } else if (
-      !Collision.collidesWithAnyEntities(this.region, this.aggro.location.x, this.aggro.location.y, this.size)
-    ) {
-      this.digLocation = {
-        x: this.aggro.location.x,
-        y: this.aggro.location.y,
-      };
-    } else if (
-      !Collision.collidesWithAnyEntities(this.region, this.aggro.location.x - 3, this.aggro.location.y, this.size)
-    ) {
-      this.digLocation = {
-        x: this.aggro.location.x - this.size + 1,
-        y: this.aggro.location.y,
-      };
-    } else if (
-      !Collision.collidesWithAnyEntities(this.region, this.aggro.location.x, this.aggro.location.y + 3, this.size)
-    ) {
-      this.digLocation = {
-        x: this.aggro.location.x,
-        y: this.aggro.location.y + this.size - 1,
-      };
-    } else {
-      this.digLocation = {
-        x: this.aggro.location.x - 1,
-        y: this.aggro.location.y + 1,
-      };
-    }
-    this.perceivedLocation = this.location;
-  }
-
-  endDig() {
-    if (this.aggro.type === UnitTypes.PLAYER) {
-      const player = this.aggro as Player;
-      player.interruptCombat();
-    }
-    this.attackDelay = 6;
-    this.freeze(2);
-    this.location = this.digLocation;
-    this.perceivedLocation = this.location;
   }
 
   create3dModel() {

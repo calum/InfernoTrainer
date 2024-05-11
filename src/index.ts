@@ -2,24 +2,17 @@
 
 import { Settings, Region, World, Viewport, MapController, TileMarker, Assets, Location, Chrome, ImageLoader, Trainer } from "@supalosa/oldschool-trainer-sdk";
 
-import NewRelicBrowser from "new-relic-browser";
-import { InfernoRegion } from "./content/inferno/js/InfernoRegion";
+import { VerzikRegion as VerzikRegion } from "./content/inferno/js/VerzikRegion";
 
 const SpecialAttackBarBackground = Assets.getAssetUrl("/assets/images/attackstyles/interface/special_attack_background.png");
-
-declare global {
-  interface Window {
-    newrelic: typeof NewRelicBrowser;
-  }
-}
 
 Settings.readFromStorage();
 
 // Choose the region based on the URL.
 const AVAILABLE_REGIONS = {
-  'inferno.html': new InfernoRegion(),
+  'verzik.html': new VerzikRegion(),
 };
-const DEFAULT_REGION_PATH = 'inferno.html';
+const DEFAULT_REGION_PATH = 'verzik.html';
 
 const regionName = window.location.pathname.split('/').pop();
 const selectedRegion: Region = (regionName in AVAILABLE_REGIONS) ? AVAILABLE_REGIONS[regionName] : AVAILABLE_REGIONS[DEFAULT_REGION_PATH];
@@ -141,8 +134,6 @@ function checkStart() {
 }
 
 /// /////////////////////////////////////////////////////////
-
-window.newrelic.addRelease("inferno-trainer", process.env.COMMIT_REF);
 
 // UI disclaimer
 const topHeaderContainer = document.getElementById("disclaimer_panel");
