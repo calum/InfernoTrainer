@@ -24,6 +24,11 @@ import {
   ItemName,
   Player,
   UnitOptions,
+  SuperCombatPotion,
+  FerociousGloves,
+  AmuletOfTorture,
+  BladeOfSaeldor,
+  AvernicDefender,
 } from "@supalosa/oldschool-trainer-sdk";
 
 import { filter, indexOf, map } from "lodash";
@@ -36,23 +41,23 @@ export class VerzikLoadout {
         weapon: new ScytheOfVitur(),
         offhand: null,
         helmet: new TorvaFullhelm(),
-        necklace: new OccultNecklace(), // TODO
+        necklace: new AmuletOfTorture(), // TODO
         cape: new InfernalCape(),
         ammo: new DragonArrows(),
         chest: new TorvaPlatebody(),
         legs: new TorvaPlatelegs(),
         feet: new PrimordialBoots(),
-        gloves: new ZaryteVambraces(), // TODO
+        gloves: new FerociousGloves(),
         ring: new RingOfSufferingImbued(), // TODO
       },
       inventory: [
-        new TwistedBow(),
-        new MasoriBodyF(),
-        new DizanasQuiver(),
-        new PegasianBoots(),
-        new NecklaceOfAnguish(),
-        new MasoriChapsF(),
-        new MasoriMaskF(),
+        new BladeOfSaeldor(),
+        new AvernicDefender(),
+        null,
+        null,
+        null,
+        null,
+        null,
         new SaradominBrew(),
         new SaradominBrew(),
         new SaradominBrew(),
@@ -70,7 +75,7 @@ export class VerzikLoadout {
         new SaradominBrew(),
         new SuperRestore(),
         new SuperRestore(),
-        new BastionPotion(),
+        new SuperCombatPotion(),
         new StaminaPotion(),
         new SuperRestore(),
         new SuperRestore(),
