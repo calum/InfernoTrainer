@@ -2,9 +2,6 @@
 
 import { Assets, Mob, EntityNames, MeleeWeapon, Sound, UnitBonuses, Location, GLTFModel, RangedWeapon, LocationUtils, Collision, UnitTypes, Player } from "@supalosa/oldschool-trainer-sdk";
 
-import MeleerImage from "../../assets/images/meleer.png";
-import MeleerSound from "../../assets/sounds/meleer.ogg";
-
 const MeleerModel = Assets.getAssetUrl("models/verzik.glb");
 
 enum VerzikAnimations {
@@ -16,9 +13,7 @@ enum VerzikAnimations {
 
 class VerzikMelee extends RangedWeapon {
   constructor() {
-    super({
-      sound: new Sound(MeleerSound, 0.6),
-    });
+    super({});
   }
 
   override get isAreaAttack() {
@@ -29,9 +24,7 @@ class VerzikMelee extends RangedWeapon {
 
 class VerzikRanged extends RangedWeapon {
   constructor() {
-    super({
-      sound: new Sound(MeleerSound, 0.6),
-    });
+    super({});
   }
 
   override get isAreaAttack() {
@@ -67,7 +60,6 @@ export class VerzikVitur extends Mob {
 
     this.weapons = {
       slash: new MeleeWeapon({
-        sound: new Sound(MeleerSound, 0.6),
         setDelay: 3,
       }),
       range: new VerzikRanged(),
@@ -180,7 +172,7 @@ export class VerzikVitur extends Mob {
   }
 
   get image() {
-    return MeleerImage;
+    return null;
   }
 
   get color() {
@@ -192,7 +184,7 @@ export class VerzikVitur extends Mob {
   }
 
   create3dModel() {
-    return GLTFModel.forRenderable(this, MeleerModel, 0.0075);
+    return GLTFModel.forRenderable(this, MeleerModel);
   }
 
   get deathAnimationLength() {

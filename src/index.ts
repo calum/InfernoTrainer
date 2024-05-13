@@ -1,6 +1,6 @@
 "use strict";
 
-import { Settings, Region, World, Viewport, MapController, TileMarker, Assets, Location, Chrome, ImageLoader, Trainer } from "@supalosa/oldschool-trainer-sdk";
+import { Settings, Region, World, Viewport, MapController, TileMarker, Assets, Location, Chrome, ImageLoader, Trainer, ControlPanelController } from "@supalosa/oldschool-trainer-sdk";
 
 import { VerzikRegion as VerzikRegion } from "./content/inferno/js/VerzikRegion";
 
@@ -26,6 +26,22 @@ world.addRegion(selectedRegion);
 // Initialise UI
 document.getElementById('sidebar_content').innerHTML = selectedRegion.getSidebarContent();
 
+document.getElementById("reset").addEventListener("click", () => {
+    Trainer.reset();
+});
+
+document.getElementById("settings").addEventListener("click", () => {
+    ControlPanelController.controller.setActiveControl('SETTINGS');
+});
+
+const tileMarkerColor = document.getElementById("tileMarkerColor") as HTMLInputElement;
+tileMarkerColor.addEventListener("input", () => {
+    Settings.tileMarkerColor = tileMarkerColor.value;
+    TileMarker.onSetColor(Settings.tileMarkerColor);
+    Settings.persistToStorage();
+}, false);
+tileMarkerColor.value = Settings.tileMarkerColor;
+
 const { player } = selectedRegion.initialiseRegion();
 
 Viewport.setupViewport(selectedRegion);
@@ -35,15 +51,8 @@ ImageLoader.onAllImagesLoaded(() => {
   MapController.controller.updateOrbsMask(player.currentStats, player.stats);
 });
 
-if (Settings.tile_markers) {
-  Settings.tile_markers
-    .map((location: Location) => {
-      return new TileMarker(selectedRegion, location, "#FF0000");
-    })
-    .forEach((tileMarker: TileMarker) => {
-      selectedRegion.addEntity(tileMarker);
-    });
-}
+
+TileMarker.loadAll(selectedRegion);
 
 player.perceivedLocation = player.location;
 player.destinationLocation = player.location;
@@ -126,6 +135,7 @@ function checkStart() {
 }
 
 /// /////////////////////////////////////////////////////////
+
 
 // UI disclaimer
 const topHeaderContainer = document.getElementById("disclaimer_panel");
