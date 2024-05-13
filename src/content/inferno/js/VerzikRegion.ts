@@ -39,12 +39,12 @@ export class VerzikRegion extends Region {
     // create player
     const player = new Player(this, {
       x: parseInt(BrowserUtils.getQueryVar("x")) || 25,
-      y: parseInt(BrowserUtils.getQueryVar("y")) || 30,
+      y: parseInt(BrowserUtils.getQueryVar("y")) || 26,
     });
 
     this.addPlayer(player);
 
-    this.addMob(new VerzikVitur(this, { x: 25, y: 25 }, { aggro: player }));
+    this.addMob(new VerzikVitur(this, { x: 22, y: 25 }, { aggro: player }));
 
     const loadout = new VerzikLoadout();
     loadout.setStats(player); // flip this around one day
