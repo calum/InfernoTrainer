@@ -1,6 +1,10 @@
 "use strict";
 
-import { Assets, Mob, EntityNames, MeleeWeapon, Sound, UnitBonuses, Location, GLTFModel, RangedWeapon, LocationUtils, Collision, UnitTypes, Player } from "@supalosa/oldschool-trainer-sdk";
+import { Assets, Mob, MeleeWeapon, UnitBonuses, GLTFModel, RangedWeapon, Collision, SoundCache, Sound, DelayedAction} from "@supalosa/oldschool-trainer-sdk";
+
+import MeleeCry from "../../assets/sounds/verzik_melee_cry_3957.ogg";
+import MeleeHit from "../../assets/sounds/verzik_melee_hit_3936.ogg";
+import RangeHit from "../../assets/sounds/verzik_range_3990.ogg";
 
 const MeleerModel = Assets.getAssetUrl("models/verzik.glb");
 
@@ -149,10 +153,17 @@ export class VerzikVitur extends Mob {
 
   attackMelee() {
     this.playAnimation(VerzikAnimations.Melee);
+    SoundCache.play(new Sound(MeleeCry, 0.1));
+    DelayedAction.registerDelayedAction(new DelayedAction(() => {
+      SoundCache.play(new Sound(MeleeHit, 0.1));
+    }, 2));
   }
 
   attackRanged() {
     this.playAnimation(VerzikAnimations.Range);
+    DelayedAction.registerDelayedAction(new DelayedAction(() => {
+      SoundCache.play(new Sound(RangeHit, 0.1));
+    }, 2));
   }
 
   get attackRange() {
