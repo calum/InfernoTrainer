@@ -296,7 +296,8 @@ export class SolHeredit extends Mob {
   attackIfPossible() {
     this.tickNumber++;
     this.laserOrbCooldown--;
-    this.overheadHistory.push(!!this.aggro?.prayerController.overhead());
+    const overhead = this.aggro?.prayerController.overhead();
+    this.overheadHistory.push(overhead && (["Protect from Melee", "Protect from Range", "Protect from Magic"].includes(overhead.name)));
     this.attackStyle = this.attackStyleForNewAttack();
 
     this.attackFeedback = AttackIndicators.NONE;
