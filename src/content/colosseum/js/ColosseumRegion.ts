@@ -151,6 +151,7 @@ export class ColosseumRegion extends Region {
         <li>Tesla Owner (engine)</li>
         <li>KiwiIskadda (detailed feedback)</li>
         <li>Syndra, Varadium, ro0bo, zyth (early feedback and testing)</li>
+        <li>@kattykoo on discord (dm for colosseum tips and tricks)</li>
       </ul>`;
     });
     return {
