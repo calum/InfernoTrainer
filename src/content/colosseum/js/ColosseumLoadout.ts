@@ -1,6 +1,7 @@
 import { TorvaFullhelm, AmuletOfTorture, InfernalCape, DragonArrows, TorvaPlatebody, TorvaPlatelegs, PrimordialBoots, FerociousGloves, UltorRing, AvernicDefender, SuperCombatPotion, UnitOptions } from "@supalosa/oldschool-trainer-sdk";
 import { SaradominBrew, SuperRestore } from "@supalosa/oldschool-trainer-sdk";
-import { ScytheOfVitur, BladeOfSaeldor, Player } from "@supalosa/oldschool-trainer-sdk";
+import { DragonSword, BladeOfSaeldor, Player } from "@supalosa/oldschool-trainer-sdk";
+import { BlackDhideBody, BlackDhideChaps, BlackDhideVambraces } from "@supalosa/oldschool-trainer-sdk";
 
 export class ColosseumLoadout {
   loadoutType: string;
@@ -12,7 +13,7 @@ export class ColosseumLoadout {
   loadoutMaxMelee() {
     return {
       equipment: {
-        weapon: new ScytheOfVitur(),
+        weapon: new DragonSword(),
         offhand: null,
         helmet: new TorvaFullhelm(),
         necklace: new AmuletOfTorture(),
@@ -42,9 +43,9 @@ export class ColosseumLoadout {
         new SuperRestore(),
         new SuperRestore(),
         null,
-        null,
-        null,
-        null,
+        new BlackDhideBody(),
+        new BlackDhideChaps(),
+        new BlackDhideVambraces(),
       ],
     };
   }
