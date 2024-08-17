@@ -22,6 +22,7 @@ import {
   TorvaPlatebody,
   TorvaPlatelegs,
   TwistedBow,
+  DragonSword,
   UltorRing,
 } from "../src";
 import { SampleNpc } from "./SampleNpc";
@@ -51,7 +52,7 @@ export class SampleRegion extends Region {
     this.addPlayer(player);
     const loadout = {
       equipment: {
-        weapon: new ScytheOfVitur(),
+        weapon: new DragonSword(),
         offhand: null,
         helmet: new TorvaFullhelm(),
         necklace: new AmuletOfTorture(),

@@ -2,6 +2,7 @@ import { ImageLoader } from "../../sdk/utils/ImageLoader";
 import InventImage from "../../assets/images/equipment/Black_d'hide_chaps.png";
 import { Legs } from "../../sdk/gear/Legs";
 import { ItemName } from "../../sdk/ItemName";
+import { Assets } from "../../sdk/utils/Assets";
 
 export class BlackDhideChaps extends Legs {
   inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage);
@@ -45,5 +46,10 @@ export class BlackDhideChaps extends Legs {
         slayer: 0,
       },
     };
+  }
+
+  private Model = Assets.getAssetUrl("models/player_black_d_hide_chaps.gltf", true);
+  override get model() {
+    return this.Model;
   }
 }

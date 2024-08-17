@@ -197,7 +197,11 @@ export class Weapon extends Equipment {
 
   _calculateHitDamage(from: Unit, to: Unit, bonuses: AttackBonuses) {
     this.lastHitHit = true;
-    return Math.floor(Random.get() * (this._maxHit(from, to, bonuses) + 1));
+    let damage = Math.floor(Random.get() * (this._maxHit(from, to, bonuses) + 1));
+    if (Math.random() < 0.1) {
+      damage = damage * 2;
+    }
+    return damage;
   }
 
   _attackRoll(from: Unit, to: Unit, bonuses: AttackBonuses) {
@@ -211,8 +215,12 @@ export class Weapon extends Equipment {
   }
 
   _hitChance(from: Unit, to: Unit, bonuses: AttackBonuses) {
-    const attackRoll = this._attackRoll(from, to, bonuses);
+    let attackRoll = this._attackRoll(from, to, bonuses);
     const defenceRoll = this._defenceRoll(from, to, bonuses);
+
+    // 50% accuracy buff relic
+    attackRoll = attackRoll*2;
+
     const hitChance =
       attackRoll > defenceRoll ? 1 - (defenceRoll + 2) / (2 * attackRoll + 1) : attackRoll / (2 * defenceRoll + 1);
     return hitChance;

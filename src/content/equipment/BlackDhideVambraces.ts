@@ -2,6 +2,7 @@ import { ImageLoader } from "../../sdk/utils/ImageLoader";
 import InventImage from "../../assets/images/equipment/Black_d'hide_vambraces.png";
 import { Gloves } from "../../sdk/gear/Gloves";
 import { ItemName } from "../../sdk/ItemName";
+import { Assets } from "../../sdk/utils/Assets";
 
 export class BlackDhideVambraces extends Gloves {
   inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage);
@@ -44,5 +45,10 @@ export class BlackDhideVambraces extends Gloves {
         slayer: 0,
       },
     };
+  }
+
+  private Model = Assets.getAssetUrl("models/player_black_d_hide_vambraces.gltf", true);
+  override get model() {
+    return this.Model;
   }
 }

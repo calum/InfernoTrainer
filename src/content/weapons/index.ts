@@ -8,3 +8,4 @@ export { BowOfFaerdhinen } from './BowOfFaerdhinen';
 export { KodaiWand } from './KodaiWand';
 export { ScytheOfVitur } from './ScytheOfVitur';
 export { TwistedBow } from './TwistedBow';
+export { DragonSword } from './DragonSword';

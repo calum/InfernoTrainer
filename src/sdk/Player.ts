@@ -159,7 +159,11 @@ export class Player extends Unit {
       return this.manualSpellCastSelection.attackSpeed;
     }
     if (this.equipment.weapon) {
-      return this.equipment.weapon.attackSpeed;
+      let weaponSpeed = this.equipment.weapon.attackSpeed;
+
+      // relic double attack speed
+      weaponSpeed = Math.ceil(weaponSpeed / 2);
+      return weaponSpeed;
     }
     return 5;
   }
