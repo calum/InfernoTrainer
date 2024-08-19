@@ -34,6 +34,8 @@ export const EQUIPMENT_TYPE_TO_SLOT: {[equipmentType in EquipmentTypes]: keyof U
 
 export class Equipment extends Item {
   bonuses: UnitBonuses;
+  private _model: string = "";
+  private _attackAnimationId: number = null;
 
   constructor() {
     super();
@@ -96,13 +98,21 @@ export class Equipment extends Item {
    * name of the model to render for this item
    */
   get model(): string | null {
-    return null;
+    return this._model;
+  }
+
+  set model(value: string) {
+    this._model = value;
   }
 
   /**
    * index of animation to use for attacks if possible
    */
   get attackAnimationId(): number | null {
-    return null;
+    return this._attackAnimationId;
+  }
+
+  set attackAnimationId(value: number) {
+    this._attackAnimationId = value;
   }
 }

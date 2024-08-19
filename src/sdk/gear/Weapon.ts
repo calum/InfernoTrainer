@@ -27,7 +27,6 @@ interface EffectivePrayers {
 export interface AttackBonuses {
   styleBonus?: number;
   isAccurate?: boolean;
-  // aggressive/controlled
   styleStrengthBonus?: number;
   voidMultiplier?: number;
   gearMeleeMultiplier?: number;
@@ -41,17 +40,30 @@ export interface AttackBonuses {
 }
 
 export class Weapon extends Equipment {
-  damage: number;
-  damageRoll: number;
-  lastHitHit = false;
-  override selected = false;
+  private _image: HTMLImageElement | null = null;
+  private _attackRange: number = 0;
+  private _attackSpeed: number = 10;
+  private _aoe: { x: number, y: number }[] = [{ x: 0, y: 0 }];
+  private _isAreaAttack: boolean = false;
+  private _isMeleeAttack: boolean = false;
+  private _isTwoHander: boolean = false;
+  private _attackSound: Sound | null = null;
+  private _specialAttackSound: Sound | null = null;
+  private _attackLandingSound: Sound | null = null;
+  private _projectileModel: string | null = null;
+  private _idleAnimationId: number = PlayerAnimationIndices.Idle;
+
+  damage: number = 0;
+  damageRoll: number = 0;
+  lastHitHit: boolean = false;
+  override selected: boolean = false;
   override inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage);
 
   constructor(protected projectileOptions: ProjectileOptions = {}) {
     super();
   }
 
-  attackStyles() {
+  attackStyles(): AttackStyle[] {
     return [];
   }
 
@@ -59,7 +71,7 @@ export class Weapon extends Equipment {
     return [];
   }
 
-  attackStyleCategory(): AttackStyleTypes {
+  attackStyleCategory(): AttackStyleTypes | null {
     return null;
   }
 
@@ -67,34 +79,36 @@ export class Weapon extends Equipment {
     return AttackStyle.RAPID;
   }
 
-  attackStyle() {
+  attackStyle(): AttackStyle {
     return AttackStylesController.controller.getAttackStyleForType(this.attackStyleCategory(), this);
   }
 
-  override assignToPlayer(player: Player) {
+  override assignToPlayer(player: Player): void {
     player.equipment.weapon = this;
     player.interruptCombat();
   }
 
-  override unassignToPlayer(player: Player) {
+  override unassignToPlayer(player: Player): void {
     player.equipment.weapon = null;
   }
-  override currentEquipment(player: Player): Equipment {
+
+  override currentEquipment(player: Player): Equipment | null {
     return player.equipment.weapon;
   }
 
   hasSpecialAttack(): boolean {
     return false;
   }
+
   specialAttackDrain(): number {
     return 50;
   }
-  
-  specialAttack(from: Unit, to: Unit, bonuses: AttackBonuses = {}, options: ProjectileOptions = {}) {
+
+  specialAttack(from: Unit, to: Unit, bonuses: AttackBonuses = {}, options: ProjectileOptions = {}): void {
     // Override me
   }
 
-  override inventoryLeftClick(player: Player) {
+  override inventoryLeftClick(player: Player): void {
     const currentWeapon = player.equipment.weapon || null;
     const currentOffhand = player.equipment.offhand || null;
 
@@ -102,26 +116,19 @@ export class Weapon extends Equipment {
     openInventorySlots.unshift(player.inventory.indexOf(this));
 
     let neededInventorySlots = 0;
-    if (this.isTwoHander && currentWeapon) {
-      neededInventorySlots++;
-    }
-    if (this.isTwoHander && currentOffhand) {
-      neededInventorySlots++;
-    }
-    if (currentWeapon) {
-      neededInventorySlots--;
-    }
+    if (this.isTwoHander && currentWeapon) neededInventorySlots++;
+    if (this.isTwoHander && currentOffhand) neededInventorySlots++;
+    if (currentWeapon) neededInventorySlots--;
 
-    if (neededInventorySlots > openInventorySlots.length) {
-      return;
-    }
+    if (neededInventorySlots > openInventorySlots.length) return;
+
     this.assignToPlayer(player);
     if (currentWeapon) {
       player.inventory[openInventorySlots.shift()] = currentWeapon;
     } else {
       player.inventory[openInventorySlots.shift()] = null;
-      openInventorySlots = player.openInventorySlots();
     }
+
     if (this.isTwoHander && currentOffhand) {
       player.inventory[openInventorySlots.shift()] = currentOffhand;
       player.equipment.offhand = null;
@@ -129,20 +136,19 @@ export class Weapon extends Equipment {
     player.equipmentChanged();
   }
 
-  cast(from: Unit, to: Unit) {
+  cast(from: Unit, to: Unit): void {
     // Override me
   }
 
-  rollDamage(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  rollDamage(from: Unit, to: Unit, bonuses: AttackBonuses): void {
     this.damageRoll = Math.floor(this._rollAttack(from, to, bonuses));
     this.damage = Math.min(this.damageRoll, to.currentStats.hitpoint);
   }
 
-  calculateHitDelay(distance: number) {
+  calculateHitDelay(distance: number): number {
     return 999;
   }
 
-  // Return value: If the attack was performed or not. If the attack was not performed, do not reset timers.
   attack(from: Unit, to: Unit, bonuses: AttackBonuses = {}, options: ProjectileOptions = {}): boolean {
     this._calculatePrayerEffects(from, to, bonuses);
     bonuses.styleBonus = bonuses.styleBonus || 0;
@@ -154,16 +160,13 @@ export class Weapon extends Equipment {
 
     this.rollDamage(from, to, bonuses);
 
-    if (this.damage === -1) {
-      return false;
-    }
+    if (this.damage === -1) return false;
 
     if (to.setEffects) {
       find(to.setEffects, (effect: typeof SetEffect) => {
         if (effect.effectName() === SetEffectTypes.JUSTICIAR) {
           const tosDefenceBonus = to.bonuses.defence[bonuses.attackStyle];
           if (tosDefenceBonus !== undefined) {
-            // hack?
             const justiciarDamageReduction = Math.max(tosDefenceBonus / 3000, 0);
             this.damage -= Math.ceil(justiciarDamageReduction * this.damage);
           }
@@ -171,12 +174,10 @@ export class Weapon extends Equipment {
       });
     }
 
-    // Protection prayers
     if (this.isBlockable(from, to, bonuses)) {
       this.damage = 0;
     }
 
-    // sanitize damage output
     this.damage = Math.floor(Math.max(Math.min(to.currentStats.hitpoint, this.damage, 100), 0));
 
     if (to.equipment.ring && to.equipment.ring.itemName === ItemName.RING_OF_SUFFERING_I && this.damage > 0) {
@@ -190,12 +191,12 @@ export class Weapon extends Equipment {
     return true;
   }
 
-  _rollAttack(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _rollAttack(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     this.lastHitHit = false;
     return Random.get() > this._hitChance(from, to, bonuses) ? 0 : this._calculateHitDamage(from, to, bonuses);
   }
 
-  _calculateHitDamage(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _calculateHitDamage(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     this.lastHitHit = true;
     let damage = Math.floor(Random.get() * (this._maxHit(from, to, bonuses) + 1));
     if (Math.random() < 0.1) {
@@ -204,33 +205,34 @@ export class Weapon extends Equipment {
     return damage;
   }
 
-  _attackRoll(from: Unit, to: Unit, bonuses: AttackBonuses) {
-    return 0; // weapons implement this at the type tier
-  }
-  _defenceRoll(from: Unit, to: Unit, bonuses: AttackBonuses) {
-    return 0; // weapons implement this at the type tier
-  }
-  _maxHit(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _attackRoll(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     return 0; // weapons implement this at the type tier
   }
 
-  _hitChance(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _defenceRoll(from: Unit, to: Unit, bonuses: AttackBonuses): number {
+    return 0; // weapons implement this at the type tier
+  }
+
+  _maxHit(from: Unit, to: Unit, bonuses: AttackBonuses): number {
+    return 0; // weapons implement this at the type tier
+  }
+
+  _hitChance(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     let attackRoll = this._attackRoll(from, to, bonuses);
     const defenceRoll = this._defenceRoll(from, to, bonuses);
 
-    // 50% accuracy buff relic
-    attackRoll = attackRoll*2;
+    attackRoll = attackRoll * 2;
 
-    const hitChance =
-      attackRoll > defenceRoll ? 1 - (defenceRoll + 2) / (2 * attackRoll + 1) : attackRoll / (2 * defenceRoll + 1);
-    return hitChance;
+    return attackRoll > defenceRoll
+      ? 1 - (defenceRoll + 2) / (2 * attackRoll + 1)
+      : attackRoll / (2 * defenceRoll + 1);
   }
 
   isBlockable(from: Unit, to: Unit, bonuses: AttackBonuses): boolean {
     return false; // weapons implement this at the type tier
   }
 
-  grantXp(from: Unit, to: Unit) {
+  grantXp(from: Unit, to: Unit): void {
     if (from.type === UnitTypes.PLAYER && this.damage > 0) {
       AttackStylesController.controller
         .getWeaponXpDrops(this.attackStyle(), this.damage, to.xpBonusMultiplier)
@@ -240,11 +242,11 @@ export class Weapon extends Equipment {
     }
   }
 
-  _calculatePrayerEffects(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _calculatePrayerEffects(from: Unit, to: Unit, bonuses: AttackBonuses): void {
     // weapons implement this at the type tier
   }
 
-  registerProjectile(from: Unit, to: Unit, bonuses: AttackBonuses, options: ProjectileOptions = {}) {
+  registerProjectile(from: Unit, to: Unit, bonuses: AttackBonuses, options: ProjectileOptions = {}): void {
     to.addProjectile(
       new Projectile(this, this.damage, from, to, bonuses.attackStyle, {
         sound: this.attackSound,
@@ -256,59 +258,104 @@ export class Weapon extends Equipment {
     );
   }
 
-  get image(): HTMLImageElement {
-    return null;
+  // Getters and Setters
+  get image(): HTMLImageElement | null {
+    return this._image;
+  }
+
+  set image(value: HTMLImageElement | null) {
+    this._image = value;
   }
 
   get attackRange(): number {
-    return 0;
+    return this._attackRange;
+  }
+
+  set attackRange(value: number) {
+    this._attackRange = value;
   }
 
   get attackSpeed(): number {
-    return 10;
+    return this._attackSpeed;
   }
 
-  get aoe() {
-    return [{ x: 0, y: 0 }];
+  set attackSpeed(value: number) {
+    this._attackSpeed = value;
   }
 
-  // Returns true if this attack is an area-based attack that doesn't require line of sight to
-  // the target (including if the target is underneath).
-  get isAreaAttack() {
-    return false;
+  get aoe(): { x: number, y: number }[] {
+    return this._aoe;
   }
 
-  // Returns true if this attack is a melee attack (and therefore cannot attack on corners).
-  get isMeleeAttack() {
-    return false;
+  set aoe(value: { x: number, y: number }[]) {
+    this._aoe = value;
+  }
+
+  get isAreaAttack(): boolean {
+    return this._isAreaAttack;
+  }
+
+  set isAreaAttack(value: boolean) {
+    this._isAreaAttack = value;
+  }
+
+  get isMeleeAttack(): boolean {
+    return this._isMeleeAttack;
+  }
+
+  set isMeleeAttack(value: boolean) {
+    this._isMeleeAttack = value;
   }
 
   get isTwoHander(): boolean {
-    return false;
+    return this._isTwoHander;
   }
 
-  static isMeleeAttackStyle(style: string) {
-    return style === "crush" || style === "slash" || style === "stab";
+  set isTwoHander(value: boolean) {
+    this._isTwoHander = value;
   }
 
   get attackSound(): Sound | null {
-    // Override me
-    return null;
+    return this._attackSound;
+  }
+
+  set attackSound(value: Sound | null) {
+    this._attackSound = value;
   }
 
   get specialAttackSound(): Sound | null {
-    return null;
+    return this._specialAttackSound;
+  }
+
+  set specialAttackSound(value: Sound | null) {
+    this._specialAttackSound = value;
   }
 
   get attackLandingSound(): Sound | null {
-    return null;
+    return this._attackLandingSound;
+  }
+
+  set attackLandingSound(value: Sound | null) {
+    this._attackLandingSound = value;
   }
 
   get projectileModel(): string | null {
-    return null;
+    return this._projectileModel;
   }
 
-  get idleAnimationId() {
-    return PlayerAnimationIndices.Idle;
+  set projectileModel(value: string | null) {
+    this._projectileModel = value;
+  }
+
+  get idleAnimationId(): number {
+    return this._idleAnimationId;
+  }
+
+  set idleAnimationId(value: number) {
+    this._idleAnimationId = value;
+  }
+
+  static isMeleeAttackStyle(style: string): boolean {
+    return style === "crush" || style === "slash" || style === "stab";
   }
 }

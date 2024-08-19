@@ -5,20 +5,12 @@ import { ItemName } from "../../sdk/ItemName";
 import { Assets } from "../../sdk/utils/Assets";
 
 export class AmuletOfTorture extends Necklace {
-  inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage);
-
-  get inventoryImage() {
-    return InventImage;
-  }
-  get itemName(): ItemName {
-    return ItemName.AMULET_OF_TORTURE;
-  }
-  get weight(): number {
-    return 0.005;
-  }
+  private Model: string;
 
   constructor() {
     super();
+
+    // Set bonuses
     this.bonuses = {
       attack: {
         stab: 15,
@@ -45,10 +37,12 @@ export class AmuletOfTorture extends Necklace {
         slayer: 0,
       },
     };
-  }
 
-  Model = Assets.getAssetUrl("models/player_amulet_of_torture__or_.glb");
-  override get model() {
-    return this.Model;
+    // Set properties using setters
+    this.itemName = ItemName.AMULET_OF_TORTURE;
+    this.inventoryImage = InventImage;
+    this.inventorySprite = ImageLoader.createImage(this.inventoryImage);
+    this.Model = Assets.getAssetUrl("models/player_amulet_of_torture__or_.glb");
+    this.model = this.Model;
   }
 }

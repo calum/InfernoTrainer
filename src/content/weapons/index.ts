@@ -9,3 +9,4 @@ export { KodaiWand } from './KodaiWand';
 export { ScytheOfVitur } from './ScytheOfVitur';
 export { TwistedBow } from './TwistedBow';
 export { DragonSword } from './DragonSword';
+export { getItemByName } from './StabSwords';

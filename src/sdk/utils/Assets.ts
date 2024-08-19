@@ -8,11 +8,16 @@ export class Assets {
   /**
    * Returns the appropriate URL for an asset and also schedules it for preloading.
    */
-  static getAssetUrl(asset: string, local?: boolean) {
+  static getAssetUrl(asset: string, local?: boolean, github?: boolean) {
     // TODO switch CDN based on build variable 
     let url = `https://assets-soltrainer.netlify.app/${asset}`;
     if (local) {
       url = `http://localhost:5454/assets/${asset}`;
+    }
+    if (github) {
+      url = `https://raw.githubusercontent.com/weirdgloop/osrs-dps-calc/main/cdn/equipment/${encodeURIComponent(
+        asset
+    )}`;
     }
     //const url = `https://oldschool-cdn.com/${asset}`;
     if (Assets.loadedAssets[url]) {

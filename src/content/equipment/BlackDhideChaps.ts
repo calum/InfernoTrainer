@@ -5,21 +5,12 @@ import { ItemName } from "../../sdk/ItemName";
 import { Assets } from "../../sdk/utils/Assets";
 
 export class BlackDhideChaps extends Legs {
-  inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage);
-
-  get inventoryImage() {
-    return InventImage;
-  }
-  get itemName(): ItemName {
-    return ItemName.BLACK_D_HIDE_CHAPS;
-  }
-
-  get weight(): number {
-    return 5.443;
-  }
+  private Model: string;
 
   constructor() {
     super();
+
+    // Set bonuses
     this.bonuses = {
       attack: {
         stab: 0,
@@ -46,10 +37,12 @@ export class BlackDhideChaps extends Legs {
         slayer: 0,
       },
     };
-  }
 
-  private Model = Assets.getAssetUrl("models/player_black_d_hide_chaps.gltf", true);
-  override get model() {
-    return this.Model;
+    // Set properties using setters
+    this.itemName = ItemName.BLACK_D_HIDE_CHAPS;
+    this.inventoryImage = InventImage;
+    this.inventorySprite = ImageLoader.createImage(this.inventoryImage);
+    this.Model = Assets.getAssetUrl("models/player_black_d_hide_chaps.glb", true);
+    this.model = this.Model;
   }
 }

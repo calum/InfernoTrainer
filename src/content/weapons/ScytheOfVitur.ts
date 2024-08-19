@@ -60,6 +60,16 @@ export class ScytheOfVitur extends MeleeWeapon {
         slayer: 0,
       },
     };
+
+    this.itemName = ItemName.SCYTHE_OF_VITUR;
+    this.isTwoHander = true;
+    this.attackRange = 1;
+    this.attackSpeed = 5;
+    this.inventoryImage = ScytheInventImage;
+    this.model = Assets.getAssetUrl("models/player_sanguine_scythe_of_vitur.glb");
+    this.attackAnimationId = PlayerAnimationIndices.ScytheSwing;
+    this.idleAnimationId = PlayerAnimationIndices.ScytheIdle;
+    this.attackSound = new Sound(ScytheAttackSound, 0.1);
   }
 
   attackStyles() {
@@ -74,35 +84,8 @@ export class ScytheOfVitur extends MeleeWeapon {
     return AttackStyle.AGGRESSIVESLASH;
   }
 
-  get itemName(): ItemName {
-    return ItemName.SCYTHE_OF_VITUR;
-  }
-
-  get isTwoHander(): boolean {
-    return true;
-  }
-
-  hasSpecialAttack(): boolean {
-    return false;
-  }
-
-  get attackRange() {
-    return 1;
-  }
-
-  get attackSpeed() {
-    return 5;
-  }
-
-  get inventoryImage() {
-    return ScytheInventImage;
-  }
-
   override attack(from: Unit, to: Unit, bonuses: AttackBonuses) {
     const region = from.region;
-    // As there is no concept of player direction yet, we dynamically calculate this based on the relative location of
-    // the attacker.
-    // Find the closest tile on the npc to us.
     const targetTile = to.getClosestTileTo(from.location.x, from.location.y);
 
     const dx = from.location.x - targetTile[0];
@@ -117,7 +100,7 @@ export class ScytheOfVitur extends MeleeWeapon {
     } else {
       direction = 0; // North
     }
-    // Full damage attack, but each subsequent hit does half of the last.
+
     let multiplier = 1.0;
     super.attack(from, to, bonuses);
     EXTRA_HIT_LOCATIONS[direction].forEach((hit) => {
@@ -136,21 +119,5 @@ export class ScytheOfVitur extends MeleeWeapon {
       }
     });
     return true;
-  }
-
-  override get model() {
-    return Assets.getAssetUrl("models/player_sanguine_scythe_of_vitur.glb");
-  }
-
-  override get attackAnimationId() {
-    return PlayerAnimationIndices.ScytheSwing;
-  }
-
-  override get idleAnimationId() {
-    return PlayerAnimationIndices.ScytheIdle;
-  }
-
-  get attackSound() {
-    return new Sound(ScytheAttackSound, 0.1);
   }
 }

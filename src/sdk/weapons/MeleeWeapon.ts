@@ -9,9 +9,13 @@ export class MeleeWeapon extends Weapon {
   constructor(projectileOptions: ProjectileOptions = {}) {
     super({
       hidden: true,
-      ...projectileOptions
+      ...projectileOptions,
     });
+
+    // Set isMeleeAttack to true for all melee weapons
+    this.isMeleeAttack = true;
   }
+
   get type() {
     return EquipmentTypes.WEAPON;
   }
@@ -23,73 +27,68 @@ export class MeleeWeapon extends Weapon {
 
   _calculatePrayerEffects(from: Unit, to: Unit, bonuses: AttackBonuses) {
     bonuses.effectivePrayers = {};
-    if (from.type !== UnitTypes.MOB && from.prayerController) {
-      const offensiveAttack = from.prayerController.matchGroup(PrayerGroups.ACCURACY);
-      if (offensiveAttack) {
-        bonuses.effectivePrayers.attack = offensiveAttack;
-      }
 
-      const offensiveStrength = from.prayerController.matchGroup(PrayerGroups.STRENGTH);
-      if (offensiveStrength) {
-        bonuses.effectivePrayers.strength = offensiveStrength;
-      }
+    if (from.type !== UnitTypes.MOB && from.prayerController) {
+      bonuses.effectivePrayers.attack = from.prayerController.matchGroup(PrayerGroups.ACCURACY);
+      bonuses.effectivePrayers.strength = from.prayerController.matchGroup(PrayerGroups.STRENGTH);
     }
 
     if (to.type !== UnitTypes.MOB && to.prayerController) {
-      const defence = to.prayerController.matchGroup(PrayerGroups.DEFENCE);
-      if (defence) {
-        bonuses.effectivePrayers.defence = defence;
-      }
-      const overhead = to.prayerController.overhead();
-      if (overhead) {
-        bonuses.effectivePrayers.overhead = overhead;
-      }
+      bonuses.effectivePrayers.defence = to.prayerController.matchGroup(PrayerGroups.DEFENCE);
+      bonuses.effectivePrayers.overhead = to.prayerController.overhead();
     }
   }
 
-  isBlockable(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  isBlockable(from: Unit, to: Unit, bonuses: AttackBonuses): boolean {
     this._calculatePrayerEffects(from, to, bonuses);
 
     let prayerAttackBlockStyle = bonuses.attackStyle;
     if (Weapon.isMeleeAttackStyle(prayerAttackBlockStyle)) {
-      prayerAttackBlockStyle = "melee"; // because protect melee scans for the style as melee, generalize them
+      prayerAttackBlockStyle = "melee"; // Generalize melee attack styles for protection prayers
     }
 
-    if (bonuses.effectivePrayers.overhead && bonuses.effectivePrayers.overhead.feature() === prayerAttackBlockStyle) {
-      return true;
-    }
-    return false;
+    return (
+      bonuses.effectivePrayers.overhead &&
+      bonuses.effectivePrayers.overhead.feature() === prayerAttackBlockStyle
+    );
   }
 
-  _strengthLevel(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _strengthLevel(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     let prayerMultiplier = 1;
     const strengthPrayer = bonuses.effectivePrayers.strength;
 
     if (strengthPrayer) {
-      if (strengthPrayer.name === "Burst of Strength") {
-        prayerMultiplier = 1.05;
-      } else if (strengthPrayer.name === "Superhuman Strength") {
-        prayerMultiplier = 1.1;
-      } else if (strengthPrayer.name === "Ultimate Strength") {
-        prayerMultiplier = 1.15;
-      } else if (strengthPrayer.name === "Chivalry") {
-        prayerMultiplier = 1.18;
-      } else if (strengthPrayer.name === "Piety") {
-        prayerMultiplier = 1.23;
+      switch (strengthPrayer.name) {
+        case "Burst of Strength":
+          prayerMultiplier = 1.05;
+          break;
+        case "Superhuman Strength":
+          prayerMultiplier = 1.1;
+          break;
+        case "Ultimate Strength":
+          prayerMultiplier = 1.15;
+          break;
+        case "Chivalry":
+          prayerMultiplier = 1.18;
+          break;
+        case "Piety":
+          prayerMultiplier = 1.23;
+          break;
       }
     }
 
-    if (from.type === UnitTypes.PLAYER) {
-      bonuses.styleStrengthBonus = AttackStylesController.controller.getWeaponStrengthBonus(this.attackStyle());
-    } else {
-      bonuses.styleStrengthBonus = 0;
-    }
+    bonuses.styleStrengthBonus =
+      from.type === UnitTypes.PLAYER
+        ? AttackStylesController.controller.getWeaponStrengthBonus(this.attackStyle())
+        : 0;
+
     return Math.floor(
-      (Math.floor(from.currentStats.strength * prayerMultiplier) + bonuses.styleStrengthBonus + 8) * bonuses.voidMultiplier,
+      (Math.floor(from.currentStats.strength * prayerMultiplier) + bonuses.styleStrengthBonus + 8) *
+        bonuses.voidMultiplier,
     );
   }
 
-  _maxHit(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _maxHit(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     return Math.floor(
       Math.floor((this._strengthLevel(from, to, bonuses) * (from.bonuses.other.meleeStrength + 64) + 320) / 640) *
         bonuses.gearMeleeMultiplier *
@@ -97,29 +96,35 @@ export class MeleeWeapon extends Weapon {
     );
   }
 
-  _attackLevel(from: Unit, to: Unit, bonuses: AttackBonuses) {
-    const attackPrayer = bonuses.effectivePrayers.attack;
+  _attackLevel(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     let prayerMultiplier = 1;
+    const attackPrayer = bonuses.effectivePrayers.attack;
+
     if (attackPrayer) {
-      if (attackPrayer.name === "Clarity of Thought") {
-        prayerMultiplier = 1.05;
-      } else if (attackPrayer.name === "Improved Reflexes") {
-        prayerMultiplier = 1.1;
-      } else if (attackPrayer.name === "Incredible Reflexes") {
-        prayerMultiplier = 1.15;
-      } else if (attackPrayer.name === "Chivalry") {
-        prayerMultiplier = 1.15;
-      } else if (attackPrayer.name === "Piety") {
-        prayerMultiplier = 1.2;
+      switch (attackPrayer.name) {
+        case "Clarity of Thought":
+          prayerMultiplier = 1.05;
+          break;
+        case "Improved Reflexes":
+          prayerMultiplier = 1.1;
+          break;
+        case "Incredible Reflexes":
+        case "Chivalry":
+          prayerMultiplier = 1.15;
+          break;
+        case "Piety":
+          prayerMultiplier = 1.2;
+          break;
       }
     }
 
     return Math.floor(
-      (Math.floor(from.currentStats.attack * prayerMultiplier) + bonuses.styleBonus + 8) * bonuses.voidMultiplier,
+      (Math.floor(from.currentStats.attack * prayerMultiplier) + bonuses.styleBonus + 8) *
+        bonuses.voidMultiplier,
     );
   }
 
-  _attackRoll(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _attackRoll(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     return Math.floor(
       this._attackLevel(from, to, bonuses) *
         (from.bonuses.attack[bonuses.attackStyle] + 64) *
@@ -127,7 +132,7 @@ export class MeleeWeapon extends Weapon {
     );
   }
 
-  _defenceRoll(from: Unit, to: Unit, bonuses: AttackBonuses) {
+  _defenceRoll(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     if (to.type === UnitTypes.MOB || to.type === UnitTypes.ENTITY) {
       return (to.currentStats.defence + 9) * (to.bonuses.defence[bonuses.attackStyle] + 64);
     } else {
@@ -135,36 +140,35 @@ export class MeleeWeapon extends Weapon {
     }
   }
 
-  _defenceLevel(from: Unit, to: Unit, bonuses: AttackBonuses) {
-    const defencePrayer = bonuses.effectivePrayers.defence;
+  _defenceLevel(from: Unit, to: Unit, bonuses: AttackBonuses): number {
     let prayerMultiplier = 1;
+    const defencePrayer = bonuses.effectivePrayers.defence;
+
     if (defencePrayer) {
-      if (defencePrayer.name === "Thick Skin") {
-        prayerMultiplier = 1.05;
-      } else if (defencePrayer.name === "Mystic Will") {
-        prayerMultiplier = 1.05;
-      } else if (defencePrayer.name === "Rock Skin") {
-        prayerMultiplier = 1.1;
-      } else if (defencePrayer.name === "Mystic Lore") {
-        prayerMultiplier = 1.1;
-      } else if (defencePrayer.name === "Steel Skin") {
-        prayerMultiplier = 1.15;
-      } else if (defencePrayer.name === "Mystic Might") {
-        prayerMultiplier = 1.15;
-      } else if (defencePrayer.name === "Chivalry") {
-        prayerMultiplier = 1.2;
-      } else if (defencePrayer.name === "Piety") {
-        prayerMultiplier = 1.25;
-      } else if (defencePrayer.name === "Rigour") {
-        prayerMultiplier = 1.25;
-      } else if (defencePrayer.name === "Augury") {
-        prayerMultiplier = 1.25;
+      switch (defencePrayer.name) {
+        case "Thick Skin":
+        case "Mystic Will":
+          prayerMultiplier = 1.05;
+          break;
+        case "Rock Skin":
+        case "Mystic Lore":
+          prayerMultiplier = 1.1;
+          break;
+        case "Steel Skin":
+        case "Mystic Might":
+          prayerMultiplier = 1.15;
+          break;
+        case "Chivalry":
+          prayerMultiplier = 1.2;
+          break;
+        case "Piety":
+        case "Rigour":
+        case "Augury":
+          prayerMultiplier = 1.25;
+          break;
       }
     }
-    return Math.floor(from.currentStats.defence * prayerMultiplier) + bonuses.styleBonus + 8;
-  }
 
-  get isMeleeAttack() {
-    return true;
+    return Math.floor(from.currentStats.defence * prayerMultiplier) + bonuses.styleBonus + 8;
   }
 }

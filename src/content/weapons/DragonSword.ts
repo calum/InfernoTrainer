@@ -9,12 +9,15 @@ import { Sound } from "../../sdk/utils/SoundCache";
 import ScytheAttackSound from "../../assets/sounds/scythe_swing_2524.ogg";
 
 export class DragonSword extends MeleeWeapon {
+  private Model: string;
+
   constructor() {
     super();
 
+    // Set bonuses
     this.bonuses = {
       attack: {
-        stab:65,
+        stab: 65,
         slash: 55,
         crush: -2,
         magic: 0,
@@ -38,6 +41,18 @@ export class DragonSword extends MeleeWeapon {
         slayer: 0,
       },
     };
+
+    // Set properties using setters
+    this.itemName = ItemName.DRAGON_SWORD;
+    this.isTwoHander = false;
+    this.attackRange = 1;
+    this.attackSpeed = 4;
+    this.inventoryImage = DragonSwordImage;
+    this.Model = Assets.getAssetUrl("models/player_dragon_sword.glb", true);
+    this.model = this.Model;
+    this.attackAnimationId = PlayerAnimationIndices.SwordSlash;
+    this.idleAnimationId = PlayerAnimationIndices.Idle;
+    this.attackSound = new Sound(ScytheAttackSound, 0.1);
   }
 
   attackStyles() {
@@ -52,44 +67,7 @@ export class DragonSword extends MeleeWeapon {
     return AttackStyle.AGGRESSIVESLASH;
   }
 
-  get itemName(): ItemName {
-    return ItemName.DRAGON_SWORD;
-  }
-
-  get isTwoHander(): boolean {
-    return false;
-  }
-
   hasSpecialAttack(): boolean {
     return false;
-  }
-
-  get attackRange() {
-    return 1;
-  }
-
-  get attackSpeed() {
-    return 4;
-  }
-
-  get inventoryImage() {
-    return DragonSwordImage;
-  }
-
-  private Model = Assets.getAssetUrl("models/player_dragon_sword.glb", true);
-  override get model() {
-    return this.Model;
-  }
-
-  override get attackAnimationId() {
-    return PlayerAnimationIndices.SwordSlash;
-  }
-
-  override get idleAnimationId() {
-    return PlayerAnimationIndices.Idle;
-  }
-
-  get attackSound() {
-    return new Sound(ScytheAttackSound, 0.1);
   }
 }

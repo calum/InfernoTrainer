@@ -9,9 +9,12 @@ import { Sound } from "../../sdk/utils/SoundCache";
 import ScytheAttackSound from "../../assets/sounds/scythe_swing_2524.ogg";
 
 export class BladeOfSaeldor extends MeleeWeapon {
+  private Model: string;
+
   constructor() {
     super();
 
+    // Set bonuses
     this.bonuses = {
       attack: {
         stab: 55,
@@ -38,6 +41,18 @@ export class BladeOfSaeldor extends MeleeWeapon {
         slayer: 0,
       },
     };
+
+    // Set properties using setters
+    this.itemName = ItemName.BLADE_OF_SAELDOR;
+    this.isTwoHander = false;
+    this.attackRange = 1;
+    this.attackSpeed = 4;
+    this.inventoryImage = BladeOfSaeldorImage;
+    this.Model = Assets.getAssetUrl("models/player_blade_of_saeldor.glb");
+    this.model = this.Model;
+    this.attackAnimationId = PlayerAnimationIndices.SwordSlash;
+    this.idleAnimationId = PlayerAnimationIndices.Idle;
+    this.attackSound = new Sound(ScytheAttackSound, 0.1);
   }
 
   attackStyles() {
@@ -52,44 +67,7 @@ export class BladeOfSaeldor extends MeleeWeapon {
     return AttackStyle.AGGRESSIVESLASH;
   }
 
-  get itemName(): ItemName {
-    return ItemName.BLADE_OF_SAELDOR;
-  }
-
-  get isTwoHander(): boolean {
-    return false;
-  }
-
   hasSpecialAttack(): boolean {
     return false;
-  }
-
-  get attackRange() {
-    return 1;
-  }
-
-  get attackSpeed() {
-    return 4;
-  }
-
-  get inventoryImage() {
-    return BladeOfSaeldorImage;
-  }
-
-  private Model = Assets.getAssetUrl("models/player_blade_of_saeldor.glb");
-  override get model() {
-    return this.Model;
-  }
-
-  override get attackAnimationId() {
-    return PlayerAnimationIndices.SwordSlash;
-  }
-
-  override get idleAnimationId() {
-    return PlayerAnimationIndices.Idle;
-  }
-
-  get attackSound() {
-    return new Sound(ScytheAttackSound, 0.1);
   }
 }

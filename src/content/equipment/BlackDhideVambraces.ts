@@ -5,20 +5,12 @@ import { ItemName } from "../../sdk/ItemName";
 import { Assets } from "../../sdk/utils/Assets";
 
 export class BlackDhideVambraces extends Gloves {
-  inventorySprite: HTMLImageElement = ImageLoader.createImage(this.inventoryImage);
-
-  get inventoryImage() {
-    return InventImage;
-  }
-  get itemName(): ItemName {
-    return ItemName.BLACK_D_HIDE_VAMBRACES;
-  }
-  get weight(): number {
-    return 0.283;
-  }
+  private Model: string;
 
   constructor() {
     super();
+
+    // Set bonuses
     this.bonuses = {
       attack: {
         stab: 0,
@@ -45,10 +37,12 @@ export class BlackDhideVambraces extends Gloves {
         slayer: 0,
       },
     };
-  }
 
-  private Model = Assets.getAssetUrl("models/player_black_d_hide_vambraces.gltf", true);
-  override get model() {
-    return this.Model;
+    // Set properties using setters
+    this.itemName = ItemName.BLACK_D_HIDE_VAMBRACES;
+    this.inventoryImage = InventImage;
+    this.inventorySprite = ImageLoader.createImage(this.inventoryImage);
+    this.Model = Assets.getAssetUrl("models/player_black_d_hide_vambraces.glb", true);
+    this.model = this.Model;
   }
 }
