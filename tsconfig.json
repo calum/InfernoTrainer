@@ -5,6 +5,7 @@
     "noImplicitAny": false,
     "module": "commonjs",
     "target": "es5",
+    "resolveJsonModule": true,
     "jsx": "react",
     "allowJs": true,
     "moduleResolution": "node",

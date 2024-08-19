@@ -1,5 +1,4 @@
-import { TorvaFullhelm, AmuletOfTorture, InfernalCape, DragonArrows, TorvaPlatebody, TorvaPlatelegs, PrimordialBoots, FerociousGloves, UltorRing, AvernicDefender, SuperCombatPotion, UnitOptions } from "@supalosa/oldschool-trainer-sdk";
-import { SaradominBrew, SuperRestore } from "@supalosa/oldschool-trainer-sdk";
+import { AmuletOfTorture, AvernicDefender, SuperCombatPotion, UnitOptions } from "@supalosa/oldschool-trainer-sdk";
 import { DragonSword, BladeOfSaeldor, Player } from "@supalosa/oldschool-trainer-sdk";
 import { BlackDhideBody, BlackDhideChaps, BlackDhideVambraces } from "@supalosa/oldschool-trainer-sdk";
 
@@ -10,38 +9,39 @@ export class ColosseumLoadout {
     this.loadoutType = loadoutType;
   }
 
-  loadoutMaxMelee() {
+  async loadoutMaxMelee() {
+    //const dragonSword = getItemByName('Dragon sword');
     return {
       equipment: {
         weapon: new DragonSword(),
         offhand: null,
-        helmet: new TorvaFullhelm(),
+        helmet: null,
         necklace: new AmuletOfTorture(),
-        cape: new InfernalCape(),
-        ammo: new DragonArrows(),
-        chest: new TorvaPlatebody(),
-        legs: new TorvaPlatelegs(),
-        feet: new PrimordialBoots(),
-        gloves: new FerociousGloves(),
-        ring: new UltorRing(),
+        cape: null,
+        ammo: null,
+        chest: null,
+        legs: null,
+        feet: null,
+        gloves: null,
+        ring: null,
       },
       inventory: [
         new BladeOfSaeldor(),
         new AvernicDefender(),
         null,
         null,
-        new SaradominBrew(),
-        new SaradominBrew(),
+        null,
+        null,
         new SuperCombatPotion(),
         new SuperCombatPotion(),
-        new SaradominBrew(),
-        new SaradominBrew(),
-        new SuperRestore(),
-        new SuperRestore(),
-        new SaradominBrew(),
-        new SaradominBrew(),
-        new SuperRestore(),
-        new SuperRestore(),
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
         null,
         new BlackDhideBody(),
         new BlackDhideChaps(),
@@ -57,11 +57,11 @@ export class ColosseumLoadout {
     player.currentStats.defence = 99;
   }
 
-  getLoadout(): UnitOptions {
+  async getLoadout(): Promise<UnitOptions> {
     let loadout: UnitOptions;
     switch (this.loadoutType) {
       case "max_melee":
-        loadout = this.loadoutMaxMelee();
+        loadout = await this.loadoutMaxMelee();
         break;
     }
     return loadout;
